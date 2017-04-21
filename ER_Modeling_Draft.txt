@@ -1,0 +1,9 @@
+Item(事項):
+  year(年), month(月), day(日), startHour(時-起), startMinute(分-起), endHour(時-迄), 
+  endMinute(分-迄), name(項目名稱), description(項目說明)
+  [index]
+    year(年), month(月), day(日)
+
+ScheduledItem(預定事項):
+  id(序號), year(年), month(月), day(日), hour(時), minute(分), 
+  type(種類: 不限時, 準時, 期限), name(項目名稱), description(項目說明)
