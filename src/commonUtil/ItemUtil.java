@@ -35,6 +35,15 @@ public class ItemUtil {
         return CsvFormatParser.mergeCsvDataToATuple( csvDataArray );
     }
     
+    public static String getItemCsvFileNameFromItem( Item item ) {
+        return String.format( "%04d.%02d.%02d.csv", 
+                item.getYear(), item.getMonth(), item.getDay());
+    }
+    
+    public static String getItemCsvFileNameFromItem( int year, int month, int day ) {
+        return String.format( "%04d.%02d.%02d.csv", year, month, day );
+    }
+    
     public static boolean equals( Item item1, Item item2 ) {
         if( item1 == null && item2 == null ) {
             return true;

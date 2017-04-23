@@ -31,6 +31,19 @@ public class ItemUtilTests extends TestCase {
         }
     }
     
+    public void testGetItemCsvFileNameFromItem() {
+        Item item = getTestData1();
+        String expected = "2017.04.21.csv";
+        String actual = ItemUtil.getItemCsvFileNameFromItem( item );
+        assertEquals( expected, actual );
+    }
+    
+    public void testGetItemCsvFileNameFromItem2() {
+        String expected = "2017.04.21.csv";
+        String actual = ItemUtil.getItemCsvFileNameFromItem( 2017, 4, 21 );
+        assertEquals( expected, actual );
+    }
+    
     public void testEquals() {
         Item item1 = getTestData1();
         Item item2 = getTestData2();
