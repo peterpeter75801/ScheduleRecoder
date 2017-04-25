@@ -8,6 +8,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.util.ArrayList;
 
 import commonUtil.ComparingUtil;
 import commonUtil.ItemUtil;
@@ -41,7 +42,6 @@ public class ItemDAOImpl implements ItemDAO {
     @Override
     public Item findByTime( Integer year, Integer month, Integer day, 
             Integer startHour, Integer startMinute ) throws Exception {
-        // TODO Auto-generated method stub
         String csvFilePath = ITEM_CSV_FILE_PATH + 
                 ItemUtil.getItemCsvFileNameFromItem( year, month, day );
         if( !checkIfCsvFileExists( csvFilePath ) ) {
@@ -77,8 +77,54 @@ public class ItemDAOImpl implements ItemDAO {
 
     @Override
     public boolean update( Item item ) throws Exception {
-        // TODO Auto-generated method stub
-        return false;
+        String csvFilePath = ITEM_CSV_FILE_PATH + 
+                ItemUtil.getItemCsvFileNameFromItem( item.getYear(), item.getMonth(), item.getDay() );
+        if( !checkIfCsvFileExists( csvFilePath ) ) {
+            return false;
+        }
+        
+        ArrayList<String> fileContentBuffer = new ArrayList<String>();
+        String currentTuple = "";
+        Item currentItem = new Item();
+
+        BufferedReader bufReader = new BufferedReader( new InputStreamReader(
+                new FileInputStream( new File( csvFilePath ) ),
+                FILE_CHARSET
+            )
+        );
+        // read attribute titles
+        fileContentBuffer.add( bufReader.readLine() );
+        // search data & modify data
+        while( (currentTuple = bufReader.readLine()) != null ) {
+            currentItem = ItemUtil.getItemFromCsvTupleString( currentTuple );
+            if( ComparingUtil.compare( currentItem.getYear(), item.getYear() ) == 0 &&
+                    ComparingUtil.compare( currentItem.getMonth(), item.getMonth() ) == 0 &&
+                    ComparingUtil.compare( currentItem.getDay(), item.getDay() ) == 0 &&
+                    ComparingUtil.compare( currentItem.getStartHour(), item.getStartHour() ) == 0 &&
+                    ComparingUtil.compare( currentItem.getStartMinute(), item.getStartMinute() ) == 0 ) {
+                // modify data
+                fileContentBuffer.add( ItemUtil.getCsvTupleStringFromItem( item ) );
+            } else {
+                // not modify data
+                fileContentBuffer.add( currentTuple );
+            }
+        }
+        bufReader.close();
+        
+        // write file content buffer to Item/yyyy.mm.dd.csv
+        BufferedWriter writer = new BufferedWriter(
+                new OutputStreamWriter(
+                    new FileOutputStream( new File( csvFilePath ), false ),
+                    FILE_CHARSET
+                )
+            );
+        for( String content : fileContentBuffer ) {
+            writer.write( content );
+            writer.newLine();
+        }
+        writer.close();
+ 
+        return true;
     }
 
     @Override
