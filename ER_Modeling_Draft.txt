@@ -1,9 +1,9 @@
-Item(¨Æ¶µ):
-  year(¦~), month(¤ë), day(¤é), startHour(®É-°_), startMinute(¤À-°_), endHour(®É-¨´), 
-  endMinute(¤À-¨´), name(¶µ¥Ø¦WºÙ), description(¶µ¥Ø»¡©ú)
+Item(äº‹é …):
+  year(å¹´), month(æœˆ), day(æ—¥), startHour(æ™‚-èµ·), startMinute(åˆ†-èµ·), endHour(æ™‚-è¿„), 
+  endMinute(åˆ†-è¿„), name(é …ç›®åç¨±), description(é …ç›®èªªæ˜)
   [index]
-    year(¦~), month(¤ë), day(¤é)
+    year(å¹´), month(æœˆ), day(æ—¥)
 
-ScheduledItem(¹w©w¨Æ¶µ):
-  id(§Ç¸¹), year(¦~), month(¤ë), day(¤é), hour(®É), minute(¤À), 
-  type(ºØÃş: ¤£­­®É, ·Ç®É, ´Á­­), name(¶µ¥Ø¦WºÙ), description(¶µ¥Ø»¡©ú)
+ScheduledItem(é å®šäº‹é …):
+  id(åºè™Ÿ), year(å¹´), month(æœˆ), day(æ—¥), hour(æ™‚), minute(åˆ†), expectedTime(é è¨ˆèŠ±è²»æ™‚é–“),
+  type(ç¨®é¡: ä¸é™æ™‚, æº–æ™‚, æœŸé™), name(é …ç›®åç¨±), description(é …ç›®èªªæ˜)

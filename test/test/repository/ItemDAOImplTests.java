@@ -9,7 +9,7 @@ import java.io.InputStreamReader;
 import commonUtil.ItemUtil;
 import domain.Item;
 import junit.framework.TestCase;
-import repository.ItemDAOImpl;
+import repository.Impl.ItemDAOImpl;
 
 public class ItemDAOImplTests extends TestCase {
     

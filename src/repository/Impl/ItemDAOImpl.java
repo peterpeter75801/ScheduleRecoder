@@ -1,4 +1,4 @@
-package repository;
+package repository.Impl;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import commonUtil.ComparingUtil;
 import commonUtil.ItemUtil;
 import domain.Item;
+import repository.ItemDAO;
 
 public class ItemDAOImpl implements ItemDAO {
     
