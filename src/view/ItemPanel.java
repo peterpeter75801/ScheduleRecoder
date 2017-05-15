@@ -16,6 +16,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.Vector;
 
+import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -90,6 +91,21 @@ public class ItemPanel extends JPanel {
         adjustComponentOrder();
     }
     
+    private void checkYearAndMonthTextField() {
+        Calendar calendar = Calendar.getInstance();
+        
+        try {
+            int year = Integer.parseInt( yearTextField.getText() );
+            int month = Integer.parseInt( monthTextField.getText() );
+            calendar.set( year, month - 1, 1 );
+        } catch( NumberFormatException e ) {
+            calendar.setTime( new Date() );
+        }
+        
+        yearTextField.setText( String.format( "%04d", calendar.get( Calendar.YEAR ) ) );
+        monthTextField.setText( String.format( "%02d", calendar.get( Calendar.MONTH ) + 1 ) );
+    }
+    
     private void initialListDateButton() {
         listDateButton = new JButton( "列出" );
         listDateButton.setBounds( 120, 10, 40, 22 );
@@ -98,6 +114,7 @@ public class ItemPanel extends JPanel {
         listDateButton.addActionListener( new ActionListener() {
             @Override
             public void actionPerformed( ActionEvent event ) {
+                checkYearAndMonthTextField();
                 reInitialDateList();
             }
         });
@@ -155,31 +172,27 @@ public class ItemPanel extends JPanel {
     }
     
     private void reInitialDateList() {
-        remove( dateListScrollPane );
+        DefaultListModel<String> newDateListModel = new DefaultListModel<String>();
         
-        int year = Integer.parseInt( yearTextField.getText() );
-        int month = Integer.parseInt( monthTextField.getText() );
         Calendar calendar = Calendar.getInstance();
-        calendar.set( year, month - 1, 1 );
+        int year, month;
         
-        String[] dateListString = new String[ calendar.getActualMaximum( Calendar.DAY_OF_MONTH ) ];
-        for( int i = 0; i < dateListString.length; i++ ) {
-            dateListString[ i ] = String.format( "%04d.%02d.%02d", year, month, i+1 );
+        try {
+            year = Integer.parseInt( yearTextField.getText() );
+            month = Integer.parseInt( monthTextField.getText() );
+            calendar.set( year, month - 1, 1 );
+        } catch( NumberFormatException e ) {
+            calendar.setTime( new Date() );
+            year = calendar.get( Calendar.YEAR );
+            month = calendar.get( Calendar.MONTH ) + 1;
         }
         
-        dateList = new JList<String>( dateListString );
-        dateList.setVisibleRowCount( 17 );
-        dateList.setSelectionMode( ListSelectionModel.SINGLE_SELECTION );
+        for( int i = 0; i < calendar.getActualMaximum( Calendar.DAY_OF_MONTH ); i++ ) {
+            newDateListModel.add( i, String.format( "%04d.%02d.%02d", year, month, i+1 ) );
+        }
+        
+        dateList.setModel( newDateListModel );
         dateList.setSelectedIndex( calendar.get( Calendar.DAY_OF_MONTH ) - 1 );
-        dateList.setFont( generalFont );
-        
-        dateListScrollPane = new JScrollPane( dateList );
-        dateListScrollPane.setBounds( 16, 54, 144, 440 );
-        
-        add( dateListScrollPane );
-        
-        revalidate();
-        repaint();
     }
     
     private void initialItemTable() {
