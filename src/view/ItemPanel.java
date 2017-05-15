@@ -1,10 +1,20 @@
 package view;
 
+import java.awt.AWTKeyStroke;
+import java.awt.Component;
+import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.FocusTraversalPolicy;
 import java.awt.Font;
 import java.awt.Insets;
+import java.awt.KeyboardFocusManager;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.Vector;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -13,6 +23,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.DefaultTableModel;
 
@@ -41,32 +52,8 @@ public class ItemPanel extends JPanel {
         
         generalFont = new Font( "細明體", Font.PLAIN, 16 );
         
-        yearTextField = new JTextField( 4 );
-        yearTextField.setBounds( 16, 10, 40, 22 );
-        yearTextField.setFont( generalFont );
-        add( yearTextField );
-        
-        yearLabel = new JLabel( "年" );
-        yearLabel.setBounds( 56, 10, 16, 22 );
-        yearLabel.setFont( generalFont );
-        add( yearLabel );
-        
-        monthTextField = new JTextField( 2 );
-        monthTextField.setBounds( 72, 10, 24, 22 );
-        monthTextField.setFont( generalFont );
-        add( monthTextField );
-        
-        monthLabel = new JLabel( "月" );
-        monthLabel.setBounds( 96, 10, 16, 22 );
-        monthLabel.setFont( generalFont );
-        add( monthLabel );
-        
-        listDateButton = new JButton( "列出" );
-        listDateButton.setBounds( 120, 10, 40, 22 );
-        listDateButton.setMargin( new Insets( 0, 0, 0, 0 ) );
-        listDateButton.setFont( generalFont );
-        add( listDateButton );
-        
+        initialYearAndMonthTextField();
+        initialListDateButton();
         initialDateList();
         initialItemTable();
         
@@ -99,6 +86,49 @@ public class ItemPanel extends JPanel {
         exportButton.setMargin( new Insets( 0, 0, 0, 0 ) );
         exportButton.setFont( generalFont );
         add( exportButton );
+        
+        adjustComponentOrder();
+    }
+    
+    private void initialListDateButton() {
+        listDateButton = new JButton( "列出" );
+        listDateButton.setBounds( 120, 10, 40, 22 );
+        listDateButton.setMargin( new Insets( 0, 0, 0, 0 ) );
+        listDateButton.setFont( generalFont );
+        listDateButton.addActionListener( new ActionListener() {
+            @Override
+            public void actionPerformed( ActionEvent event ) {
+                reInitialDateList();
+            }
+        });
+        add( listDateButton );
+    }
+    
+    private void initialYearAndMonthTextField() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime( new Date() );
+        
+        yearTextField = new JTextField( 4 );
+        yearTextField.setBounds( 16, 10, 40, 22 );
+        yearTextField.setFont( generalFont );
+        yearTextField.setText( String.format( "%04d", calendar.get( Calendar.YEAR ) ) );
+        add( yearTextField );
+        
+        yearLabel = new JLabel( "年" );
+        yearLabel.setBounds( 56, 10, 16, 22 );
+        yearLabel.setFont( generalFont );
+        add( yearLabel );
+        
+        monthTextField = new JTextField( 2 );
+        monthTextField.setBounds( 72, 10, 24, 22 );
+        monthTextField.setFont( generalFont );
+        monthTextField.setText( String.format( "%02d", calendar.get( Calendar.MONTH ) + 1 ) );
+        add( monthTextField );
+        
+        monthLabel = new JLabel( "月" );
+        monthLabel.setBounds( 96, 10, 16, 22 );
+        monthLabel.setFont( generalFont );
+        add( monthLabel );
     }
     
     private void initialDateList() {
@@ -115,12 +145,41 @@ public class ItemPanel extends JPanel {
         dateList = new JList<String>( dateListString );
         dateList.setVisibleRowCount( 17 );
         dateList.setSelectionMode( ListSelectionModel.SINGLE_SELECTION );
+        dateList.setSelectedIndex( calendar.get( Calendar.DAY_OF_MONTH ) - 1 );
         dateList.setFont( generalFont );
         
         dateListScrollPane = new JScrollPane( dateList );
         dateListScrollPane.setBounds( 16, 54, 144, 440 );
         
         add( dateListScrollPane );
+    }
+    
+    private void reInitialDateList() {
+        remove( dateListScrollPane );
+        
+        int year = Integer.parseInt( yearTextField.getText() );
+        int month = Integer.parseInt( monthTextField.getText() );
+        Calendar calendar = Calendar.getInstance();
+        calendar.set( year, month - 1, 1 );
+        
+        String[] dateListString = new String[ calendar.getActualMaximum( Calendar.DAY_OF_MONTH ) ];
+        for( int i = 0; i < dateListString.length; i++ ) {
+            dateListString[ i ] = String.format( "%04d.%02d.%02d", year, month, i+1 );
+        }
+        
+        dateList = new JList<String>( dateListString );
+        dateList.setVisibleRowCount( 17 );
+        dateList.setSelectionMode( ListSelectionModel.SINGLE_SELECTION );
+        dateList.setSelectedIndex( calendar.get( Calendar.DAY_OF_MONTH ) - 1 );
+        dateList.setFont( generalFont );
+        
+        dateListScrollPane = new JScrollPane( dateList );
+        dateListScrollPane.setBounds( 16, 54, 144, 440 );
+        
+        add( dateListScrollPane );
+        
+        revalidate();
+        repaint();
     }
     
     private void initialItemTable() {
@@ -152,9 +211,64 @@ public class ItemPanel extends JPanel {
         itemTable.setSelectionMode( ListSelectionModel.SINGLE_SELECTION );
         itemTable.setPreferredScrollableViewportSize( new Dimension( TABLE_WIDTH, TABLE_HEIGHT ) );
         
+        Set<AWTKeyStroke> forward = new HashSet<AWTKeyStroke>(
+                itemTable.getFocusTraversalKeys( KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS ) );
+        forward.add( KeyStroke.getKeyStroke( "TAB" ) );
+        itemTable.setFocusTraversalKeys( KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS, forward );
+        Set<AWTKeyStroke> backward = new HashSet<AWTKeyStroke>(
+                itemTable.getFocusTraversalKeys( KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS ) );
+        backward.add( KeyStroke.getKeyStroke( "shift TAB" ) );
+        itemTable.setFocusTraversalKeys( KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS, backward );
+        
         itemTableScrollPane = new JScrollPane( itemTable );
         itemTableScrollPane.setBounds( 176, 29, TABLE_WIDTH, TABLE_HEIGHT + TABLE_HEADER_HEIGHT + BORDER_HEIGHT_FIX );
         
         add( itemTableScrollPane );
+    }
+    
+    private void adjustComponentOrder() {
+        final int FOCUSABLE_COMPONENT_COUNT = 10;
+        Vector<Component> order = new Vector<Component>( FOCUSABLE_COMPONENT_COUNT );
+        order.add( yearTextField );
+        order.add( monthTextField );
+        order.add( listDateButton );
+        order.add( dateList );
+        order.add( itemTable );
+        order.add( createButton );
+        order.add( updateButton );
+        order.add( deleteButton );
+        order.add( importButton );
+        order.add( exportButton );
+        this.setFocusTraversalPolicyProvider( true );
+        this.setFocusTraversalPolicy( new FocusTraversalPolicy() {
+            @Override
+            public Component getComponentAfter( Container aContainer, Component aComponent ) {
+                return order.get( (order.indexOf( aComponent ) + 1) % order.size() );
+            }
+
+            @Override
+            public Component getComponentBefore( Container aContainer, Component aComponent ) {
+                int index = order.indexOf( aComponent ) - 1;
+                if( index < 0 ) {
+                    index = order.size() - 1;
+                }
+                return order.get( index );
+            }
+
+            @Override
+            public Component getDefaultComponent( Container aContainer ) {
+                return dateList;
+            }
+
+            @Override
+            public Component getFirstComponent( Container aContainer ) {
+                return yearTextField;
+            }
+
+            @Override
+            public Component getLastComponent( Container aContainer ) {
+                return exportButton;
+            }
+        });
     }
 }
