@@ -1,12 +1,15 @@
 panel width: 97 characters, 777 pixels
 panel height: 23 lines, 525 pixels
 
-8.010309278350515 pixels per character
+8.010309278350515 pixels per character width
+22 pixels per character height
+
+Font( "細明體", Font.PLAIN, 16 )
 
 Item Panel Design:
 1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567
 
-  2017年05月  列出    時間            項目
+  2017 年05 月 列出   時間            項目
   
   2017.05.01          11:25 ~ 12:50   辦理國泰金融卡的問題                               新增
   2017.05.02
