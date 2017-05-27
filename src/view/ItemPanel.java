@@ -18,6 +18,8 @@ import java.util.Vector;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
@@ -31,6 +33,10 @@ import javax.swing.table.DefaultTableModel;
 public class ItemPanel extends JPanel {
     
     private static final long serialVersionUID = 1L;
+    
+    private JFrame ownerFrame;
+    
+    private ItemCreateDialog itemCreateDialog;
     
     private Font generalFont;
     private JLabel yearLabel;
@@ -48,10 +54,14 @@ public class ItemPanel extends JPanel {
     private JButton importButton;
     private JButton exportButton;
     
-    public ItemPanel() {
+    public ItemPanel( JFrame ownerFrame ) {
         setLayout( null );
         
+        this.ownerFrame = ownerFrame;
+        
         generalFont = new Font( "細明體", Font.PLAIN, 16 );
+        
+        itemCreateDialog = new ItemCreateDialog( ownerFrame );
         
         initialYearAndMonthTextField();
         initialListDateButton();
@@ -62,6 +72,13 @@ public class ItemPanel extends JPanel {
         createButton.setBounds( 697, 54, 64, 22 );
         createButton.setMargin( new Insets( 0, 0, 0, 0 ) );
         createButton.setFont( generalFont );
+        createButton.addActionListener( new ActionListener() {
+            @Override
+            public void actionPerformed( ActionEvent event ) {
+                //itemCreateDialog.setVisible( true );
+                itemCreateDialog.openDialog();
+            }
+        });
         add( createButton );
         
         updateButton = new JButton( "修改" );
@@ -89,6 +106,8 @@ public class ItemPanel extends JPanel {
         add( exportButton );
         
         adjustComponentOrder();
+        
+        setPreferredSize( new Dimension( 793, 533 ) );
     }
     
     private void checkYearAndMonthTextField() {

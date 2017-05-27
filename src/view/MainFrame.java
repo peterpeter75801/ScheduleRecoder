@@ -5,6 +5,8 @@ import javax.swing.JTabbedPane;
 
 public class MainFrame extends JFrame {
     
+    private static final long serialVersionUID = 1L;
+    
     private JTabbedPane tabbedPane;
     private ItemPanel itemPanel;
     
@@ -13,12 +15,12 @@ public class MainFrame extends JFrame {
         
         tabbedPane = new JTabbedPane();
         
-        itemPanel = new ItemPanel();
+        itemPanel = new ItemPanel( this );
         tabbedPane.addTab( "Item", null, itemPanel, "Item Panel" );
         
         add( tabbedPane );
         
         setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
-        setSize( 800, 600 );
+        pack();
     }
 }
