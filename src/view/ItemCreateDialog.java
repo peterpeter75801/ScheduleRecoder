@@ -3,6 +3,8 @@ package view;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Insets;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -18,6 +20,8 @@ import javax.swing.JTextField;
 public class ItemCreateDialog extends JDialog {
     
     private static final long serialVersionUID = 1L;
+    
+    private FocusHandler focusHandler;
     
     private Font generalFont;
     private JPanel dialogPanel;
@@ -44,12 +48,11 @@ public class ItemCreateDialog extends JDialog {
     private JScrollPane descriptionScrollPane;
     private JButton confirmButton;
     private JButton cancelButton;
-    
 
     public ItemCreateDialog( JFrame ownerFrame ) {
         super( ownerFrame, "Create Item", true );
         
-        //setLayout( null );
+        focusHandler = new FocusHandler();
         
         generalFont = new Font( "細明體", Font.PLAIN, 16 );
         
@@ -59,6 +62,7 @@ public class ItemCreateDialog extends JDialog {
         yearTextField = new JTextField( 4 );
         yearTextField.setBounds( 16, 10, 40, 22 );
         yearTextField.setFont( generalFont );
+        yearTextField.addFocusListener( focusHandler );
         dialogPanel.add( yearTextField );
         
         yearLabel = new JLabel( "年" );
@@ -69,6 +73,7 @@ public class ItemCreateDialog extends JDialog {
         monthTextField = new JTextField( 2 );
         monthTextField.setBounds( 72, 10, 24, 22 );
         monthTextField.setFont( generalFont );
+        monthTextField.addFocusListener( focusHandler );
         dialogPanel.add( monthTextField );
         
         monthLabel = new JLabel( "月" );
@@ -79,6 +84,7 @@ public class ItemCreateDialog extends JDialog {
         dayTextField = new JTextField( 2 );
         dayTextField.setBounds( 112, 10, 24, 22 );
         dayTextField.setFont( generalFont );
+        dayTextField.addFocusListener( focusHandler );
         dialogPanel.add( dayTextField );
         
         dayLabel = new JLabel( "日" );
@@ -94,6 +100,7 @@ public class ItemCreateDialog extends JDialog {
         startHourTextField = new JTextField( 2 );
         startHourTextField.setBounds( 96, 54, 24, 22 );
         startHourTextField.setFont( generalFont );
+        startHourTextField.addFocusListener( focusHandler );
         dialogPanel.add( startHourTextField );
         
         startHourLabel = new JLabel( "時" );
@@ -104,6 +111,7 @@ public class ItemCreateDialog extends JDialog {
         startMinuteTextField = new JTextField( 2 );
         startMinuteTextField.setBounds( 136, 54, 24, 22 );
         startMinuteTextField.setFont( generalFont );
+        startMinuteTextField.addFocusListener( focusHandler );
         dialogPanel.add( startMinuteTextField );
         
         startMinuteLabel = new JLabel( "分" );
@@ -119,6 +127,7 @@ public class ItemCreateDialog extends JDialog {
         endHourTextField = new JTextField( 2 );
         endHourTextField.setBounds( 288, 54, 24, 22 );
         endHourTextField.setFont( generalFont );
+        endHourTextField.addFocusListener( focusHandler );
         dialogPanel.add( endHourTextField );
         
         endHourLabel = new JLabel( "時" );
@@ -129,6 +138,7 @@ public class ItemCreateDialog extends JDialog {
         endMinuteTextField = new JTextField( 2 );
         endMinuteTextField.setBounds( 328, 54, 24, 22 );
         endMinuteTextField.setFont( generalFont );
+        endMinuteTextField.addFocusListener( focusHandler );
         dialogPanel.add( endMinuteTextField );
         
         endMinuteLabel = new JLabel( "分" );
@@ -144,6 +154,7 @@ public class ItemCreateDialog extends JDialog {
         itemTextField = new JTextField();
         itemTextField.setBounds( 64, 98, 401, 22 );
         itemTextField.setFont( generalFont );
+        itemTextField.addFocusListener( focusHandler );
         dialogPanel.add( itemTextField );
         
         descriptionLabel = new JLabel( "說明:" );
@@ -177,6 +188,7 @@ public class ItemCreateDialog extends JDialog {
         add( dialogPanel );
         
         pack();
+        setLocationRelativeTo( ownerFrame );
         setDefaultCloseOperation( JDialog.HIDE_ON_CLOSE );
         setVisible( false );
     }
@@ -188,9 +200,21 @@ public class ItemCreateDialog extends JDialog {
         yearTextField.setText( String.format( "%04d", calendar.get( Calendar.YEAR ) ) );
         monthTextField.setText( String.format( "%02d", calendar.get( Calendar.MONTH ) + 1 ) );
         dayTextField.setText( String.format( "%02d", calendar.get( Calendar.DAY_OF_MONTH ) ) );
+        startHourTextField.setText( String.format( "%02d", calendar.get( Calendar.HOUR_OF_DAY ) ) );
+        startMinuteTextField.setText( String.format( "%02d", calendar.get( Calendar.MINUTE ) ) );
+        endHourTextField.setText( String.format( "%02d", calendar.get( Calendar.HOUR_OF_DAY ) ) );
+        endMinuteTextField.setText( String.format( "%02d", calendar.get( Calendar.MINUTE ) ) );
         
-        //startHourTextField.setText( String.format( "%02d", calendar.get( Calendar.HOUR_OF_DAY ) ) );
+        startHourTextField.requestFocus();
         
         setVisible( true );
+    }
+    
+    private class FocusHandler extends FocusAdapter {
+        @Override
+        public void focusGained( FocusEvent event ) {
+            JTextField sourceComponent = (JTextField) event.getSource();
+            sourceComponent.selectAll();
+        }
     }
 }
