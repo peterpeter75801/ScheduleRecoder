@@ -30,11 +30,14 @@ import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.DefaultTableModel;
 
+import service.ItemService;
+import service.Impl.ItemServiceImpl;
+
 public class ItemPanel extends JPanel {
     
     private static final long serialVersionUID = 1L;
     
-    private JFrame ownerFrame;
+    private ItemService itemService;
     
     private ItemCreateDialog itemCreateDialog;
     
@@ -57,11 +60,11 @@ public class ItemPanel extends JPanel {
     public ItemPanel( JFrame ownerFrame ) {
         setLayout( null );
         
-        this.ownerFrame = ownerFrame;
+        itemService = new ItemServiceImpl();
         
         generalFont = new Font( "細明體", Font.PLAIN, 16 );
         
-        itemCreateDialog = new ItemCreateDialog( ownerFrame );
+        itemCreateDialog = new ItemCreateDialog( ownerFrame, itemService );
         
         initialYearAndMonthTextField();
         initialListDateButton();

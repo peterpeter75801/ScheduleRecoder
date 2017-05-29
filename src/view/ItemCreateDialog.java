@@ -1,28 +1,41 @@
 package view;
 
+import java.awt.AWTKeyStroke;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Insets;
+import java.awt.KeyboardFocusManager;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
+import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.KeyStroke;
+
+import domain.Item;
+import service.ItemService;
 
 public class ItemCreateDialog extends JDialog {
     
     private static final long serialVersionUID = 1L;
     
-    private FocusHandler focusHandler;
+    private ItemService itemService;
     
+    private FocusHandler focusHandler;
     private Font generalFont;
     private JPanel dialogPanel;
     private JTextField yearTextField;
@@ -49,8 +62,10 @@ public class ItemCreateDialog extends JDialog {
     private JButton confirmButton;
     private JButton cancelButton;
 
-    public ItemCreateDialog( JFrame ownerFrame ) {
+    public ItemCreateDialog( JFrame ownerFrame, ItemService itemService ) {
         super( ownerFrame, "Create Item", true );
+        
+        this.itemService = itemService;
         
         focusHandler = new FocusHandler();
         
@@ -172,16 +187,45 @@ public class ItemCreateDialog extends JDialog {
         descriptionScrollPane.setPreferredSize( new Dimension( 449, 115 ) );
         dialogPanel.add( descriptionScrollPane );
         
+        Set<AWTKeyStroke> forward = new HashSet<AWTKeyStroke>(
+                descriptionTextArea.getFocusTraversalKeys( KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS ) );
+        forward.add( KeyStroke.getKeyStroke( "TAB" ) );
+        descriptionTextArea.setFocusTraversalKeys( KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS, forward );
+        Set<AWTKeyStroke> backward = new HashSet<AWTKeyStroke>(
+                descriptionTextArea.getFocusTraversalKeys( KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS ) );
+        backward.add( KeyStroke.getKeyStroke( "shift TAB" ) );
+        descriptionTextArea.setFocusTraversalKeys( KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS, backward );
+        
         confirmButton = new JButton( "新增" );
         confirmButton.setBounds( 168, 296, 48, 22 );
         confirmButton.setFont( generalFont );
         confirmButton.setMargin( new Insets( 0, 0, 0, 0 ) );
+        confirmButton.addActionListener( new ActionListener() {
+            @Override
+            public void actionPerformed( ActionEvent event ) {
+                try {
+                    createItem();
+                } catch ( IOException e ) {
+                    e.printStackTrace();
+                    JOptionPane.showMessageDialog( null, "新增失敗", 
+                        "Error", JOptionPane.ERROR_MESSAGE );
+                } finally {
+                    setVisible( false );
+                }
+            }
+        });
         dialogPanel.add( confirmButton );
         
         cancelButton = new JButton( "取消" );
         cancelButton.setBounds( 264, 296, 48, 22 );
         cancelButton.setFont( generalFont );
         cancelButton.setMargin( new Insets( 0, 0, 0, 0 ) );
+        cancelButton.addActionListener( new ActionListener() {
+            @Override
+            public void actionPerformed( ActionEvent event ) {
+                setVisible( false );
+            }
+        });
         dialogPanel.add( cancelButton );
         
         dialogPanel.setPreferredSize( new Dimension( 482, 340 ) );
@@ -205,9 +249,26 @@ public class ItemCreateDialog extends JDialog {
         endHourTextField.setText( String.format( "%02d", calendar.get( Calendar.HOUR_OF_DAY ) ) );
         endMinuteTextField.setText( String.format( "%02d", calendar.get( Calendar.MINUTE ) ) );
         
+        itemTextField.setText( "" );
+        descriptionTextArea.setText( "" );
+        
         startHourTextField.requestFocus();
         
         setVisible( true );
+    }
+    
+    private void createItem() throws IOException {
+        Item item = new Item();
+        item.setYear( Integer.parseInt( yearTextField.getText() ) );
+        item.setMonth( Integer.parseInt( monthTextField.getText() ) );
+        item.setDay( Integer.parseInt( dayTextField.getText() ) );
+        item.setStartHour( Integer.parseInt( startHourTextField.getText() ) );
+        item.setStartMinute( Integer.parseInt( startMinuteTextField.getText() ) );
+        item.setEndHour( Integer.parseInt( endHourTextField.getText() ) );
+        item.setEndMinute( Integer.parseInt( endMinuteTextField.getText() ) );
+        item.setName( itemTextField.getText() );
+        item.setDescription( descriptionTextArea.getText() );
+        itemService.insert( item );
     }
     
     private class FocusHandler extends FocusAdapter {
