@@ -1,6 +1,7 @@
 package service.Impl;
 
 import java.io.IOException;
+import java.util.List;
 
 import domain.Item;
 import repository.ItemDAO;
@@ -24,6 +25,11 @@ public class ItemServiceImpl implements ItemService {
     public Item findByTime( Integer year, Integer month, Integer day, Integer startHour, Integer startMinute )
             throws Exception {
         return itemDAO.findByTime( year, month, day, startHour, startMinute );
+    }
+
+    @Override
+    public List<Item> findByDate( Integer year, Integer month, Integer day ) throws Exception {
+        return itemDAO.findByDate( year, month, day );
     }
 
     @Override

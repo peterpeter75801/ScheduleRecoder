@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
 
 import commonUtil.ItemUtil;
 import domain.Item;
@@ -72,6 +74,33 @@ public class ItemDAOImplTests extends TestCase {
             
             assertNull( itemDAO.findByTime( 2017, 4, 20, 0, 0 ) );
             assertNull( itemDAO.findByTime( 2017, 4, 21, 0, 0 ) );
+            
+            restoreFile( ITEM_CSV_FILE_BACKUP_PATH, ITEM_CSV_FILE_PATH );
+        } catch( Exception e ) {
+            assertTrue( e.getMessage(), false );
+        }
+    }
+    
+    public void testFindByDate() {
+        ItemDAOImpl itemDAO = new ItemDAOImpl();
+        List<Item> expectedDataList = new ArrayList<Item>();
+        expectedDataList.add( getTestData1() );
+        expectedDataList.add( getTestData2() );
+        expectedDataList.add( getTestData3() );
+        List<Item> actualDataList = null;
+        
+        try {
+            backupFile( ITEM_CSV_FILE_PATH, ITEM_CSV_FILE_BACKUP_PATH );
+            
+            itemDAO.insert( getTestData1() );
+            itemDAO.insert( getTestData2() );
+            itemDAO.insert( getTestData3() );
+            
+            actualDataList = itemDAO.findByDate( 2017, 4, 21 );
+            assertEquals( 3, actualDataList.size() );
+            for( int i = 0; i < 3; i++ ) {
+                assertTrue( ItemUtil.equals( expectedDataList.get( i ), actualDataList.get( i ) ) );
+            }
             
             restoreFile( ITEM_CSV_FILE_BACKUP_PATH, ITEM_CSV_FILE_PATH );
         } catch( Exception e ) {

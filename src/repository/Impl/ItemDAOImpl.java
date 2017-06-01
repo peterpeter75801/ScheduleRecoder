@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
+import java.util.List;
 
 import commonUtil.ComparingUtil;
 import commonUtil.ItemUtil;
@@ -74,6 +75,35 @@ public class ItemDAOImpl implements ItemDAO {
         bufReader.close();
         
         return searchResultItem;
+    }
+
+    @Override
+    public List<Item> findByDate( Integer year, Integer month, Integer day ) throws Exception {
+        String csvFilePath = ITEM_CSV_FILE_PATH + 
+                ItemUtil.getItemCsvFileNameFromItem( year, month, day );
+        ArrayList<Item> itemList = new ArrayList<Item>();
+        
+        if( !checkIfCsvFileExists( csvFilePath ) ) {
+            return itemList;
+        }
+        
+        String currentTuple = "";
+        Item currentItem = new Item();
+        BufferedReader bufReader = new BufferedReader( new InputStreamReader(
+                new FileInputStream( new File( csvFilePath ) ),
+                FILE_CHARSET
+            )
+        );
+        // read attribute titles
+        bufReader.readLine();
+        // fetch data
+        while( (currentTuple = bufReader.readLine()) != null ) {
+            currentItem = ItemUtil.getItemFromCsvTupleString( currentTuple );
+            itemList.add( currentItem );
+        }
+        bufReader.close();
+        
+        return itemList;
     }
 
     @Override
