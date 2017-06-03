@@ -27,6 +27,7 @@ import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 
 import domain.Item;
+import service.Contants;
 import service.ItemService;
 
 public class ItemCreateDialog extends JDialog {
@@ -203,14 +204,26 @@ public class ItemCreateDialog extends JDialog {
         confirmButton.addActionListener( new ActionListener() {
             @Override
             public void actionPerformed( ActionEvent event ) {
+                int returnCode = 0;
                 try {
-                    createItem();
+                    returnCode = createItem();
                 } catch ( IOException e ) {
                     e.printStackTrace();
                     JOptionPane.showMessageDialog( null, "新增失敗", 
                         "Error", JOptionPane.ERROR_MESSAGE );
-                } finally {
+                }
+                switch( returnCode ) {
+                case Contants.SUCCESS:
                     setVisible( false );
+                    break;
+                case Contants.DUPLICATE_DATA:
+                    JOptionPane.showMessageDialog( null, "已存在相同起始時間的項目", "Error", JOptionPane.ERROR_MESSAGE );
+                    break;
+                case Contants.ERROR:
+                    JOptionPane.showMessageDialog( null, "新增失敗", "Error", JOptionPane.ERROR_MESSAGE );
+                    break;
+                default:
+                    break;
                 }
             }
         });
@@ -257,7 +270,7 @@ public class ItemCreateDialog extends JDialog {
         setVisible( true );
     }
     
-    private void createItem() throws IOException {
+    private int createItem() throws IOException {
         Item item = new Item();
         item.setYear( Integer.parseInt( yearTextField.getText() ) );
         item.setMonth( Integer.parseInt( monthTextField.getText() ) );
@@ -268,7 +281,8 @@ public class ItemCreateDialog extends JDialog {
         item.setEndMinute( Integer.parseInt( endMinuteTextField.getText() ) );
         item.setName( itemTextField.getText() );
         item.setDescription( descriptionTextArea.getText() );
-        itemService.insert( item );
+        
+        return itemService.insert( item );
     }
     
     private class FocusHandler extends FocusAdapter {

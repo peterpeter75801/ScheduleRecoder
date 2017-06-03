@@ -1,0 +1,4 @@
+year,month,day,startHour,startMinute,endHour,endMinute,name,description
+2017,6,3,18,22,18,22,"test",""
+2017,6,3,18,24,18,24,"test",""
+2017,6,3,10,0,10,10,"test",""

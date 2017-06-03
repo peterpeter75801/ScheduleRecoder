@@ -10,6 +10,8 @@ import java.awt.Insets;
 import java.awt.KeyboardFocusManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
@@ -46,6 +48,7 @@ public class ItemPanel extends JPanel {
     
     private ItemCreateDialog itemCreateDialog;
     
+    private FocusHandler focusHandler;
     private Font generalFont;
     private JLabel yearLabel;
     private JTextField yearTextField;
@@ -66,6 +69,8 @@ public class ItemPanel extends JPanel {
         setLayout( null );
         
         itemService = new ItemServiceImpl();
+        
+        focusHandler = new FocusHandler();
         
         generalFont = new Font( "細明體", Font.PLAIN, 16 );
         
@@ -155,6 +160,7 @@ public class ItemPanel extends JPanel {
         yearTextField = new JTextField( 4 );
         yearTextField.setBounds( 16, 10, 40, 22 );
         yearTextField.setFont( generalFont );
+        yearTextField.addFocusListener( focusHandler );
         yearTextField.setText( String.format( "%04d", calendar.get( Calendar.YEAR ) ) );
         add( yearTextField );
         
@@ -166,6 +172,7 @@ public class ItemPanel extends JPanel {
         monthTextField = new JTextField( 2 );
         monthTextField.setBounds( 72, 10, 24, 22 );
         monthTextField.setFont( generalFont );
+        monthTextField.addFocusListener( focusHandler );
         monthTextField.setText( String.format( "%02d", calendar.get( Calendar.MONTH ) + 1 ) );
         add( monthTextField );
         
@@ -193,6 +200,11 @@ public class ItemPanel extends JPanel {
             @Override
             public void valueChanged( ListSelectionEvent event ) {
                 String dateString = dateList.getSelectedValue();
+                
+                if( dateString == null ) {
+                    return;
+                }
+                
                 int year = Integer.parseInt( dateString.substring( 0, 4 ) );
                 int month = Integer.parseInt( dateString.substring( 5, 7 ) );
                 int day = Integer.parseInt( dateString.substring( 8, 10 ) );
@@ -251,6 +263,8 @@ public class ItemPanel extends JPanel {
         
         dateList.setModel( newDateListModel );
         dateList.setSelectedIndex( calendar.get( Calendar.DAY_OF_MONTH ) - 1 );
+
+        dateList.ensureIndexIsVisible( dateList.getSelectedIndex() );
     }
     
     private void initialItemTable() {
@@ -358,5 +372,13 @@ public class ItemPanel extends JPanel {
                 return exportButton;
             }
         });
+    }
+    
+    private class FocusHandler extends FocusAdapter {
+        @Override
+        public void focusGained( FocusEvent event ) {
+            JTextField sourceComponent = (JTextField) event.getSource();
+            sourceComponent.selectAll();
+        }
     }
 }

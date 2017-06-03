@@ -38,7 +38,7 @@ public class ItemDAOImpl implements ItemDAO {
         writer.newLine();
         writer.close();
         
-        return false;
+        return true;
     }
 
     @Override

@@ -6,6 +6,7 @@ import java.util.List;
 import domain.Item;
 import repository.ItemDAO;
 import repository.Impl.ItemDAOImpl;
+import service.Contants;
 import service.ItemService;
 
 public class ItemServiceImpl implements ItemService {
@@ -17,8 +18,21 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public boolean insert( Item item ) throws IOException {
-        return itemDAO.insert( item );
+    public int insert( Item item ) throws IOException {
+        try {
+            if( findByTime( item.getYear(), item.getMonth(), item.getDay(), item.getStartHour(), item.getStartMinute() ) != null ) {
+                return Contants.DUPLICATE_DATA;
+            }
+        } catch ( Exception e ) {
+            return Contants.ERROR;
+        }
+        
+        boolean returnCode = itemDAO.insert( item );
+        if( !returnCode ) {
+            return Contants.ERROR;
+        }
+        
+        return Contants.SUCCESS;
     }
 
     @Override

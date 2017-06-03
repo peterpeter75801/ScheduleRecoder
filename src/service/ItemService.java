@@ -7,7 +7,7 @@ import domain.Item;
 
 public interface ItemService {
     
-    public boolean insert( Item item ) throws IOException;
+    public int insert( Item item ) throws IOException;
     
     public Item findByTime( Integer year, Integer month, Integer day, 
             Integer startHour, Integer startMinute ) throws Exception;
