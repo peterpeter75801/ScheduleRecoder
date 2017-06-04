@@ -63,7 +63,7 @@ public class ItemCreateDialog extends JDialog {
     private JButton confirmButton;
     private JButton cancelButton;
 
-    public ItemCreateDialog( JFrame ownerFrame, ItemService itemService ) {
+    public ItemCreateDialog( MainFrame ownerFrame, ItemService itemService ) {
         super( ownerFrame, "Create Item", true );
         
         this.itemService = itemService;
@@ -215,6 +215,7 @@ public class ItemCreateDialog extends JDialog {
                 switch( returnCode ) {
                 case Contants.SUCCESS:
                     setVisible( false );
+                    ownerFrame.getItemPanel().reselectDateList();
                     break;
                 case Contants.DUPLICATE_DATA:
                     JOptionPane.showMessageDialog( null, "已存在相同起始時間的項目", "Error", JOptionPane.ERROR_MESSAGE );

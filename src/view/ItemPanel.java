@@ -65,7 +65,7 @@ public class ItemPanel extends JPanel {
     private JButton importButton;
     private JButton exportButton;
     
-    public ItemPanel( JFrame ownerFrame ) {
+    public ItemPanel( MainFrame ownerFrame ) {
         setLayout( null );
         
         itemService = new ItemServiceImpl();
@@ -210,24 +210,7 @@ public class ItemPanel extends JPanel {
                 int day = Integer.parseInt( dateString.substring( 8, 10 ) );
 
                 reInitialItemTable();
-                try {
-                    List<Item> itemList = itemService.findByDate( year, month, day );
-                    for( int i = 0; i < itemList.size(); i++ ) {
-                        Item item = itemList.get( i );
-                        DefaultTableModel model = (DefaultTableModel) itemTable.getModel();
-                        if( i >= itemTable.getRowCount() ) {
-                            model.addRow( new Object[]{ 
-                                String.format( "%02d:%02d ~ %02d:%02d", item.getStartHour(), item.getStartMinute(), item.getEndHour(), item.getEndMinute() ),
-                                item.getName() } );
-                        } else {
-                            model.setValueAt( String.format( "%02d:%02d ~ %02d:%02d", item.getStartHour(), item.getStartMinute(), item.getEndHour(), item.getEndMinute() ), i, 0 );
-                            model.setValueAt( item.getName(), i, 1 );
-                        }
-                    }
-                } catch ( Exception e ) {
-                    e.printStackTrace();
-                    JOptionPane.showMessageDialog( null, "讀取資料發生錯誤", "Error", JOptionPane.ERROR_MESSAGE );
-                }
+                findByDateIntoItemTable( year, month, day );
             }
         });
         dateList.setSelectedIndex( calendar.get( Calendar.DAY_OF_MONTH ) - 1 );
@@ -265,6 +248,27 @@ public class ItemPanel extends JPanel {
         dateList.setSelectedIndex( calendar.get( Calendar.DAY_OF_MONTH ) - 1 );
 
         dateList.ensureIndexIsVisible( dateList.getSelectedIndex() );
+    }
+    
+    private void findByDateIntoItemTable( int year, int month, int day ) {
+        try {
+            List<Item> itemList = itemService.findByDate( year, month, day );
+            for( int i = 0; i < itemList.size(); i++ ) {
+                Item item = itemList.get( i );
+                DefaultTableModel model = (DefaultTableModel) itemTable.getModel();
+                if( i >= itemTable.getRowCount() ) {
+                    model.addRow( new Object[]{ 
+                        String.format( "%02d:%02d ~ %02d:%02d", item.getStartHour(), item.getStartMinute(), item.getEndHour(), item.getEndMinute() ),
+                        item.getName() } );
+                } else {
+                    model.setValueAt( String.format( "%02d:%02d ~ %02d:%02d", item.getStartHour(), item.getStartMinute(), item.getEndHour(), item.getEndMinute() ), i, 0 );
+                    model.setValueAt( item.getName(), i, 1 );
+                }
+            }
+        } catch ( Exception e ) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog( null, "讀取資料發生錯誤", "Error", JOptionPane.ERROR_MESSAGE );
+        }
     }
     
     private void initialItemTable() {
@@ -372,6 +376,12 @@ public class ItemPanel extends JPanel {
                 return exportButton;
             }
         });
+    }
+    
+    public void reselectDateList() {
+        int currentSelectedIndex = dateList.getSelectedIndex();
+        dateList.clearSelection();
+        dateList.setSelectedIndex( currentSelectedIndex );
     }
     
     private class FocusHandler extends FocusAdapter {

@@ -23,4 +23,8 @@ public class MainFrame extends JFrame {
         setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
         pack();
     }
+    
+    public ItemPanel getItemPanel() {
+        return itemPanel;
+    }
 }
