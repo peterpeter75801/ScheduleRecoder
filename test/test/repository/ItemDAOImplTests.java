@@ -19,7 +19,7 @@ public class ItemDAOImplTests extends TestCase {
     private final String ITEM_CSV_FILE_BACKUP_PATH = "data\\Item\\2017.04.21_backup.csv";
     private final String FILE_CHARSET = "big5";
     
-    public void testInsert() {
+    public void testInsert() throws IOException {
         ItemDAOImpl itemDAO = new ItemDAOImpl();
         String[] expectedData = {
                 "2017,4,21,11,25,12,50,\"辦理國泰金融卡的問題\",\"\"",
@@ -51,14 +51,15 @@ public class ItemDAOImplTests extends TestCase {
             for( i = 0; i < 3; i++ ) {
                 assertEquals( "failed at i = " + i, expectedData[ i ], actualData[ i ] );
             }
-            
-            restoreFile( ITEM_CSV_FILE_BACKUP_PATH, ITEM_CSV_FILE_PATH );
         } catch( Exception e ) {
+            e.printStackTrace();
             assertTrue( e.getMessage(), false );
+        } finally {
+            restoreFile( ITEM_CSV_FILE_BACKUP_PATH, ITEM_CSV_FILE_PATH );
         }
     }
     
-    public void testFindByTime() {
+    public void testFindByTime() throws IOException {
         ItemDAOImpl itemDAO = new ItemDAOImpl();
         Item expectedData = getTestData2();
         Item actualData = null;
@@ -74,14 +75,15 @@ public class ItemDAOImplTests extends TestCase {
             
             assertNull( itemDAO.findByTime( 2017, 4, 20, 0, 0 ) );
             assertNull( itemDAO.findByTime( 2017, 4, 21, 0, 0 ) );
-            
-            restoreFile( ITEM_CSV_FILE_BACKUP_PATH, ITEM_CSV_FILE_PATH );
         } catch( Exception e ) {
+            e.printStackTrace();
             assertTrue( e.getMessage(), false );
+        } finally {
+            restoreFile( ITEM_CSV_FILE_BACKUP_PATH, ITEM_CSV_FILE_PATH );
         }
     }
     
-    public void testFindByDate() {
+    public void testFindByDate() throws IOException {
         ItemDAOImpl itemDAO = new ItemDAOImpl();
         List<Item> expectedDataList = new ArrayList<Item>();
         expectedDataList.add( getTestData1() );
@@ -101,14 +103,15 @@ public class ItemDAOImplTests extends TestCase {
             for( int i = 0; i < 3; i++ ) {
                 assertTrue( ItemUtil.equals( expectedDataList.get( i ), actualDataList.get( i ) ) );
             }
-            
-            restoreFile( ITEM_CSV_FILE_BACKUP_PATH, ITEM_CSV_FILE_PATH );
         } catch( Exception e ) {
+            e.printStackTrace();
             assertTrue( e.getMessage(), false );
+        } finally {
+            restoreFile( ITEM_CSV_FILE_BACKUP_PATH, ITEM_CSV_FILE_PATH );
         }
     }
     
-    public void testUpdate() {
+    public void testUpdate() throws IOException {
         ItemDAOImpl itemDAO = new ItemDAOImpl();
         String[] expectedData = {
                 "2017,4,21,11,25,12,50,\"辦理國泰金融卡的問題\",\"\"",
@@ -145,10 +148,55 @@ public class ItemDAOImplTests extends TestCase {
             for( i = 0; i < 3; i++ ) {
                 assertEquals( "failed at i = " + i, expectedData[ i ], actualData[ i ] );
             }
-            
-            restoreFile( ITEM_CSV_FILE_BACKUP_PATH, ITEM_CSV_FILE_PATH );
         } catch( Exception e ) {
+            e.printStackTrace();
             assertTrue( e.getMessage(), false );
+        } finally {
+            restoreFile( ITEM_CSV_FILE_BACKUP_PATH, ITEM_CSV_FILE_PATH );
+        }
+    }
+    
+    public void testDelete() throws IOException {
+        ItemDAOImpl itemDAO = new ItemDAOImpl();
+        List<String> expectedData = new ArrayList<String>();
+        expectedData.add( "2017,4,21,11,25,12,50,\"辦理國泰金融卡的問題\",\"\"" );
+        expectedData.add( "2017,4,21,16,5,16,40,\"洗碗\",\"\"" );
+        List<String> actualData = new ArrayList<String>();
+
+        try {
+            backupFile( ITEM_CSV_FILE_PATH, ITEM_CSV_FILE_BACKUP_PATH );
+
+            itemDAO.insert( getTestData1() );
+            itemDAO.insert( getTestData2() );
+            itemDAO.insert( getTestData3() );
+
+            Item deletedData = getTestData2();
+
+            itemDAO.delete( deletedData );
+
+            BufferedReader bufReader = new BufferedReader( new InputStreamReader(
+                    new FileInputStream( new File( ITEM_CSV_FILE_PATH ) ),
+                    FILE_CHARSET
+                )
+            );
+            bufReader.readLine();    // skip attribute titles
+            
+            String currentTuple = "";
+            int i = 0;
+            for( ; (currentTuple = bufReader.readLine()) != null; i++ ) {
+                actualData.add( currentTuple );
+            }
+            bufReader.close();
+            
+            assertEquals( 2, i );
+            for( i = 0; i < 2; i++ ) {
+                assertEquals( "failed at i = " + i, expectedData.get( i ), actualData.get( i ) );
+            }
+        } catch( Exception e ) {
+            e.printStackTrace();
+            assertTrue( e.getMessage(), false );
+        } finally {
+            restoreFile( ITEM_CSV_FILE_BACKUP_PATH, ITEM_CSV_FILE_PATH );
         }
     }
     

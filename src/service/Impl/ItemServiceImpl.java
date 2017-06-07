@@ -47,12 +47,24 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public boolean update( Item item ) throws Exception {
-        return itemDAO.update( item );
+    public int update( Item item ) throws Exception {
+        boolean returnCode = itemDAO.update( item );
+        
+        if( !returnCode ) {
+            return Contants.ERROR;
+        } else {
+            return Contants.SUCCESS;
+        }
     }
 
     @Override
-    public boolean delete(Item item) throws Exception {
-        return itemDAO.delete( item );
+    public int delete( Item item ) throws Exception {
+        boolean returnCode = itemDAO.delete( item );
+        
+        if( !returnCode ) {
+            return Contants.ERROR;
+        } else {
+            return Contants.SUCCESS;
+        }
     }
 }

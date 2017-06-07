@@ -21,8 +21,6 @@ import java.util.Vector;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
@@ -37,6 +35,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
 import domain.Item;
+import service.Contants;
 import service.ItemService;
 import service.Impl.ItemServiceImpl;
 
@@ -46,7 +45,9 @@ public class ItemPanel extends JPanel {
     
     private ItemService itemService;
     
+    private MainFrame ownerFrame;
     private ItemCreateDialog itemCreateDialog;
+    private ItemUpdateDialog itemUpdateDialog;
     
     private FocusHandler focusHandler;
     private Font generalFont;
@@ -74,7 +75,9 @@ public class ItemPanel extends JPanel {
         
         generalFont = new Font( "細明體", Font.PLAIN, 16 );
         
+        this.ownerFrame = ownerFrame;
         itemCreateDialog = new ItemCreateDialog( ownerFrame, itemService );
+        itemUpdateDialog = new ItemUpdateDialog( ownerFrame, itemService );
         
         initialYearAndMonthTextField();
         initialListDateButton();
@@ -88,7 +91,6 @@ public class ItemPanel extends JPanel {
         createButton.addActionListener( new ActionListener() {
             @Override
             public void actionPerformed( ActionEvent event ) {
-                //itemCreateDialog.setVisible( true );
                 itemCreateDialog.openDialog();
             }
         });
@@ -98,12 +100,24 @@ public class ItemPanel extends JPanel {
         updateButton.setBounds( 697, 98, 64, 22 );
         updateButton.setMargin( new Insets( 0, 0, 0, 0 ) );
         updateButton.setFont( generalFont );
+        updateButton.addActionListener( new ActionListener() {
+            @Override
+            public void actionPerformed( ActionEvent event ) {
+                openItemUpdateDialog();
+            }
+        });
         add( updateButton );
         
         deleteButton = new JButton( "刪除" );
         deleteButton.setBounds( 697, 142, 64, 22 );
         deleteButton.setMargin( new Insets( 0, 0, 0, 0 ) );
         deleteButton.setFont( generalFont );
+        deleteButton.addActionListener( new ActionListener() {
+            @Override
+            public void actionPerformed( ActionEvent event ) {
+                deleteItem();
+            }
+        });
         add( deleteButton );
         
         importButton = new JButton( "匯入" );
@@ -136,6 +150,57 @@ public class ItemPanel extends JPanel {
         
         yearTextField.setText( String.format( "%04d", calendar.get( Calendar.YEAR ) ) );
         monthTextField.setText( String.format( "%02d", calendar.get( Calendar.MONTH ) + 1 ) );
+    }
+    
+    private void deleteItem() {
+        String dateListSelectedValue = dateList.getSelectedValue();
+        int itemTableSelectedIndex = itemTable.getSelectedRow();
+        
+        if( dateListSelectedValue == null || itemTableSelectedIndex < 0 ) {
+            JOptionPane.showMessageDialog( ownerFrame, "未選擇資料", "Warning", JOptionPane.WARNING_MESSAGE );
+            return;
+        }
+        
+        int year, month, day, startHour, startMinute;
+        String itemTableSelectedTimeValue = (String) itemTable.getValueAt( itemTableSelectedIndex, 0 );
+        try {
+            year = Integer.parseInt( dateListSelectedValue.substring( 0, 4 ) );
+            month = Integer.parseInt( dateListSelectedValue.substring( 5, 7 ) );
+            day = Integer.parseInt( dateListSelectedValue.substring( 8, 10 ) );
+            startHour = Integer.parseInt( itemTableSelectedTimeValue.substring( 0, 2 ) );
+            startMinute = Integer.parseInt( itemTableSelectedTimeValue.substring( 3, 5 ) );
+        } catch( NumberFormatException e ) {
+            JOptionPane.showMessageDialog( ownerFrame, "選擇無效的資料", "Warning", JOptionPane.WARNING_MESSAGE );
+            return;
+        } catch( StringIndexOutOfBoundsException e ) {
+            JOptionPane.showMessageDialog( ownerFrame, "選擇無效的資料", "Warning", JOptionPane.WARNING_MESSAGE );
+            return;
+        }
+        
+        Item itemForDelete = new Item();
+        itemForDelete.setYear( year );
+        itemForDelete.setMonth( month );
+        itemForDelete.setDay( day );
+        itemForDelete.setStartHour( startHour );
+        itemForDelete.setStartMinute( startMinute );
+        
+        int returnCode = 0;
+        try {
+            returnCode = itemService.delete( itemForDelete );
+        } catch ( Exception e ) {
+            e.printStackTrace();
+            returnCode = Contants.ERROR;
+        }
+        switch( returnCode ) {
+        case Contants.SUCCESS:
+            reselectDateList();
+            break;
+        case Contants.ERROR:
+            JOptionPane.showMessageDialog( null, "刪除失敗", "Error", JOptionPane.ERROR_MESSAGE );
+            break;
+        default:
+            break;
+        }
     }
     
     private void initialListDateButton() {
@@ -376,6 +441,34 @@ public class ItemPanel extends JPanel {
                 return exportButton;
             }
         });
+    }
+    
+    private void openItemUpdateDialog() {
+        String dateListSelectedValue = dateList.getSelectedValue();
+        int itemTableSelectedIndex = itemTable.getSelectedRow();
+        
+        if( dateListSelectedValue == null || itemTableSelectedIndex < 0 ) {
+            JOptionPane.showMessageDialog( ownerFrame, "未選擇資料", "Warning", JOptionPane.WARNING_MESSAGE );
+            return;
+        }
+        
+        int year, month, day, startHour, startMinute;
+        String itemTableSelectedTimeValue = (String) itemTable.getValueAt( itemTableSelectedIndex, 0 );
+        try {
+            year = Integer.parseInt( dateListSelectedValue.substring( 0, 4 ) );
+            month = Integer.parseInt( dateListSelectedValue.substring( 5, 7 ) );
+            day = Integer.parseInt( dateListSelectedValue.substring( 8, 10 ) );
+            startHour = Integer.parseInt( itemTableSelectedTimeValue.substring( 0, 2 ) );
+            startMinute = Integer.parseInt( itemTableSelectedTimeValue.substring( 3, 5 ) );
+        } catch( NumberFormatException e ) {
+            JOptionPane.showMessageDialog( ownerFrame, "選擇無效的資料", "Warning", JOptionPane.WARNING_MESSAGE );
+            return;
+        } catch( StringIndexOutOfBoundsException e ) {
+            JOptionPane.showMessageDialog( ownerFrame, "選擇無效的資料", "Warning", JOptionPane.WARNING_MESSAGE );
+            return;
+        }
+        
+        itemUpdateDialog.openDialog( year, month, day, startHour, startMinute );
     }
     
     public void reselectDateList() {

@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 import javax.swing.JOptionPane;
 
@@ -78,7 +79,6 @@ public class IntegratingTests extends TestCase {
     }
     
     public void testCreateItem() {
-        ItemDAOImpl itemDAO = new ItemDAOImpl();
         int testerSelection = 0;
         
         try {
@@ -145,6 +145,137 @@ public class IntegratingTests extends TestCase {
         } catch ( Exception e ) {
             e.printStackTrace();
             assertTrue( e.getMessage(), false );
+        }
+    }
+    
+    public void testUpdateItem() throws IOException {
+        ItemDAOImpl itemDAO = new ItemDAOImpl();
+        
+        try {
+            backupFile( ITEM_CSV_FILE_PATH, ITEM_CSV_FILE_BACKUP_PATH );
+            
+            for( int i = 0; i < 3; i++ ) {
+                Item item = getTestData1();
+                item.setStartMinute( item.getStartMinute() + i*10 );
+                item.setEndMinute( item.getEndMinute() + i*10 );
+                itemDAO.insert( item );
+            }
+            
+            MainFrame mainFrame = new MainFrame();
+            mainFrame.setVisible( true );
+            
+            JOptionPane.showMessageDialog( mainFrame, "請切換為英文輸入法", "Message", JOptionPane.INFORMATION_MESSAGE );
+            
+            Robot bot =  new Robot();
+            Thread.sleep( 3000 );
+            
+            // 選擇月份為06
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_SHIFT );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyRelease( KeyEvent.VK_SHIFT );
+            inputString( bot, "06" );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_SPACE ); bot.keyRelease( KeyEvent.VK_SPACE ); Thread.sleep( 100 );
+            
+            // 在表格中選擇第一筆資料
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_DOWN ); bot.keyRelease( KeyEvent.VK_DOWN ); Thread.sleep( 100 );
+            
+            // 點選"修改"
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_SPACE ); bot.keyRelease( KeyEvent.VK_SPACE ); Thread.sleep( 100 );
+            Thread.sleep( 1000 );
+            
+            // 修改資料
+            inputString( bot, "test123" );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_SPACE ); bot.keyRelease( KeyEvent.VK_SPACE ); Thread.sleep( 100 );
+            Thread.sleep( 1000 );
+            
+            // 檢查資料是否有成功修改
+            Item item = itemDAO.findByTime(
+                getTestData1().getYear(), getTestData1().getMonth(), getTestData1().getDay(), 
+                getTestData1().getStartHour(), getTestData1().getStartMinute() );
+            assertEquals( "test123", item.getName() );
+        } catch ( Exception e ) {
+            e.printStackTrace();
+            assertTrue( e.getMessage(), false );
+        } finally {
+            restoreFile( ITEM_CSV_FILE_BACKUP_PATH, ITEM_CSV_FILE_PATH );
+        }
+        
+    }
+    
+    public void testDeleteItem() throws IOException {
+        ItemDAOImpl itemDAO = new ItemDAOImpl();
+        
+        try {
+            backupFile( ITEM_CSV_FILE_PATH, ITEM_CSV_FILE_BACKUP_PATH );
+            
+            for( int i = 0; i < 3; i++ ) {
+                Item item = getTestData1();
+                item.setStartMinute( item.getStartMinute() + i*10 );
+                item.setEndMinute( item.getEndMinute() + i*10 );
+                itemDAO.insert( item );
+            }
+            
+            MainFrame mainFrame = new MainFrame();
+            mainFrame.setVisible( true );
+            
+            JOptionPane.showMessageDialog( mainFrame, "請切換為英文輸入法", "Message", JOptionPane.INFORMATION_MESSAGE );
+            
+            Robot bot =  new Robot();
+            Thread.sleep( 3000 );
+            
+            // 選擇月份為06
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_SHIFT );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyRelease( KeyEvent.VK_SHIFT );
+            inputString( bot, "06" );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_SPACE ); bot.keyRelease( KeyEvent.VK_SPACE ); Thread.sleep( 100 );
+            
+            // 在表格中選擇第二筆資料
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_DOWN ); bot.keyRelease( KeyEvent.VK_DOWN ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_DOWN ); bot.keyRelease( KeyEvent.VK_DOWN ); Thread.sleep( 100 );
+            
+            // 點選"刪除"
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_SPACE ); bot.keyRelease( KeyEvent.VK_SPACE ); Thread.sleep( 100 );
+            Thread.sleep( 1000 );
+            
+            // 檢查資料是否有成功刪除
+            List<Item> expectItems = new ArrayList<Item>();
+            for( int i = 0; i < 3; i++ ) {
+                Item item = getTestData1();
+                item.setStartMinute( item.getStartMinute() + i*10 );
+                item.setEndMinute( item.getEndMinute() + i*10 );
+                if( i != 1 ) {
+                    expectItems.add( item );
+                }
+            }
+            List<Item> actualItems = itemDAO.findByDate( getTestData1().getYear(), getTestData1().getMonth(), getTestData1().getDay() );
+            
+            assertEquals( expectItems.size(), actualItems.size() );
+            for( int i = 0; i < expectItems.size(); i++ ) {
+                assertTrue( ItemUtil.equals( expectItems.get( i ), actualItems.get( i ) ) );
+            }
+        } catch ( Exception e ) {
+            e.printStackTrace();
+            assertTrue( e.getMessage(), false );
+        } finally {
+            restoreFile( ITEM_CSV_FILE_BACKUP_PATH, ITEM_CSV_FILE_PATH );
         }
     }
     

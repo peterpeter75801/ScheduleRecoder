@@ -160,8 +160,51 @@ public class ItemDAOImpl implements ItemDAO {
 
     @Override
     public boolean delete( Item item ) throws Exception {
-        // TODO Auto-generated method stub
-        return false;
+        String csvFilePath = ITEM_CSV_FILE_PATH + 
+                ItemUtil.getItemCsvFileNameFromItem( item.getYear(), item.getMonth(), item.getDay() );
+        if( !checkIfCsvFileExists( csvFilePath ) ) {
+            return false;
+        }
+        
+        ArrayList<String> fileContentBuffer = new ArrayList<String>();
+        String currentTuple = "";
+        Item currentItem = new Item();
+
+        BufferedReader bufReader = new BufferedReader( new InputStreamReader(
+                new FileInputStream( new File( csvFilePath ) ),
+                FILE_CHARSET
+            )
+        );
+        // read attribute titles
+        fileContentBuffer.add( bufReader.readLine() );
+        // search data & delete data
+        while( (currentTuple = bufReader.readLine()) != null ) {
+            currentItem = ItemUtil.getItemFromCsvTupleString( currentTuple );
+            if( ComparingUtil.compare( currentItem.getYear(), item.getYear() ) != 0 ||
+                    ComparingUtil.compare( currentItem.getMonth(), item.getMonth() ) != 0 ||
+                    ComparingUtil.compare( currentItem.getDay(), item.getDay() ) != 0 ||
+                    ComparingUtil.compare( currentItem.getStartHour(), item.getStartHour() ) != 0 ||
+                    ComparingUtil.compare( currentItem.getStartMinute(), item.getStartMinute() ) != 0 ) {
+                // keep data that not match the deleting data
+                fileContentBuffer.add( currentTuple );
+            }
+        }
+        bufReader.close();
+        
+        // write file content buffer to Item/yyyy.mm.dd.csv
+        BufferedWriter writer = new BufferedWriter(
+                new OutputStreamWriter(
+                    new FileOutputStream( new File( csvFilePath ), false ),
+                    FILE_CHARSET
+                )
+            );
+        for( String content : fileContentBuffer ) {
+            writer.write( content );
+            writer.newLine();
+        }
+        writer.close();
+ 
+        return true;
     }
     
     private boolean checkIfCsvFileExists( String fileName ) {
