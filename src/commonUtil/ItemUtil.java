@@ -44,6 +44,62 @@ public class ItemUtil {
         return String.format( "%04d.%02d.%02d.csv", year, month, day );
     }
     
+    /**
+     * 將輸入的指定格式TXT字串轉換為Item物件，TXT字串格式如下：
+     * <table border="1">
+     *   <tr><th>屬性</th><th>起始位置</th><th>長度</th><th>預設值</th></tr>
+     *   <tr><td>startHour</td><td>0</td><td>2</td><td></td></tr>
+     *   <tr><td>COLON</td><td>2</td><td>1</td><td>':'</td></tr>
+     *   <tr><td>startMinute</td><td>3</td><td>2</td><td></td></tr>
+     *   <tr><td>SPACE</td><td>5</td><td>1</td><td>' '</td></tr>
+     *   <tr><td>TILDE</td><td>6</td><td>1</td><td>'~'</td></tr>
+     *   <tr><td>SPACE</td><td>7</td><td>1</td><td>' '</td></tr>
+     *   <tr><td>endHour</td><td>8</td><td>2</td><td></td></tr>
+     *   <tr><td>COLON</td><td>10</td><td>1</td><td>':'</td></tr>
+     *   <tr><td>endMinute</td><td>11</td><td>2</td><td></td></tr>
+     *   <tr><td>SPACE</td><td>13</td><td>1</td><td>' '</td></tr>
+     *   <tr><td>SPACE</td><td>14</td><td>1</td><td>' '</td></tr>
+     *   <tr><td>name</td><td>15</td><td>不定</td><td></td></tr>
+     * </table>
+     * 
+     * <br> Example:
+     * <br> &nbsp;&nbsp; If input TXT string is:
+     * <br> &nbsp;&nbsp;&nbsp;&nbsp; 12:00 ~ 12:10  test 
+     * <br> &nbsp;&nbsp; Then the output item is:
+     * <br> &nbsp;&nbsp;&nbsp;&nbsp; startHour: 12, startMinute: 00, endHour: 12, endMinute: 10, name: test
+     */
+    public static Item getItemFromTxtString( String txtString ) throws RuntimeException {
+        Item item = new Item();
+        item.setStartHour( Integer.parseInt( txtString.substring( 0, 2 ) ) );
+        item.setStartMinute( Integer.parseInt( txtString.substring( 3, 5 ) ) );
+        item.setEndHour( Integer.parseInt( txtString.substring( 8, 10 ) ) );
+        item.setEndMinute( Integer.parseInt( txtString.substring( 11, 13 ) ) );
+        item.setName( txtString.substring( 15 ) );
+        return item;
+    }
+    
+    /**
+     * 將輸入的Item物件轉換為指定格式的TXT字串，TXT字串格式同getItemFromTxtString()方法的定義
+     * <br> Example:
+     * <br> &nbsp;&nbsp; If input item is:
+     * <br> &nbsp;&nbsp;&nbsp;&nbsp; startHour: 12, startMinute: 00, endHour: 12, endMinute: 10, name: test
+     * <br> &nbsp;&nbsp; Then the output TXT string will be:
+     * <br> &nbsp;&nbsp;&nbsp;&nbsp; 12:00 ~ 12:10  test 
+     */
+    public static String getTxtStringFromItem( Item item ) {
+        StringBuffer buffer = new StringBuffer();
+        buffer.append( String.format( "%02d", item.getStartHour() ) );
+        buffer.append( ':' );
+        buffer.append( String.format( "%02d", item.getStartMinute() ) );
+        buffer.append( " ~ " );
+        buffer.append( String.format( "%02d", item.getEndHour() ) );
+        buffer.append( ':' );
+        buffer.append( String.format( "%02d", item.getEndMinute() ) );
+        buffer.append( "  " );
+        buffer.append( item.getName() );
+        return buffer.toString();
+    }
+    
     public static boolean equals( Item item1, Item item2 ) {
         if( item1 == null && item2 == null ) {
             return true;

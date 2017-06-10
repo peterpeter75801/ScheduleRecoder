@@ -279,6 +279,10 @@ public class IntegratingTests extends TestCase {
         }
     }
     
+    private void testImportItem() {
+        
+    }
+    
     private Item getTestData1() {
         Item testData = new Item();
         testData.setYear( 2017 );

@@ -48,6 +48,7 @@ public class ItemPanel extends JPanel {
     private MainFrame ownerFrame;
     private ItemCreateDialog itemCreateDialog;
     private ItemUpdateDialog itemUpdateDialog;
+    private ItemImportDialog itemImportDialog;
     
     private FocusHandler focusHandler;
     private Font generalFont;
@@ -66,6 +67,13 @@ public class ItemPanel extends JPanel {
     private JButton importButton;
     private JButton exportButton;
     
+    // TODO: 選擇dateList選項以後，自動選擇itemTable的第一筆資料
+    // TODO: 撰寫匯入功能
+    // TODO: 撰寫匯出功能
+    // TODO: 設定按鈕的熱鍵
+    // TODO: 將程式初始的焦點設定在itemTable
+    // TODO: 將JTabbedPane標籤加入tab切換的循環中
+    
     public ItemPanel( MainFrame ownerFrame ) {
         setLayout( null );
         
@@ -78,6 +86,7 @@ public class ItemPanel extends JPanel {
         this.ownerFrame = ownerFrame;
         itemCreateDialog = new ItemCreateDialog( ownerFrame, itemService );
         itemUpdateDialog = new ItemUpdateDialog( ownerFrame, itemService );
+        itemImportDialog = new ItemImportDialog( ownerFrame, itemService );
         
         initialYearAndMonthTextField();
         initialListDateButton();
@@ -124,6 +133,12 @@ public class ItemPanel extends JPanel {
         importButton.setBounds( 697, 186, 64, 22 );
         importButton.setMargin( new Insets( 0, 0, 0, 0 ) );
         importButton.setFont( generalFont );
+        importButton.addActionListener( new ActionListener() {
+            @Override
+            public void actionPerformed( ActionEvent event ) {
+                itemImportDialog.openDialog();
+            }
+        });
         add( importButton );
         
         exportButton = new JButton( "匯出" );

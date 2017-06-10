@@ -44,6 +44,27 @@ public class ItemUtilTests extends TestCase {
         assertEquals( expected, actual );
     }
     
+    public void testGetItemFromTxtString() {
+        String input = "13:00 ~ 16:00  撰寫時間記錄程式";
+        Item expected = new Item();
+        expected.setStartHour( 13 );
+        expected.setStartMinute( 0 );
+        expected.setEndHour( 16 );
+        expected.setEndMinute( 0 );
+        expected.setName( "撰寫時間記錄程式" );
+        Item actual = ItemUtil.getItemFromTxtString( input );
+        
+        assertTrue( ItemUtil.equals( expected, actual ) );
+    }
+    
+    public void testGetTxtStringFromItem() {
+        Item input = getTestData1();
+        String expected = "13:00 ~ 16:00  撰寫時間記錄程式";
+        String actual = ItemUtil.getTxtStringFromItem( input );
+        
+        assertEquals( expected, actual );
+    }
+    
     public void testEquals() {
         Item item1 = getTestData1();
         Item item2 = getTestData2();
