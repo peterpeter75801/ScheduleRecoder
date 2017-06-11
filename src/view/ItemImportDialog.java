@@ -169,8 +169,10 @@ public class ItemImportDialog extends JDialog {
         List<Item> itemList = new ArrayList<Item>();
         for( int i = 0; i < itemTxtString.length; i++ ) {
             try {
-                Item item = ItemUtil.getItemFromTxtString( itemTxtString[ i ] );
-                itemList.add( item );
+                if( itemTxtString[ i ] != null && itemTxtString[ i ].length() > 0 ) {
+                    Item item = ItemUtil.getItemFromTxtString( itemTxtString[ i ] );
+                    itemList.add( item );
+                }
             } catch( RuntimeException e ) {
                 e.printStackTrace();
                 JOptionPane.showMessageDialog( null, 

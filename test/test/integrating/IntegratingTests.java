@@ -279,8 +279,71 @@ public class IntegratingTests extends TestCase {
         }
     }
     
-    private void testImportItem() {
+    private void testImportItem() throws IOException {
+        ItemDAOImpl itemDAO = new ItemDAOImpl();
         
+        try {
+            backupFile( ITEM_CSV_FILE_PATH, ITEM_CSV_FILE_BACKUP_PATH );
+            
+            for( int i = 0; i < 3; i++ ) {
+                Item item = getTestData1();
+                item.setStartMinute( item.getStartMinute() + i*10 );
+                item.setEndMinute( item.getEndMinute() + i*10 );
+                itemDAO.insert( item );
+            }
+            
+            MainFrame mainFrame = new MainFrame();
+            mainFrame.setVisible( true );
+            
+            JOptionPane.showMessageDialog( mainFrame, "請切換為英文輸入法", "Message", JOptionPane.INFORMATION_MESSAGE );
+            
+            Robot bot =  new Robot();
+            Thread.sleep( 3000 );
+            
+            // 選擇月份為06
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_SHIFT );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyRelease( KeyEvent.VK_SHIFT );
+            inputString( bot, "06" );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_SPACE ); bot.keyRelease( KeyEvent.VK_SPACE ); Thread.sleep( 100 );
+            
+            // 點選"匯入"
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_SPACE ); bot.keyRelease( KeyEvent.VK_SPACE ); Thread.sleep( 100 );
+            Thread.sleep( 1000 );
+            
+            // 匯入項目資料
+            List<String> inputList = new ArrayList<String>();
+            inputList.add( "10:00 ~ 10:10  test" );
+            inputList.add( "10:10 ~ 10:20  test2" );
+            inputList.add( "10:20 ~ 10:30  test3" );
+            inputList.add( "10:30 ~ 10:40  test4" );
+            inputList.add( "10:40 ~ 10:50  test5" );
+            for( String input : inputList ) {
+                inputString( bot, input );
+                bot.keyPress( KeyEvent.VK_ENTER ); bot.keyRelease( KeyEvent.VK_ENTER ); Thread.sleep( 100 );
+            }
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_SPACE ); bot.keyRelease( KeyEvent.VK_SPACE ); Thread.sleep( 100 );
+            Thread.sleep( 1000 );
+            
+            // 檢查資料是否正確匯入
+            List<Item> expect = new ArrayList<Item>();
+
+        } catch ( Exception e ) {
+            e.printStackTrace();
+            assertTrue( e.getMessage(), false );
+        } finally {
+            restoreFile( ITEM_CSV_FILE_BACKUP_PATH, ITEM_CSV_FILE_PATH );
+        }
     }
     
     private Item getTestData1() {
@@ -293,6 +356,20 @@ public class IntegratingTests extends TestCase {
         testData.setEndHour( 10 );
         testData.setEndMinute( 00 );
         testData.setName( "測試" );
+        testData.setDescription( "" );
+        return testData;
+    }
+    
+    private Item getTestData2() {
+        Item testData = new Item();
+        testData.setYear( 2017 );
+        testData.setMonth( 6 );
+        testData.setDay( 1 );
+        testData.setStartHour( 10 );
+        testData.setStartMinute( 00 );
+        testData.setEndHour( 10 );
+        testData.setEndMinute( 00 );
+        testData.setName( "test" );
         testData.setDescription( "" );
         return testData;
     }
