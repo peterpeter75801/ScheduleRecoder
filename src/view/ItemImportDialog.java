@@ -167,10 +167,16 @@ public class ItemImportDialog extends JDialog {
     private int importItem() {
         String[] itemTxtString = importContentTextArea.getText().split( "\\n" );
         List<Item> itemList = new ArrayList<Item>();
+        int year = Integer.parseInt( yearTextField.getText() );
+        int month = Integer.parseInt( monthTextField.getText() );
+        int day = Integer.parseInt( dayTextField.getText() );
         for( int i = 0; i < itemTxtString.length; i++ ) {
             try {
                 if( itemTxtString[ i ] != null && itemTxtString[ i ].length() > 0 ) {
                     Item item = ItemUtil.getItemFromTxtString( itemTxtString[ i ] );
+                    item.setYear( year );
+                    item.setMonth( month );
+                    item.setDay( day );
                     itemList.add( item );
                 }
             } catch( RuntimeException e ) {
@@ -194,13 +200,13 @@ public class ItemImportDialog extends JDialog {
         return Contants.SUCCESS;
     }
     
-    public void openDialog() {
+    public void openDialog( String selectedDateString ) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime( new Date() );
         
-        yearTextField.setText( String.format( "%04d", calendar.get( Calendar.YEAR ) ) );
-        monthTextField.setText( String.format( "%02d", calendar.get( Calendar.MONTH ) + 1 ) );
-        dayTextField.setText( String.format( "%02d", calendar.get( Calendar.DAY_OF_MONTH ) ) );
+        yearTextField.setText( selectedDateString.substring( 0, 4 ) );
+        monthTextField.setText( selectedDateString.substring( 5, 7 ) );
+        dayTextField.setText( selectedDateString.substring( 8, 10 ) );
         
         importContentTextArea.requestFocus();
         

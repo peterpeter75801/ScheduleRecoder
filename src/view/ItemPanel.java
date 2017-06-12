@@ -68,7 +68,6 @@ public class ItemPanel extends JPanel {
     private JButton exportButton;
     
     // TODO: 選擇dateList選項以後，自動選擇itemTable的第一筆資料
-    // TODO: 撰寫匯入功能
     // TODO: 撰寫匯出功能
     // TODO: 設定按鈕的熱鍵
     // TODO: 將程式初始的焦點設定在itemTable
@@ -136,7 +135,7 @@ public class ItemPanel extends JPanel {
         importButton.addActionListener( new ActionListener() {
             @Override
             public void actionPerformed( ActionEvent event ) {
-                itemImportDialog.openDialog();
+                itemImportDialog.openDialog( dateList.getSelectedValue() );
             }
         });
         add( importButton );

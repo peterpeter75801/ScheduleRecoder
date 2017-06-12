@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -53,26 +54,29 @@ public class ItemDAOImpl implements ItemDAO {
         String currentTuple = "";
         Item currentItem = new Item();
         Item searchResultItem = null;
-        BufferedReader bufReader = new BufferedReader( new InputStreamReader(
-                new FileInputStream( new File( csvFilePath ) ),
-                FILE_CHARSET
-            )
-        );
-        // read attribute titles
-        bufReader.readLine();
-        // search data
-        while( (currentTuple = bufReader.readLine()) != null ) {
-            currentItem = ItemUtil.getItemFromCsvTupleString( currentTuple );
-            if( ComparingUtil.compare( currentItem.getYear(), year ) == 0 &&
-                    ComparingUtil.compare( currentItem.getMonth(), month ) == 0 &&
-                    ComparingUtil.compare( currentItem.getDay(), day ) == 0 &&
-                    ComparingUtil.compare( currentItem.getStartHour(), startHour ) == 0 &&
-                    ComparingUtil.compare( currentItem.getStartMinute(), startMinute ) == 0 ) {
-                searchResultItem = currentItem;
-                break;
+        try {
+            BufferedReader bufReader = new BufferedReader( new InputStreamReader(
+                    new FileInputStream( new File( csvFilePath ) ),
+                    FILE_CHARSET
+                ));
+            // read attribute titles
+            bufReader.readLine();
+            // search data
+            while( (currentTuple = bufReader.readLine()) != null ) {
+                currentItem = ItemUtil.getItemFromCsvTupleString( currentTuple );
+                if( ComparingUtil.compare( currentItem.getYear(), year ) == 0 &&
+                        ComparingUtil.compare( currentItem.getMonth(), month ) == 0 &&
+                        ComparingUtil.compare( currentItem.getDay(), day ) == 0 &&
+                        ComparingUtil.compare( currentItem.getStartHour(), startHour ) == 0 &&
+                        ComparingUtil.compare( currentItem.getStartMinute(), startMinute ) == 0 ) {
+                    searchResultItem = currentItem;
+                    break;
+                }
             }
+            bufReader.close();
+        } catch( FileNotFoundException e ) {
+            return null;
         }
-        bufReader.close();
         
         return searchResultItem;
     }

@@ -2,8 +2,11 @@ package test.integrating;
 
 import java.awt.Robot;
 import java.awt.event.KeyEvent;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -23,8 +26,9 @@ public class IntegratingTests extends TestCase {
     private final String ITEM_CSV_FILE_BACKUP_PATH = "data\\Item\\2017.06.01_backup.csv";
     private final String ITEM_CSV_FILE_PATH_2 = "data\\Item\\2017.05.01.csv";
     private final String ITEM_CSV_FILE_BACKUP_PATH_2 = "data\\Item\\2017.05.01_backup.csv";
+    private final String FILE_CHARSET = "big5";
     
-    public void testDataListSelection() {
+    public void passtestDataListSelection() {
         ItemDAOImpl itemDAO = new ItemDAOImpl();
         int testerSelection = 0;
         
@@ -78,7 +82,7 @@ public class IntegratingTests extends TestCase {
         }
     }
     
-    public void testCreateItem() {
+    public void passtestCreateItem() {
         int testerSelection = 0;
         
         try {
@@ -148,7 +152,7 @@ public class IntegratingTests extends TestCase {
         }
     }
     
-    public void testUpdateItem() throws IOException {
+    public void passtestUpdateItem() throws IOException {
         ItemDAOImpl itemDAO = new ItemDAOImpl();
         
         try {
@@ -211,7 +215,7 @@ public class IntegratingTests extends TestCase {
         
     }
     
-    public void testDeleteItem() throws IOException {
+    public void passtestDeleteItem() throws IOException {
         ItemDAOImpl itemDAO = new ItemDAOImpl();
         
         try {
@@ -279,18 +283,11 @@ public class IntegratingTests extends TestCase {
         }
     }
     
-    private void testImportItem() throws IOException {
+    public void testImportItem() throws IOException {
         ItemDAOImpl itemDAO = new ItemDAOImpl();
         
         try {
             backupFile( ITEM_CSV_FILE_PATH, ITEM_CSV_FILE_BACKUP_PATH );
-            
-            for( int i = 0; i < 3; i++ ) {
-                Item item = getTestData1();
-                item.setStartMinute( item.getStartMinute() + i*10 );
-                item.setEndMinute( item.getEndMinute() + i*10 );
-                itemDAO.insert( item );
-            }
             
             MainFrame mainFrame = new MainFrame();
             mainFrame.setVisible( true );
@@ -336,8 +333,36 @@ public class IntegratingTests extends TestCase {
             Thread.sleep( 1000 );
             
             // 檢查資料是否正確匯入
-            List<Item> expect = new ArrayList<Item>();
-
+            String[] expect = {
+                "2017,6,1,10,0,10,10,\"test\",\"\"",
+                "2017,6,1,10,10,10,20,\"test2\",\"\"",
+                "2017,6,1,10,20,10,30,\"test3\",\"\"",
+                "2017,6,1,10,30,10,40,\"test4\",\"\"",
+                "2017,6,1,10,40,10,50,\"test5\",\"\"" };
+            String[] actual = new String[ 5 ];
+            
+            BufferedReader bufReader = new BufferedReader( new InputStreamReader(
+                    new FileInputStream( new File( ITEM_CSV_FILE_PATH ) ),
+                    FILE_CHARSET
+                )
+            );
+            bufReader.readLine();    // skip attribute titles
+            
+            String currentTuple = "";
+            int i = 0;
+            for( ; (currentTuple = bufReader.readLine()) != null; i++ ) {
+                if( i >= 5 ) {
+                    bufReader.close();
+                    assertTrue( "data count > 5", false );
+                }
+                actual[ i ] = currentTuple;
+            }
+            bufReader.close();
+            
+            assertEquals( 5, i );
+            for( i = 0; i < 5; i++ ) {
+                assertEquals( "failed at i = " + i, expect[ i ], actual[ i ] );
+            }
         } catch ( Exception e ) {
             e.printStackTrace();
             assertTrue( e.getMessage(), false );
@@ -356,20 +381,6 @@ public class IntegratingTests extends TestCase {
         testData.setEndHour( 10 );
         testData.setEndMinute( 00 );
         testData.setName( "測試" );
-        testData.setDescription( "" );
-        return testData;
-    }
-    
-    private Item getTestData2() {
-        Item testData = new Item();
-        testData.setYear( 2017 );
-        testData.setMonth( 6 );
-        testData.setDay( 1 );
-        testData.setStartHour( 10 );
-        testData.setStartMinute( 00 );
-        testData.setEndHour( 10 );
-        testData.setEndMinute( 00 );
-        testData.setName( "test" );
         testData.setDescription( "" );
         return testData;
     }
