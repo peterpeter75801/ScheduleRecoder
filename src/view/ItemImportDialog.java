@@ -208,6 +208,7 @@ public class ItemImportDialog extends JDialog {
         monthTextField.setText( selectedDateString.substring( 5, 7 ) );
         dayTextField.setText( selectedDateString.substring( 8, 10 ) );
         
+        importContentTextArea.setText( "" );
         importContentTextArea.requestFocus();
         
         setVisible( true );

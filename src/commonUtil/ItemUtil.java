@@ -1,5 +1,8 @@
 package commonUtil;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import domain.Item;
 
 public class ItemUtil {
@@ -100,6 +103,82 @@ public class ItemUtil {
         return buffer.toString();
     }
     
+    public static int timeSubtract( int endHour, int endMinute, int startHour, int startMinute ) {
+        if( (startHour*60 + startMinute) <= (endHour*60 + endMinute) ) {
+            return (endHour*60 + endMinute) - (startHour*60 + startMinute);
+        } else {
+            return ((endHour+24)*60 + endMinute) - (startHour*60 + startMinute);
+        }
+    }
+    
+    public static int getSpecifiedNameIndexInItemList( List<Item> itemList, String name ) {
+        if( name == null ) {
+            return -1;
+        }
+        for( int i = 0; i < itemList.size(); i++ ) {
+            if( itemList.get( i ) != null && itemList.get( i ).getName().equals( name ) ) {
+                return i;
+            }
+        }
+        return -1;
+    }
+    
+    private static int getSpecifiedNameIndexInItemSpendingTimeList( List<ItemSpendingTime> itemSpendingTimeList, String name ) {
+        if( name == null ) {
+            return -1;
+        }
+        for( int i = 0; i < itemSpendingTimeList.size(); i++ ) {
+            if( itemSpendingTimeList.get( i ) != null && itemSpendingTimeList.get( i ).getName().equals( name ) ) {
+                return i;
+            }
+        }
+        return -1;
+    }
+    
+    private static List<ItemSpendingTime> sortItemSpendingTimeList( List<ItemSpendingTime> itemSpendingTimeList ) {
+        for( int i = 1; i <= itemSpendingTimeList.size(); i++ ) {
+            for( int j = 0; j < itemSpendingTimeList.size() - i; j++ ) {
+                if( itemSpendingTimeList.get( j ).getSpendingTime() > itemSpendingTimeList.get( j + 1 ).getSpendingTime() ) {
+                    ItemSpendingTime swap = itemSpendingTimeList.get( j );
+                    itemSpendingTimeList.set( j, itemSpendingTimeList.get( j + 1 ) );
+                    itemSpendingTimeList.set( j + 1, swap );
+                }
+            }
+        }
+        
+        return null;
+    }
+    
+    public static String exportStatistics( List<Item> itemList ) {
+        List<ItemSpendingTime> itemSpendingTimeList = new ArrayList<ItemSpendingTime>();
+        StringBuffer statisticsStringBuf = new StringBuffer();
+        
+        for( Item item : itemList ) {
+            int currentItemSpendingTime = timeSubtract( 
+                item.getEndHour(), item.getEndMinute(), item.getStartHour(), item.getStartMinute() );
+            int nameIndexInItemSpendingTimeList = 
+                getSpecifiedNameIndexInItemSpendingTimeList( itemSpendingTimeList, item.getName() );
+            if( nameIndexInItemSpendingTimeList == -1 ) {
+                ItemSpendingTime itemSpendingTime = new ItemSpendingTime();
+                itemSpendingTime.setName( item.getName() );
+                itemSpendingTime.setSpendingTime( currentItemSpendingTime );
+                itemSpendingTimeList.add( itemSpendingTime );
+            } else {
+                int existedItemSpendingTime = itemSpendingTimeList.get( nameIndexInItemSpendingTimeList ).getSpendingTime();
+                itemSpendingTimeList.get( nameIndexInItemSpendingTimeList ).setSpendingTime(
+                    currentItemSpendingTime + existedItemSpendingTime );
+            }
+        }
+        
+        for( ItemSpendingTime itemSpendingTime : itemSpendingTimeList ) {
+            statisticsStringBuf.append( itemSpendingTime.getName() + ", " );
+            statisticsStringBuf.append( itemSpendingTime.getSpendingTime() );
+            statisticsStringBuf.append( "(min)\n" );
+        }
+        
+        return statisticsStringBuf.toString();
+    }
+    
     public static boolean equals( Item item1, Item item2 ) {
         if( item1 == null && item2 == null ) {
             return true;
@@ -125,6 +204,28 @@ public class ItemUtil {
             return false;
         } else {
             return true;
+        }
+    }
+    
+    private static class ItemSpendingTime {
+        
+        private String name;
+        private int spendingTime;
+
+        public void setName( String name ) {
+            this.name = name;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setSpendingTime( int spendingTime ) {
+            this.spendingTime = spendingTime;
+        }
+
+        public int getSpendingTime() {
+            return spendingTime;
         }
     }
 }

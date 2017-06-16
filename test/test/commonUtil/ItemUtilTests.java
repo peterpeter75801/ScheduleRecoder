@@ -1,6 +1,10 @@
 package test.commonUtil;
 
 import domain.Item;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import commonUtil.ItemUtil;
 
 import junit.framework.TestCase;
@@ -65,6 +69,46 @@ public class ItemUtilTests extends TestCase {
         assertEquals( expected, actual );
     }
     
+    public void testTimeSubtract() {
+        int inputEndHour = 10;
+        int inputEndMinute = 20;
+        int inputStartHour = 9;
+        int inputStartMinute = 0;
+        int expect = 80;
+        int actual = ItemUtil.timeSubtract( inputEndHour, inputEndMinute, inputStartHour, inputStartMinute );
+        assertEquals( expect, actual );
+
+        int inputEndHour2 = 00;
+        int inputEndMinute2 = 20;
+        int inputStartHour2 = 23;
+        int inputStartMinute2 = 0;
+        int expect2 = 80;
+        int actual2 = ItemUtil.timeSubtract( inputEndHour2, inputEndMinute2, inputStartHour2, inputStartMinute2 );
+        assertEquals( expect2, actual2 );
+    }
+    
+    public void testGetSpecifiedNameIndexInItemList() {
+        List<Item> inputItemList = new ArrayList<Item>();
+        inputItemList.add( getTestData3() );
+        inputItemList.add( getTestData4() );
+        inputItemList.add( getTestData5() );
+        String inputName = "辦理國泰金融卡的問題";
+        int expect = 2;
+        int actual = ItemUtil.getSpecifiedNameIndexInItemList( inputItemList, inputName );
+        assertEquals( expect, actual );
+    }
+    
+    public void testExportStatistics() {
+        List<Item> inputItemList = new ArrayList<Item>();
+        inputItemList.add( getTestData2() );
+        inputItemList.add( getTestData3() );
+        inputItemList.add( getTestData4() );
+        inputItemList.add( getTestData5() );
+        String expect = "撰寫時間記錄程式, 230(min)\n洗碗, 35(min)\n辦理國泰金融卡的問題, 85(min)\n";
+        String actual = ItemUtil.exportStatistics( inputItemList );
+        assertEquals( expect, actual );
+    }
+    
     public void testEquals() {
         Item item1 = getTestData1();
         Item item2 = getTestData2();
@@ -112,6 +156,34 @@ public class ItemUtilTests extends TestCase {
         testData.setEndHour( 16 );
         testData.setEndMinute( 0 );
         testData.setName( "撰寫時間記錄程式" );
+        testData.setDescription( "" );
+        return testData;
+    }
+    
+    private Item getTestData4() {
+        Item testData = new Item();
+        testData.setYear( 2017 );
+        testData.setMonth( 4 );
+        testData.setDay( 21 );
+        testData.setStartHour( 10 );
+        testData.setStartMinute( 5 );
+        testData.setEndHour( 10 );
+        testData.setEndMinute( 40 );
+        testData.setName( "洗碗" );
+        testData.setDescription( "" );
+        return testData;
+    }
+    
+    private Item getTestData5() {
+        Item testData = new Item();
+        testData.setYear( 2017 );
+        testData.setMonth( 4 );
+        testData.setDay( 21 );
+        testData.setStartHour( 11 );
+        testData.setStartMinute( 25 );
+        testData.setEndHour( 12 );
+        testData.setEndMinute( 50 );
+        testData.setName( "辦理國泰金融卡的問題" );
         testData.setDescription( "" );
         return testData;
     }

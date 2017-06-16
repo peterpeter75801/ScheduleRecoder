@@ -49,6 +49,7 @@ public class ItemPanel extends JPanel {
     private ItemCreateDialog itemCreateDialog;
     private ItemUpdateDialog itemUpdateDialog;
     private ItemImportDialog itemImportDialog;
+    private ItemExportDialog itemExportDialog;
     
     private FocusHandler focusHandler;
     private Font generalFont;
@@ -86,6 +87,7 @@ public class ItemPanel extends JPanel {
         itemCreateDialog = new ItemCreateDialog( ownerFrame, itemService );
         itemUpdateDialog = new ItemUpdateDialog( ownerFrame, itemService );
         itemImportDialog = new ItemImportDialog( ownerFrame, itemService );
+        itemExportDialog = new ItemExportDialog( ownerFrame, itemService );
         
         initialYearAndMonthTextField();
         initialListDateButton();
@@ -144,6 +146,12 @@ public class ItemPanel extends JPanel {
         exportButton.setBounds( 697, 230, 64, 22 );
         exportButton.setMargin( new Insets( 0, 0, 0, 0 ) );
         exportButton.setFont( generalFont );
+        exportButton.addActionListener( new ActionListener() {
+            @Override
+            public void actionPerformed( ActionEvent event ) {
+                itemExportDialog.openDialog( dateList.getSelectedValue() );
+            }
+        });
         add( exportButton );
         
         adjustComponentOrder();
