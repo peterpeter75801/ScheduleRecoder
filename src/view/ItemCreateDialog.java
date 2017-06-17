@@ -9,6 +9,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
@@ -35,7 +37,10 @@ public class ItemCreateDialog extends JDialog {
     
     private ItemService itemService;
     
+    private MainFrame ownerFrame;
+    
     private FocusHandler focusHandler;
+    private MnemonicKeyHandler mnemonicKeyHandler;
     private Font generalFont;
     private JPanel dialogPanel;
     private JTextField yearTextField;
@@ -67,7 +72,10 @@ public class ItemCreateDialog extends JDialog {
         
         this.itemService = itemService;
         
+        this.ownerFrame = ownerFrame;
+        
         focusHandler = new FocusHandler();
+        mnemonicKeyHandler = new MnemonicKeyHandler();
         
         generalFont = new Font( "細明體", Font.PLAIN, 16 );
         
@@ -78,6 +86,7 @@ public class ItemCreateDialog extends JDialog {
         yearTextField.setBounds( 16, 10, 40, 22 );
         yearTextField.setFont( generalFont );
         yearTextField.addFocusListener( focusHandler );
+        yearTextField.addKeyListener( mnemonicKeyHandler );
         dialogPanel.add( yearTextField );
         
         yearLabel = new JLabel( "年" );
@@ -89,6 +98,7 @@ public class ItemCreateDialog extends JDialog {
         monthTextField.setBounds( 72, 10, 24, 22 );
         monthTextField.setFont( generalFont );
         monthTextField.addFocusListener( focusHandler );
+        monthTextField.addKeyListener( mnemonicKeyHandler );
         dialogPanel.add( monthTextField );
         
         monthLabel = new JLabel( "月" );
@@ -100,6 +110,7 @@ public class ItemCreateDialog extends JDialog {
         dayTextField.setBounds( 112, 10, 24, 22 );
         dayTextField.setFont( generalFont );
         dayTextField.addFocusListener( focusHandler );
+        dayTextField.addKeyListener( mnemonicKeyHandler );
         dialogPanel.add( dayTextField );
         
         dayLabel = new JLabel( "日" );
@@ -116,6 +127,7 @@ public class ItemCreateDialog extends JDialog {
         startHourTextField.setBounds( 96, 54, 24, 22 );
         startHourTextField.setFont( generalFont );
         startHourTextField.addFocusListener( focusHandler );
+        startHourTextField.addKeyListener( mnemonicKeyHandler );
         dialogPanel.add( startHourTextField );
         
         startHourLabel = new JLabel( "時" );
@@ -127,6 +139,7 @@ public class ItemCreateDialog extends JDialog {
         startMinuteTextField.setBounds( 136, 54, 24, 22 );
         startMinuteTextField.setFont( generalFont );
         startMinuteTextField.addFocusListener( focusHandler );
+        startMinuteTextField.addKeyListener( mnemonicKeyHandler );
         dialogPanel.add( startMinuteTextField );
         
         startMinuteLabel = new JLabel( "分" );
@@ -143,6 +156,7 @@ public class ItemCreateDialog extends JDialog {
         endHourTextField.setBounds( 288, 54, 24, 22 );
         endHourTextField.setFont( generalFont );
         endHourTextField.addFocusListener( focusHandler );
+        endHourTextField.addKeyListener( mnemonicKeyHandler );
         dialogPanel.add( endHourTextField );
         
         endHourLabel = new JLabel( "時" );
@@ -154,6 +168,7 @@ public class ItemCreateDialog extends JDialog {
         endMinuteTextField.setBounds( 328, 54, 24, 22 );
         endMinuteTextField.setFont( generalFont );
         endMinuteTextField.addFocusListener( focusHandler );
+        endMinuteTextField.addKeyListener( mnemonicKeyHandler );
         dialogPanel.add( endMinuteTextField );
         
         endMinuteLabel = new JLabel( "分" );
@@ -170,6 +185,7 @@ public class ItemCreateDialog extends JDialog {
         itemTextField.setBounds( 64, 98, 401, 22 );
         itemTextField.setFont( generalFont );
         itemTextField.addFocusListener( focusHandler );
+        itemTextField.addKeyListener( mnemonicKeyHandler );
         dialogPanel.add( itemTextField );
         
         descriptionLabel = new JLabel( "說明:" );
@@ -200,30 +216,11 @@ public class ItemCreateDialog extends JDialog {
         confirmButton.setBounds( 168, 296, 48, 22 );
         confirmButton.setFont( generalFont );
         confirmButton.setMargin( new Insets( 0, 0, 0, 0 ) );
+        confirmButton.addKeyListener( mnemonicKeyHandler );
         confirmButton.addActionListener( new ActionListener() {
             @Override
             public void actionPerformed( ActionEvent event ) {
-                int returnCode = 0;
-                try {
-                    returnCode = createItem();
-                } catch ( IOException e ) {
-                    e.printStackTrace();
-                    returnCode = Contants.ERROR;
-                }
-                switch( returnCode ) {
-                case Contants.SUCCESS:
-                    setVisible( false );
-                    ownerFrame.getItemPanel().reselectDateList();
-                    break;
-                case Contants.DUPLICATE_DATA:
-                    JOptionPane.showMessageDialog( null, "已存在相同起始時間的項目", "Error", JOptionPane.ERROR_MESSAGE );
-                    break;
-                case Contants.ERROR:
-                    JOptionPane.showMessageDialog( null, "新增失敗", "Error", JOptionPane.ERROR_MESSAGE );
-                    break;
-                default:
-                    break;
-                }
+                createItem();
             }
         });
         dialogPanel.add( confirmButton );
@@ -232,6 +229,7 @@ public class ItemCreateDialog extends JDialog {
         cancelButton.setBounds( 264, 296, 48, 22 );
         cancelButton.setFont( generalFont );
         cancelButton.setMargin( new Insets( 0, 0, 0, 0 ) );
+        cancelButton.addKeyListener( mnemonicKeyHandler );
         cancelButton.addActionListener( new ActionListener() {
             @Override
             public void actionPerformed( ActionEvent event ) {
@@ -269,19 +267,38 @@ public class ItemCreateDialog extends JDialog {
         setVisible( true );
     }
     
-    private int createItem() throws IOException {
-        Item item = new Item();
-        item.setYear( Integer.parseInt( yearTextField.getText() ) );
-        item.setMonth( Integer.parseInt( monthTextField.getText() ) );
-        item.setDay( Integer.parseInt( dayTextField.getText() ) );
-        item.setStartHour( Integer.parseInt( startHourTextField.getText() ) );
-        item.setStartMinute( Integer.parseInt( startMinuteTextField.getText() ) );
-        item.setEndHour( Integer.parseInt( endHourTextField.getText() ) );
-        item.setEndMinute( Integer.parseInt( endMinuteTextField.getText() ) );
-        item.setName( itemTextField.getText() );
-        item.setDescription( descriptionTextArea.getText() );
-        
-        return itemService.insert( item );
+    private void createItem() {
+        int returnCode = 0;
+        try {
+            Item item = new Item();
+            item.setYear( Integer.parseInt( yearTextField.getText() ) );
+            item.setMonth( Integer.parseInt( monthTextField.getText() ) );
+            item.setDay( Integer.parseInt( dayTextField.getText() ) );
+            item.setStartHour( Integer.parseInt( startHourTextField.getText() ) );
+            item.setStartMinute( Integer.parseInt( startMinuteTextField.getText() ) );
+            item.setEndHour( Integer.parseInt( endHourTextField.getText() ) );
+            item.setEndMinute( Integer.parseInt( endMinuteTextField.getText() ) );
+            item.setName( itemTextField.getText() );
+            item.setDescription( descriptionTextArea.getText() );
+            returnCode = itemService.insert( item );
+        } catch ( IOException e ) {
+            e.printStackTrace();
+            returnCode = Contants.ERROR;
+        }
+        switch( returnCode ) {
+        case Contants.SUCCESS:
+            setVisible( false );
+            ownerFrame.getItemPanel().reselectDateList();
+            break;
+        case Contants.DUPLICATE_DATA:
+            JOptionPane.showMessageDialog( null, "已存在相同起始時間的項目", "Error", JOptionPane.ERROR_MESSAGE );
+            break;
+        case Contants.ERROR:
+            JOptionPane.showMessageDialog( null, "新增失敗", "Error", JOptionPane.ERROR_MESSAGE );
+            break;
+        default:
+            break;
+        }
     }
     
     private class FocusHandler extends FocusAdapter {
@@ -290,5 +307,30 @@ public class ItemCreateDialog extends JDialog {
             JTextField sourceComponent = (JTextField) event.getSource();
             sourceComponent.selectAll();
         }
+    }
+    
+    private class MnemonicKeyHandler implements KeyListener {
+        
+        @Override
+        public void keyPressed( KeyEvent event ) {
+            switch( event.getKeyCode() ) {
+            case KeyEvent.VK_ENTER:
+                if( event.getSource() != cancelButton ) {
+                    createItem();
+                } else {
+                    setVisible( false );
+                }
+                break;
+            case KeyEvent.VK_ESCAPE:
+                setVisible( false );
+                break;
+            }
+        }
+
+        @Override
+        public void keyReleased( KeyEvent event ) {}
+
+        @Override
+        public void keyTyped( KeyEvent event ) {}
     }
 }

@@ -7,5 +7,5 @@ public class Contants {
     public static final int ERROR_NOT_COMPLETE = -2;
     public static final int DUPLICATE_DATA = -3;
     
-    public static final String VERSION = "Ver. alpha-0.15";
+    public static final String VERSION = "Ver. alpha-0.16";
 }
