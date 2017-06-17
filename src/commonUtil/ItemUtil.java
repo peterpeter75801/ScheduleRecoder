@@ -138,7 +138,7 @@ public class ItemUtil {
     private static List<ItemSpendingTime> sortItemSpendingTimeList( List<ItemSpendingTime> itemSpendingTimeList ) {
         for( int i = 1; i <= itemSpendingTimeList.size(); i++ ) {
             for( int j = 0; j < itemSpendingTimeList.size() - i; j++ ) {
-                if( itemSpendingTimeList.get( j ).getSpendingTime() > itemSpendingTimeList.get( j + 1 ).getSpendingTime() ) {
+                if( itemSpendingTimeList.get( j ).getSpendingTime() < itemSpendingTimeList.get( j + 1 ).getSpendingTime() ) {
                     ItemSpendingTime swap = itemSpendingTimeList.get( j );
                     itemSpendingTimeList.set( j, itemSpendingTimeList.get( j + 1 ) );
                     itemSpendingTimeList.set( j + 1, swap );
@@ -146,7 +146,7 @@ public class ItemUtil {
             }
         }
         
-        return null;
+        return itemSpendingTimeList;
     }
     
     public static String exportStatistics( List<Item> itemList ) {
@@ -169,6 +169,8 @@ public class ItemUtil {
                     currentItemSpendingTime + existedItemSpendingTime );
             }
         }
+        
+        itemSpendingTimeList = sortItemSpendingTimeList( itemSpendingTimeList );
         
         for( ItemSpendingTime itemSpendingTime : itemSpendingTimeList ) {
             statisticsStringBuf.append( itemSpendingTime.getName() + ", " );

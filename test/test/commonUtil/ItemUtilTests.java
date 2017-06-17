@@ -104,7 +104,7 @@ public class ItemUtilTests extends TestCase {
         inputItemList.add( getTestData3() );
         inputItemList.add( getTestData4() );
         inputItemList.add( getTestData5() );
-        String expect = "撰寫時間記錄程式, 230(min)\n洗碗, 35(min)\n辦理國泰金融卡的問題, 85(min)\n";
+        String expect = "撰寫時間記錄程式, 230(min)\n辦理國泰金融卡的問題, 85(min)\n洗碗, 35(min)\n";
         String actual = ItemUtil.exportStatistics( inputItemList );
         assertEquals( expect, actual );
     }

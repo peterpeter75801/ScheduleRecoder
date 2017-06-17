@@ -28,7 +28,7 @@ public class IntegratingTests extends TestCase {
     private final String ITEM_CSV_FILE_BACKUP_PATH_2 = "data\\Item\\2017.05.01_backup.csv";
     private final String FILE_CHARSET = "big5";
     
-    public void passtestDataListSelection() {
+    public void testDataListSelection() {
         ItemDAOImpl itemDAO = new ItemDAOImpl();
         int testerSelection = 0;
         
@@ -82,7 +82,7 @@ public class IntegratingTests extends TestCase {
         }
     }
     
-    public void passtestCreateItem() {
+    public void testCreateItem() {
         int testerSelection = 0;
         
         try {
@@ -152,7 +152,7 @@ public class IntegratingTests extends TestCase {
         }
     }
     
-    public void passtestUpdateItem() throws IOException {
+    public void testUpdateItem() throws IOException {
         ItemDAOImpl itemDAO = new ItemDAOImpl();
         
         try {
@@ -215,7 +215,7 @@ public class IntegratingTests extends TestCase {
         
     }
     
-    public void passtestDeleteItem() throws IOException {
+    public void testDeleteItem() throws IOException {
         ItemDAOImpl itemDAO = new ItemDAOImpl();
         
         try {
@@ -284,8 +284,6 @@ public class IntegratingTests extends TestCase {
     }
     
     public void testImportItem() throws IOException {
-        ItemDAOImpl itemDAO = new ItemDAOImpl();
-        
         try {
             backupFile( ITEM_CSV_FILE_PATH, ITEM_CSV_FILE_BACKUP_PATH );
             
@@ -363,6 +361,63 @@ public class IntegratingTests extends TestCase {
             for( i = 0; i < 5; i++ ) {
                 assertEquals( "failed at i = " + i, expect[ i ], actual[ i ] );
             }
+        } catch ( Exception e ) {
+            e.printStackTrace();
+            assertTrue( e.getMessage(), false );
+        } finally {
+            restoreFile( ITEM_CSV_FILE_BACKUP_PATH, ITEM_CSV_FILE_PATH );
+        }
+    }
+    
+    public void testExportItem() throws IOException {
+        ItemDAOImpl itemDAO = new ItemDAOImpl();
+        int testerSelection = 0;
+        
+        try {
+            backupFile( ITEM_CSV_FILE_PATH, ITEM_CSV_FILE_BACKUP_PATH );
+            
+            for( int i = 0; i < 3; i++ ) {
+                Item item = getTestData1();
+                item.setStartMinute( item.getStartMinute() + i*10 );
+                item.setEndMinute( item.getEndMinute() + i*10 + 10 );
+                itemDAO.insert( item );
+            }
+            
+            MainFrame mainFrame = new MainFrame();
+            mainFrame.setVisible( true );
+            
+            JOptionPane.showMessageDialog( mainFrame, "請切換為英文輸入法", "Message", JOptionPane.INFORMATION_MESSAGE );
+            
+            Robot bot =  new Robot();
+            Thread.sleep( 3000 );
+            
+            // 選擇月份為06
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_SHIFT );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyRelease( KeyEvent.VK_SHIFT );
+            inputString( bot, "06" );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_SPACE ); bot.keyRelease( KeyEvent.VK_SPACE ); Thread.sleep( 100 );
+            
+            // 點選"匯出"
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_SPACE ); bot.keyRelease( KeyEvent.VK_SPACE ); Thread.sleep( 100 );
+            Thread.sleep( 1000 );
+            
+            // 檢查資料是否正確匯出
+            testerSelection = JOptionPane.showConfirmDialog( 
+                mainFrame, 
+                "匯出的資料是否為:\n10:00 ~ 10:10  測試\n10:10 ~ 10:20  測試\n10:20 ~ 10:30  測試", 
+                "Check", JOptionPane.YES_NO_OPTION );
+            assertEquals( JOptionPane.YES_OPTION, testerSelection );
         } catch ( Exception e ) {
             e.printStackTrace();
             assertTrue( e.getMessage(), false );

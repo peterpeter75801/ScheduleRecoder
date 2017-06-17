@@ -30,12 +30,13 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingConstants;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
+import common.Contants;
 import domain.Item;
-import service.Contants;
 import service.ItemService;
 import service.Impl.ItemServiceImpl;
 
@@ -67,6 +68,8 @@ public class ItemPanel extends JPanel {
     private JButton deleteButton;
     private JButton importButton;
     private JButton exportButton;
+    
+    private JLabel versionLabel;
     
     // TODO: 選擇dateList選項以後，自動選擇itemTable的第一筆資料
     // TODO: 撰寫匯出功能
@@ -153,6 +156,11 @@ public class ItemPanel extends JPanel {
             }
         });
         add( exportButton );
+        
+        versionLabel = new JLabel( Contants.VERSION, SwingConstants.RIGHT );
+        versionLabel.setBounds( 520, 508, 265, 22 );
+        versionLabel.setFont( generalFont );
+        add( versionLabel );
         
         adjustComponentOrder();
         
