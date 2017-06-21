@@ -234,4 +234,61 @@ public class ItemDAOImpl implements ItemDAO {
         bufWriter.newLine();
         bufWriter.close();
     }
+
+    @Override
+    public boolean sortByStartTimeInDateGroup( 
+            Integer year, Integer month, Integer day ) throws Exception {
+        String csvFilePath = ITEM_CSV_FILE_PATH + 
+                ItemUtil.getItemCsvFileNameFromItem( year, month, day );
+        ArrayList<Item> itemList = new ArrayList<Item>();
+        
+        if( !checkIfCsvFileExists( csvFilePath ) ) {
+            return false;
+        }
+        
+        String currentTuple = "";
+        Item currentItem = new Item();
+        BufferedReader bufReader = new BufferedReader( new InputStreamReader(
+                new FileInputStream( new File( csvFilePath ) ),
+                FILE_CHARSET
+            )
+        );
+        // read attribute titles
+        bufReader.readLine();
+        // fetch data
+        while( (currentTuple = bufReader.readLine()) != null ) {
+            currentItem = ItemUtil.getItemFromCsvTupleString( currentTuple );
+            itemList.add( currentItem );
+        }
+        bufReader.close();
+        
+        // sort item list
+        for( int i = 1; i <= itemList.size(); i++ ) {
+            for( int j = 0; j < itemList.size() - i; j++ ) {
+                if( ( itemList.get( j ).getStartHour() * 60 + itemList.get( j ).getStartMinute() ) > 
+                        itemList.get( j + 1 ).getStartHour() * 60 + itemList.get( j + 1 ).getStartMinute() ) {
+                    Item swap = itemList.get( j );
+                    itemList.set( j, itemList.get( j + 1 ) );
+                    itemList.set( j + 1, swap );
+                }
+            }
+        }
+        
+        // write item list to Item/yyyy.mm.dd.csv
+        BufferedWriter writer = new BufferedWriter(
+                new OutputStreamWriter(
+                    new FileOutputStream( new File( csvFilePath ), false ),
+                    FILE_CHARSET
+                )
+            );
+        writer.write( ITEM_CSV_FILE_ATTR_STRING );
+        writer.newLine();
+        for( Item item : itemList ) {
+            writer.write( ItemUtil.getCsvTupleStringFromItem( item ) );
+            writer.newLine();
+        }
+        writer.close();
+        
+        return true;
+    }
 }

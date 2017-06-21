@@ -200,6 +200,48 @@ public class ItemDAOImplTests extends TestCase {
         }
     }
     
+    public void testSortByStartTimeInDateGroup() throws IOException {
+        ItemDAOImpl itemDAO = new ItemDAOImpl();
+        String[] expectedData = {
+                "2017,4,21,11,25,12,50,\"辦理國泰金融卡的問題\",\"\"",
+                "2017,4,21,13,0,16,0,\"撰寫時間記錄程式\",\"\"",
+                "2017,4,21,16,5,16,40,\"洗碗\",\"\"" };
+        String[] actualData = new String[ 3 ];
+        try {
+            backupFile( ITEM_CSV_FILE_PATH, ITEM_CSV_FILE_BACKUP_PATH );
+
+            itemDAO.insert( getTestData3() );
+            itemDAO.insert( getTestData1() );
+            itemDAO.insert( getTestData2() );
+            
+            itemDAO.sortByStartTimeInDateGroup( 2017, 4, 21 );
+            
+            BufferedReader bufReader = new BufferedReader( new InputStreamReader(
+                    new FileInputStream( new File( ITEM_CSV_FILE_PATH ) ),
+                    FILE_CHARSET
+                )
+            );
+            bufReader.readLine();    // skip attribute titles
+            
+            String currentTuple = "";
+            int i = 0;
+            for( ; (currentTuple = bufReader.readLine()) != null; i++ ) {
+                actualData[ i ] = currentTuple;
+            }
+            bufReader.close();
+            
+            assertEquals( 3, i );
+            for( i = 0; i < 3; i++ ) {
+                assertEquals( "failed at i = " + i, expectedData[ i ], actualData[ i ] );
+            }
+        } catch( Exception e ) {
+            e.printStackTrace();
+            assertTrue( e.getMessage(), false );
+        } finally {
+            restoreFile( ITEM_CSV_FILE_BACKUP_PATH, ITEM_CSV_FILE_PATH );
+        }
+    }
+    
     private Item getTestData1() {
         Item testData = new Item();
         testData.setYear( 2017 );

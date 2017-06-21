@@ -17,4 +17,7 @@ public interface ItemDAO {
     public boolean update( Item item ) throws Exception;
     
     public boolean delete( Item item ) throws Exception;
+    
+    public boolean sortByStartTimeInDateGroup( 
+            Integer year, Integer month, Integer day ) throws Exception;
 }

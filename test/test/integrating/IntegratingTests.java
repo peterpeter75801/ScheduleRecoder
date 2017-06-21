@@ -28,7 +28,7 @@ public class IntegratingTests extends TestCase {
     private final String ITEM_CSV_FILE_BACKUP_PATH_2 = "data\\Item\\2017.05.01_backup.csv";
     private final String FILE_CHARSET = "big5";
     
-    public void testDataListSelection() {
+    public void testDataListSelection() throws IOException {
         ItemDAOImpl itemDAO = new ItemDAOImpl();
         int testerSelection = 0;
         
@@ -74,15 +74,15 @@ public class IntegratingTests extends TestCase {
             testerSelection = JOptionPane.showConfirmDialog( 
                 mainFrame, "是否有在表格區域的右側出現捲軸", "Check", JOptionPane.YES_NO_OPTION );
             assertEquals( JOptionPane.NO_OPTION, testerSelection );
-
-            restoreFile( ITEM_CSV_FILE_BACKUP_PATH_2, ITEM_CSV_FILE_PATH_2 );
-            restoreFile( ITEM_CSV_FILE_BACKUP_PATH, ITEM_CSV_FILE_PATH );
         } catch( Exception e ) {
             assertTrue( e.getMessage(), false );
+        } finally {
+            restoreFile( ITEM_CSV_FILE_BACKUP_PATH_2, ITEM_CSV_FILE_PATH_2 );
+            restoreFile( ITEM_CSV_FILE_BACKUP_PATH, ITEM_CSV_FILE_PATH );
         }
     }
     
-    public void testCreateItem() {
+    public void testCreateItem() throws IOException {
         int testerSelection = 0;
         
         try {
@@ -144,11 +144,112 @@ public class IntegratingTests extends TestCase {
             testerSelection = JOptionPane.showConfirmDialog( 
                 mainFrame, "新增的資料是否有出現在畫面上", "Check", JOptionPane.YES_NO_OPTION );
             assertEquals( JOptionPane.YES_OPTION, testerSelection );
-
-            restoreFile( ITEM_CSV_FILE_BACKUP_PATH, ITEM_CSV_FILE_PATH );
         } catch ( Exception e ) {
             e.printStackTrace();
             assertTrue( e.getMessage(), false );
+        } finally {
+            restoreFile( ITEM_CSV_FILE_BACKUP_PATH, ITEM_CSV_FILE_PATH );
+        }
+    }
+    
+    public void testInsertItem() throws IOException {
+        ItemDAOImpl itemDAO = new ItemDAOImpl();
+        
+        try {
+            backupFile( ITEM_CSV_FILE_PATH, ITEM_CSV_FILE_BACKUP_PATH );
+            
+            for( int i = 0; i < 3; i++ ) {
+                Item item = getTestData1();
+                item.setStartMinute( item.getStartMinute() + i*10 );
+                item.setEndMinute( item.getEndMinute() + i*10 + 5 );
+                itemDAO.insert( item );
+            }
+            
+            MainFrame mainFrame = new MainFrame();
+            mainFrame.setVisible( true );
+            
+            JOptionPane.showMessageDialog( mainFrame, "請切換為英文輸入法", "Message", JOptionPane.INFORMATION_MESSAGE );
+            
+            Robot bot =  new Robot();
+            Thread.sleep( 3000 );
+            
+            // 選擇月份為06
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_SHIFT );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyRelease( KeyEvent.VK_SHIFT );
+            inputString( bot, "06" );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_SPACE ); bot.keyRelease( KeyEvent.VK_SPACE ); Thread.sleep( 100 );
+            
+            // 點選"新增"
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_SPACE ); bot.keyRelease( KeyEvent.VK_SPACE ); Thread.sleep( 100 );
+            Thread.sleep( 1000 );
+            
+            // 新增資料
+            bot.keyPress( KeyEvent.VK_SHIFT );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyRelease( KeyEvent.VK_SHIFT );
+            inputString( bot, "2017" );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            inputString( bot, "06" );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            inputString( bot, "01" );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            inputString( bot, "10" );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            inputString( bot, "05" );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            inputString( bot, "10" );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            inputString( bot, "10" );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            inputString( bot, "test" );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_SPACE ); bot.keyRelease( KeyEvent.VK_SPACE ); Thread.sleep( 100 );
+            
+            // 檢查資料是否正確新增
+            String[] expect = {
+                "2017,6,1,10,0,10,5,\"測試\",\"\"",
+                "2017,6,1,10,5,10,10,\"test\",\"\"",
+                "2017,6,1,10,10,10,15,\"測試\",\"\"",
+                "2017,6,1,10,20,10,25,\"測試\",\"\"" };
+            String[] actual = new String[ 4 ];
+            
+            BufferedReader bufReader = new BufferedReader( new InputStreamReader(
+                    new FileInputStream( new File( ITEM_CSV_FILE_PATH ) ),
+                    FILE_CHARSET
+                )
+            );
+            bufReader.readLine();    // skip attribute titles
+            
+            String currentTuple = "";
+            int i = 0;
+            for( ; (currentTuple = bufReader.readLine()) != null; i++ ) {
+                if( i >= 4 ) {
+                    bufReader.close();
+                    assertTrue( "data count > 4", false );
+                }
+                actual[ i ] = currentTuple;
+            }
+            bufReader.close();
+            
+            assertEquals( 4, i );
+            for( i = 0; i < 4; i++ ) {
+                assertEquals( "failed at i = " + i, expect[ i ], actual[ i ] );
+            }
+        } catch ( Exception e ) {
+            e.printStackTrace();
+            assertTrue( e.getMessage(), false );
+        } finally {
+            restoreFile( ITEM_CSV_FILE_BACKUP_PATH, ITEM_CSV_FILE_PATH );
         }
     }
     

@@ -9,7 +9,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -165,6 +164,7 @@ public class ItemImportDialog extends JDialog {
     }
     
     private int importItem() {
+        int returnCode;
         String[] itemTxtString = importContentTextArea.getText().split( "\\n" );
         List<Item> itemList = new ArrayList<Item>();
         int year = Integer.parseInt( yearTextField.getText() );
@@ -187,14 +187,17 @@ public class ItemImportDialog extends JDialog {
                 return Contants.ERROR;
             }
         }
-        for( Item item : itemList ) {
-            try {
-                itemService.insert( item );
-            } catch ( IOException e ) {
-                e.printStackTrace();
-                JOptionPane.showMessageDialog( null, "資料未全部匯入", "Error", JOptionPane.ERROR_MESSAGE );
-                return Contants.ERROR_NOT_COMPLETE;
-            }
+        
+        try {
+            returnCode = itemService.insertItemsInDateGroup( year, month, day, itemList );
+        } catch ( Exception e ) {
+            returnCode = Contants.ERROR;
+            e.printStackTrace();
+        }
+        
+        if( returnCode != Contants.SUCCESS ) {
+            JOptionPane.showMessageDialog( null, "發生錯誤，資料可能未全部匯入", "Error", JOptionPane.ERROR_MESSAGE );
+            return returnCode;
         }
         
         return Contants.SUCCESS;

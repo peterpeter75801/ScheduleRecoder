@@ -1,13 +1,15 @@
 package service;
 
-import java.io.IOException;
 import java.util.List;
 
 import domain.Item;
 
 public interface ItemService {
     
-    public int insert( Item item ) throws IOException;
+    public int insert( Item item ) throws Exception;
+    
+    public int insertItemsInDateGroup( Integer year, Integer month, Integer day, 
+            List<Item> itemList ) throws Exception;
     
     public Item findByTime( Integer year, Integer month, Integer day, 
             Integer startHour, Integer startMinute ) throws Exception;

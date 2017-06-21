@@ -1,6 +1,5 @@
 package service.Impl;
 
-import java.io.IOException;
 import java.util.List;
 
 import common.Contants;
@@ -18,7 +17,8 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public int insert( Item item ) throws IOException {
+    public int insert( Item item ) throws Exception {
+        boolean returnCode;
         try {
             if( findByTime( item.getYear(), item.getMonth(), item.getDay(), item.getStartHour(), item.getStartMinute() ) != null ) {
                 return Contants.DUPLICATE_DATA;
@@ -27,7 +27,44 @@ public class ItemServiceImpl implements ItemService {
             return Contants.ERROR;
         }
         
-        boolean returnCode = itemDAO.insert( item );
+        returnCode = itemDAO.insert( item );
+        if( !returnCode ) {
+            return Contants.ERROR;
+        }
+        
+        returnCode = itemDAO.sortByStartTimeInDateGroup( item.getYear(), item.getMonth(), item.getDay() );
+        if( !returnCode ) {
+            return Contants.ERROR;
+        }
+        
+        return Contants.SUCCESS;
+    }
+
+    @Override
+    public int insertItemsInDateGroup( Integer year, Integer month, Integer day, 
+            List<Item> itemList ) throws Exception {
+        boolean returnCode;
+        
+        if( year == null || month == null || day == null ) {
+            return Contants.ERROR_INVALID_PARAMETER;
+        }
+        
+        for( Item item : itemList ) {
+            try {
+                if( !year.equals( item.getYear() ) || !month.equals( item.getMonth() ) || !day.equals( item.getDay() ) ) {
+                    return Contants.ERROR_NOT_SUPPORT;
+                }
+                returnCode = itemDAO.insert( item );
+                if( !returnCode ) {
+                    return Contants.ERROR;
+                }
+            } catch ( Exception e ) {
+                e.printStackTrace();
+                return Contants.ERROR_NOT_COMPLETE;
+            }
+        }
+        
+        returnCode = itemDAO.sortByStartTimeInDateGroup( year, month, day );
         if( !returnCode ) {
             return Contants.ERROR;
         }

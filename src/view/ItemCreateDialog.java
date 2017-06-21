@@ -11,7 +11,6 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
@@ -281,7 +280,7 @@ public class ItemCreateDialog extends JDialog {
             item.setName( itemTextField.getText() );
             item.setDescription( descriptionTextArea.getText() );
             returnCode = itemService.insert( item );
-        } catch ( IOException e ) {
+        } catch ( Exception e ) {
             e.printStackTrace();
             returnCode = Contants.ERROR;
         }
