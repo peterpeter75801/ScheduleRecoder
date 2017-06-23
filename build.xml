@@ -13,7 +13,9 @@
     
     <target name="export" description="Export executable jar application">
         <jar destfile="ScheduledRecoder.jar">
-        	<fileset dir="${build.dir}" />
+        	<fileset dir="${build.dir}">
+        		<exclude name="**/test/**" />
+        	</fileset>
             <manifest>
                 <attribute name="Main-Class" value="main.ScheduledRecoder"/>
             </manifest>
