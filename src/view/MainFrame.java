@@ -16,7 +16,7 @@ public class MainFrame extends JFrame {
         tabbedPane = new JTabbedPane();
         
         itemPanel = new ItemPanel( this );
-        tabbedPane.addTab( "Item", null, itemPanel, "Item Panel" );
+        tabbedPane.addTab( "時間記錄", null, itemPanel, "時間項目記錄" );
         
         add( tabbedPane );
         

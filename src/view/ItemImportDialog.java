@@ -9,6 +9,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -37,7 +39,10 @@ public class ItemImportDialog extends JDialog {
     
     private ItemService itemService;
     
+    private MainFrame ownerFrame;
+    
     private FocusHandler focusHandler;
+    private MnemonicKeyHandler mnemonicKeyHandler;
     private Font generalFont;
     private JPanel dialogPanel;
     private JTextField yearTextField;
@@ -57,7 +62,10 @@ public class ItemImportDialog extends JDialog {
         
         this.itemService = itemService;
         
+        this.ownerFrame = ownerFrame;
+        
         focusHandler = new FocusHandler();
+        mnemonicKeyHandler = new MnemonicKeyHandler();
         
         generalFont = new Font( "細明體", Font.PLAIN, 16 );
         
@@ -68,6 +76,7 @@ public class ItemImportDialog extends JDialog {
         yearTextField.setBounds( 16, 10, 40, 22 );
         yearTextField.setFont( generalFont );
         yearTextField.addFocusListener( focusHandler );
+        yearTextField.addKeyListener( mnemonicKeyHandler );
         dialogPanel.add( yearTextField );
         
         yearLabel = new JLabel( "年" );
@@ -79,6 +88,7 @@ public class ItemImportDialog extends JDialog {
         monthTextField.setBounds( 72, 10, 24, 22 );
         monthTextField.setFont( generalFont );
         monthTextField.addFocusListener( focusHandler );
+        monthTextField.addKeyListener( mnemonicKeyHandler );
         dialogPanel.add( monthTextField );
         
         monthLabel = new JLabel( "月" );
@@ -90,6 +100,7 @@ public class ItemImportDialog extends JDialog {
         dayTextField.setBounds( 112, 10, 24, 22 );
         dayTextField.setFont( generalFont );
         dayTextField.addFocusListener( focusHandler );
+        dayTextField.addKeyListener( mnemonicKeyHandler );
         dialogPanel.add( dayTextField );
         
         dayLabel = new JLabel( "日" );
@@ -123,21 +134,11 @@ public class ItemImportDialog extends JDialog {
         confirmButton.setBounds( 168, 296, 48, 22 );
         confirmButton.setFont( generalFont );
         confirmButton.setMargin( new Insets( 0, 0, 0, 0 ) );
+        confirmButton.addKeyListener( mnemonicKeyHandler );
         confirmButton.addActionListener( new ActionListener() {
             @Override
             public void actionPerformed( ActionEvent event ) {
-                int returnCode = importItem();
-                switch( returnCode ) {
-                case Contants.SUCCESS:
-                case Contants.ERROR_NOT_COMPLETE:
-                    setVisible( false );
-                    ownerFrame.getItemPanel().reselectDateList();
-                    break;
-                case Contants.ERROR:
-                    break;
-                default:
-                    break;
-                }
+                importItem();
             }
         });
         dialogPanel.add( confirmButton );
@@ -146,6 +147,7 @@ public class ItemImportDialog extends JDialog {
         cancelButton.setBounds( 264, 296, 48, 22 );
         cancelButton.setFont( generalFont );
         cancelButton.setMargin( new Insets( 0, 0, 0, 0 ) );
+        cancelButton.addKeyListener( mnemonicKeyHandler );
         cancelButton.addActionListener( new ActionListener() {
             @Override
             public void actionPerformed( ActionEvent event ) {
@@ -163,8 +165,8 @@ public class ItemImportDialog extends JDialog {
         setVisible( false );
     }
     
-    private int importItem() {
-        int returnCode;
+    private void importItem() {
+        int status;
         String[] itemTxtString = importContentTextArea.getText().split( "\\n" );
         List<Item> itemList = new ArrayList<Item>();
         int year = Integer.parseInt( yearTextField.getText() );
@@ -184,23 +186,24 @@ public class ItemImportDialog extends JDialog {
                 JOptionPane.showMessageDialog( null, 
                     String.format( "匯入資料\"%s\"時發生錯誤", itemTxtString[ i ] ), 
                     "Error", JOptionPane.ERROR_MESSAGE );
-                return Contants.ERROR;
+                status = Contants.ERROR;
+                return;
             }
         }
         
         try {
-            returnCode = itemService.insertItemsInDateGroup( year, month, day, itemList );
+            status = itemService.insertItemsInDateGroup( year, month, day, itemList );
         } catch ( Exception e ) {
-            returnCode = Contants.ERROR;
+            status = Contants.ERROR;
             e.printStackTrace();
         }
         
-        if( returnCode != Contants.SUCCESS ) {
+        if( status != Contants.SUCCESS ) {
             JOptionPane.showMessageDialog( null, "發生錯誤，資料可能未全部匯入", "Error", JOptionPane.ERROR_MESSAGE );
-            return returnCode;
         }
         
-        return Contants.SUCCESS;
+        setVisible( false );
+        ownerFrame.getItemPanel().reselectDateList();
     }
     
     public void openDialog( String selectedDateString ) {
@@ -223,5 +226,30 @@ public class ItemImportDialog extends JDialog {
             JTextField sourceComponent = (JTextField) event.getSource();
             sourceComponent.selectAll();
         }
+    }
+    
+    private class MnemonicKeyHandler implements KeyListener {
+        
+        @Override
+        public void keyPressed( KeyEvent event ) {
+            switch( event.getKeyCode() ) {
+            case KeyEvent.VK_ENTER:
+                if( event.getSource() != cancelButton ) {
+                    importItem();
+                } else {
+                    setVisible( false );
+                }
+                break;
+            case KeyEvent.VK_ESCAPE:
+                setVisible( false );
+                break;
+            }
+        }
+
+        @Override
+        public void keyReleased( KeyEvent event ) {}
+
+        @Override
+        public void keyTyped( KeyEvent event ) {}
     }
 }

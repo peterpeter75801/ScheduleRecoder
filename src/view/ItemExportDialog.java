@@ -11,6 +11,8 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -41,6 +43,7 @@ public class ItemExportDialog extends JDialog {
     private String itemStatistics;
     
     private FocusHandler focusHandler;
+    private MnemonicKeyHandler mnemonicKeyHandler;
     private Font generalFont;
     private JPanel dialogPanel;
     private JTextField yearTextField;
@@ -63,6 +66,7 @@ public class ItemExportDialog extends JDialog {
         this.itemService = itemService;
         
         focusHandler = new FocusHandler();
+        mnemonicKeyHandler = new MnemonicKeyHandler();
         
         generalFont = new Font( "細明體", Font.PLAIN, 16 );
         
@@ -74,6 +78,7 @@ public class ItemExportDialog extends JDialog {
         yearTextField.setFont( generalFont );
         yearTextField.setEditable( false );
         yearTextField.addFocusListener( focusHandler );
+        yearTextField.addKeyListener( mnemonicKeyHandler );
         dialogPanel.add( yearTextField );
         
         yearLabel = new JLabel( "年" );
@@ -86,6 +91,7 @@ public class ItemExportDialog extends JDialog {
         monthTextField.setFont( generalFont );
         monthTextField.setEditable( false );
         monthTextField.addFocusListener( focusHandler );
+        monthTextField.addKeyListener( mnemonicKeyHandler );
         dialogPanel.add( monthTextField );
         
         monthLabel = new JLabel( "月" );
@@ -98,6 +104,7 @@ public class ItemExportDialog extends JDialog {
         dayTextField.setFont( generalFont );
         dayTextField.setEditable( false );
         dayTextField.addFocusListener( focusHandler );
+        dayTextField.addKeyListener( mnemonicKeyHandler );
         dialogPanel.add( dayTextField );
         
         dayLabel = new JLabel( "日" );
@@ -113,6 +120,7 @@ public class ItemExportDialog extends JDialog {
         txtStringRadioButton = new JRadioButton( "字串格式", true );
         txtStringRadioButton.setBounds( 112, 54, 96, 22 );
         txtStringRadioButton.setFont( generalFont );
+        txtStringRadioButton.addKeyListener( mnemonicKeyHandler );
         txtStringRadioButton.addItemListener( new ItemListener() {
             @Override
             public void itemStateChanged( ItemEvent event ) {
@@ -127,6 +135,7 @@ public class ItemExportDialog extends JDialog {
         statisticRadioButton = new JRadioButton( "統計", false );
         statisticRadioButton.setBounds( 224, 54, 60, 22 );
         statisticRadioButton.setFont( generalFont );
+        statisticRadioButton.addKeyListener( mnemonicKeyHandler );
         statisticRadioButton.addItemListener( new ItemListener() {
             @Override
             public void itemStateChanged( ItemEvent event ) {
@@ -145,6 +154,7 @@ public class ItemExportDialog extends JDialog {
         exportContentTextArea = new JTextArea();
         exportContentTextArea.setSize( 425, 198 );
         exportContentTextArea.setFont( generalFont );
+        exportContentTextArea.addKeyListener( mnemonicKeyHandler );
         exportContentScrollPane = new JScrollPane( exportContentTextArea );
         exportContentScrollPane.setBounds( 16, 76, 449, 203 );
         exportContentScrollPane.setPreferredSize( new Dimension( 449, 203 ) );
@@ -163,6 +173,7 @@ public class ItemExportDialog extends JDialog {
         okButton.setBounds( 224, 296, 48, 22 );
         okButton.setFont( generalFont );
         okButton.setMargin( new Insets( 0, 0, 0, 0 ) );
+        okButton.addKeyListener( mnemonicKeyHandler );
         okButton.addActionListener( new ActionListener() {
             @Override
             public void actionPerformed( ActionEvent event ) {
@@ -227,5 +238,30 @@ public class ItemExportDialog extends JDialog {
             JTextField sourceComponent = (JTextField) event.getSource();
             sourceComponent.selectAll();
         }
+    }
+    
+
+    
+    private class MnemonicKeyHandler implements KeyListener {
+        
+        @Override
+        public void keyPressed( KeyEvent event ) {
+            switch( event.getKeyCode() ) {
+            case KeyEvent.VK_ENTER:
+                if( event.getSource() != exportContentTextArea ) {
+                    setVisible( false );
+                }
+                break;
+            case KeyEvent.VK_ESCAPE:
+                setVisible( false );
+                break;
+            }
+        }
+
+        @Override
+        public void keyReleased( KeyEvent event ) {}
+
+        @Override
+        public void keyTyped( KeyEvent event ) {}
     }
 }

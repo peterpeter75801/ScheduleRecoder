@@ -12,6 +12,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
@@ -53,6 +55,7 @@ public class ItemPanel extends JPanel {
     private ItemExportDialog itemExportDialog;
     
     private FocusHandler focusHandler;
+    private MnemonicKeyHandler mnemonicKeyHandler;
     private Font generalFont;
     private JLabel yearLabel;
     private JTextField yearTextField;
@@ -83,6 +86,7 @@ public class ItemPanel extends JPanel {
         itemService = new ItemServiceImpl();
         
         focusHandler = new FocusHandler();
+        mnemonicKeyHandler = new MnemonicKeyHandler();
         
         generalFont = new Font( "細明體", Font.PLAIN, 16 );
         
@@ -97,10 +101,11 @@ public class ItemPanel extends JPanel {
         initialItemTable();
         initialDateList();
         
-        createButton = new JButton( "新增" );
-        createButton.setBounds( 697, 54, 64, 22 );
+        createButton = new JButton( "新增(N)" );
+        createButton.setBounds( 697, 54, 72, 22 );
         createButton.setMargin( new Insets( 0, 0, 0, 0 ) );
         createButton.setFont( generalFont );
+        createButton.addKeyListener( mnemonicKeyHandler );
         createButton.addActionListener( new ActionListener() {
             @Override
             public void actionPerformed( ActionEvent event ) {
@@ -109,10 +114,11 @@ public class ItemPanel extends JPanel {
         });
         add( createButton );
         
-        updateButton = new JButton( "修改" );
-        updateButton.setBounds( 697, 98, 64, 22 );
+        updateButton = new JButton( "修改(U)" );
+        updateButton.setBounds( 697, 98, 72, 22 );
         updateButton.setMargin( new Insets( 0, 0, 0, 0 ) );
         updateButton.setFont( generalFont );
+        updateButton.addKeyListener( mnemonicKeyHandler );
         updateButton.addActionListener( new ActionListener() {
             @Override
             public void actionPerformed( ActionEvent event ) {
@@ -121,10 +127,11 @@ public class ItemPanel extends JPanel {
         });
         add( updateButton );
         
-        deleteButton = new JButton( "刪除" );
-        deleteButton.setBounds( 697, 142, 64, 22 );
+        deleteButton = new JButton( "刪除(D)" );
+        deleteButton.setBounds( 697, 142, 72, 22 );
         deleteButton.setMargin( new Insets( 0, 0, 0, 0 ) );
         deleteButton.setFont( generalFont );
+        deleteButton.addKeyListener( mnemonicKeyHandler );
         deleteButton.addActionListener( new ActionListener() {
             @Override
             public void actionPerformed( ActionEvent event ) {
@@ -133,10 +140,11 @@ public class ItemPanel extends JPanel {
         });
         add( deleteButton );
         
-        importButton = new JButton( "匯入" );
-        importButton.setBounds( 697, 186, 64, 22 );
+        importButton = new JButton( "匯入(I)" );
+        importButton.setBounds( 697, 186, 72, 22 );
         importButton.setMargin( new Insets( 0, 0, 0, 0 ) );
         importButton.setFont( generalFont );
+        importButton.addKeyListener( mnemonicKeyHandler );
         importButton.addActionListener( new ActionListener() {
             @Override
             public void actionPerformed( ActionEvent event ) {
@@ -145,10 +153,11 @@ public class ItemPanel extends JPanel {
         });
         add( importButton );
         
-        exportButton = new JButton( "匯出" );
-        exportButton.setBounds( 697, 230, 64, 22 );
+        exportButton = new JButton( "匯出(E)" );
+        exportButton.setBounds( 697, 230, 72, 22 );
         exportButton.setMargin( new Insets( 0, 0, 0, 0 ) );
         exportButton.setFont( generalFont );
+        exportButton.addKeyListener( mnemonicKeyHandler );
         exportButton.addActionListener( new ActionListener() {
             @Override
             public void actionPerformed( ActionEvent event ) {
@@ -310,6 +319,7 @@ public class ItemPanel extends JPanel {
         });
         dateList.setSelectedIndex( calendar.get( Calendar.DAY_OF_MONTH ) - 1 );
         dateList.setFont( generalFont );
+        dateList.addKeyListener( mnemonicKeyHandler );
         
         dateListScrollPane = new JScrollPane( dateList );
         dateListScrollPane.setBounds( 16, 54, 144, 440 );
@@ -394,6 +404,7 @@ public class ItemPanel extends JPanel {
         
         itemTable.setSelectionMode( ListSelectionModel.SINGLE_SELECTION );
         itemTable.setPreferredScrollableViewportSize( new Dimension( TABLE_WIDTH, TABLE_HEIGHT ) );
+        itemTable.addKeyListener( mnemonicKeyHandler );
         
         Set<AWTKeyStroke> forward = new HashSet<AWTKeyStroke>(
                 itemTable.getFocusTraversalKeys( KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS ) );
@@ -513,5 +524,54 @@ public class ItemPanel extends JPanel {
             JTextField sourceComponent = (JTextField) event.getSource();
             sourceComponent.selectAll();
         }
+    }
+    
+    private class MnemonicKeyHandler implements KeyListener {
+        
+        @Override
+        public void keyPressed( KeyEvent event ) {
+            switch( event.getKeyCode() ) {
+            case KeyEvent.VK_ENTER:
+                if( event.getSource() == createButton ) {
+                    itemCreateDialog.openDialog();
+                } else if( event.getSource() == updateButton ) {
+                    openItemUpdateDialog();
+                } else if( event.getSource() == deleteButton ) {
+                    deleteItem();
+                } else if( event.getSource() == importButton ) {
+                    itemImportDialog.openDialog( dateList.getSelectedValue() );
+                } else if( event.getSource() == exportButton ) {
+                    itemExportDialog.openDialog( dateList.getSelectedValue() );
+                } else if( event.getSource() == yearTextField || event.getSource() == monthTextField || 
+                        event.getSource() == listDateButton ) {
+                    checkYearAndMonthTextField();
+                    reInitialDateList();
+                }
+                break;
+            case KeyEvent.VK_N:
+                itemCreateDialog.openDialog();
+                break;
+            case KeyEvent.VK_U:
+                openItemUpdateDialog();
+                break;
+            case KeyEvent.VK_D:
+                deleteItem();
+                break;
+            case KeyEvent.VK_I:
+                itemImportDialog.openDialog( dateList.getSelectedValue() );
+                break;
+            case KeyEvent.VK_E:
+                itemExportDialog.openDialog( dateList.getSelectedValue() );
+                break;
+            default:
+                break;
+            }
+        }
+
+        @Override
+        public void keyReleased( KeyEvent event ) {}
+
+        @Override
+        public void keyTyped( KeyEvent event ) {}
     }
 }
