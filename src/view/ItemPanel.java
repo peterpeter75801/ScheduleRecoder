@@ -75,8 +75,6 @@ public class ItemPanel extends JPanel {
     private JLabel versionLabel;
     
     // TODO: 選擇dateList選項以後，自動選擇itemTable的第一筆資料
-    // TODO: 撰寫匯出功能
-    // TODO: 設定按鈕的熱鍵
     // TODO: 將程式初始的焦點設定在itemTable
     // TODO: 將JTabbedPane標籤加入tab切換的循環中
     

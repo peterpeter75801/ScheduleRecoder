@@ -2,15 +2,16 @@ package domain;
 
 public class ScheduledItem {
 
-    private Integer id;         // 序號
-    private Integer year;       // 年
-    private Integer month;      // 月
-    private Integer day;        // 日
-    private Integer hour;       // 時
-    private Integer minute;     // 分
-    private Character type;     // 種類: N-不限時, O-準時, D-期限
-    private String name;        // 項目名稱
-    private String description; // 項目說明
+    private Integer id;             // 序號
+    private Integer year;           // 年
+    private Integer month;          // 月
+    private Integer day;            // 日
+    private Integer hour;           // 時
+    private Integer minute;         // 分
+    private Integer expectedTime;   // 預計花費時間
+    private Character type;         // 種類: N-不限時, O-準時, D-期限
+    private String name;            // 項目名稱
+    private String description;     // 項目說明
 
     public void setId( Integer id ) {
         this.id = id;
@@ -58,6 +59,14 @@ public class ScheduledItem {
 
     public Integer getMinute() {
         return minute;
+    }
+
+    public void setExpectedTime( Integer expectedTime ) {
+        this.expectedTime = expectedTime;
+    }
+
+    public Integer getExpectedTime() {
+        return expectedTime;
     }
 
     public void setType( Character type ) {
