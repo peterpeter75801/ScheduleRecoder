@@ -224,6 +224,9 @@ public class ItemDAOImpl implements ItemDAO {
     }
     
     private void createCsvFile( String fileName ) throws IOException {
+        File f = new File( ITEM_CSV_FILE_PATH );
+        f.mkdirs();
+        
         BufferedWriter bufWriter = new BufferedWriter( 
                 new OutputStreamWriter( 
                     new FileOutputStream( new File( fileName ), false ), 
