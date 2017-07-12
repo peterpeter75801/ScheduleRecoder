@@ -8,8 +8,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.util.ArrayList;
 import java.util.List;
 
+import commonUtil.ComparingUtil;
 import commonUtil.ItemUtil;
 import commonUtil.ScheduledItemUtil;
 import domain.ScheduledItem;
@@ -79,19 +81,117 @@ public class ScheduledItemDAOImpl implements ScheduledItemDAO {
 
     @Override
     public List<ScheduledItem> findAll() throws Exception {
-        // TODO Auto-generated method stub
-        return null;
+        List<ScheduledItem> ScheduledItemList = new ArrayList<ScheduledItem>();
+        
+        if( !checkIfFileExists( S_ITEM_CSV_FILE_PATH ) ) {
+            return ScheduledItemList;
+        }
+        
+        String currentTuple = "";
+        ScheduledItem currentScheduledItem = new ScheduledItem();
+        BufferedReader bufReader = new BufferedReader( new InputStreamReader(
+                new FileInputStream( new File( S_ITEM_CSV_FILE_PATH ) ),
+                FILE_CHARSET
+            )
+        );
+        // read attribute titles
+        bufReader.readLine();
+        // fetch data
+        while( (currentTuple = bufReader.readLine()) != null ) {
+            currentScheduledItem = ScheduledItemUtil.getScheduledItemFromCsvTupleString( currentTuple );
+            ScheduledItemList.add( currentScheduledItem );
+        }
+        bufReader.close();
+        
+        return ScheduledItemList;
     }
 
     @Override
     public boolean update( ScheduledItem scheduledItem ) throws Exception {
-        // TODO Auto-generated method stub
+        if( !checkIfFileExists( S_ITEM_CSV_FILE_PATH ) ) {
+            return false;
+        }
+        
+        ArrayList<String> fileContentBuffer = new ArrayList<String>();
+        String currentTuple = "";
+        ScheduledItem currentScheduledItem = new ScheduledItem();
+        
+        BufferedReader bufReader = new BufferedReader( new InputStreamReader(
+                new FileInputStream( new File( S_ITEM_CSV_FILE_PATH ) ),
+                FILE_CHARSET
+            )
+        );
+        // read attribute titles
+        fileContentBuffer.add( bufReader.readLine() );
+        // search data & modify data
+        while( (currentTuple = bufReader.readLine()) != null ) {
+            currentScheduledItem = ScheduledItemUtil.getScheduledItemFromCsvTupleString( currentTuple );
+            if( ComparingUtil.compare( currentScheduledItem.getId(), scheduledItem.getId() ) == 0 ) {
+                // modify data
+                fileContentBuffer.add( ScheduledItemUtil.getCsvTupleStringFromScheduledItem( scheduledItem ) );
+            } else {
+                // not modify data
+                fileContentBuffer.add( currentTuple );
+            }
+        }
+        bufReader.close();
+        
+        // write file content buffer to ScheduledItem.csv
+        BufferedWriter writer = new BufferedWriter(
+                new OutputStreamWriter(
+                    new FileOutputStream( new File( S_ITEM_CSV_FILE_PATH ), false ),
+                    FILE_CHARSET
+                )
+            );
+        for( String content : fileContentBuffer ) {
+            writer.write( content );
+            writer.newLine();
+        }
+        writer.close();
+        
         return false;
     }
 
     @Override
     public boolean delete( ScheduledItem scheduledItem ) throws Exception {
-        // TODO Auto-generated method stub
+        if( !checkIfFileExists( S_ITEM_CSV_FILE_PATH ) ) {
+            return false;
+        }
+        
+        ArrayList<String> fileContentBuffer = new ArrayList<String>();
+        String currentTuple = "";
+        ScheduledItem currentScheduledItem = new ScheduledItem();
+        
+        BufferedReader bufReader = new BufferedReader( new InputStreamReader(
+                new FileInputStream( new File( S_ITEM_CSV_FILE_PATH ) ),
+                FILE_CHARSET
+            )
+        );
+        // read attribute titles
+        fileContentBuffer.add( bufReader.readLine() );
+        // search data & delete data
+        while( (currentTuple = bufReader.readLine()) != null ) {
+            currentScheduledItem = ScheduledItemUtil.getScheduledItemFromCsvTupleString( currentTuple );
+            if( ComparingUtil.compare( currentScheduledItem.getId(), scheduledItem.getId() ) != 0 ) {
+                // keep data that not match the deleting data
+                fileContentBuffer.add( currentTuple );
+            }
+        }
+        bufReader.close();
+        
+        // write file content buffer to Item/yyyy.mm.dd.csv
+        BufferedWriter writer = new BufferedWriter(
+                new OutputStreamWriter(
+                    new FileOutputStream( new File( S_ITEM_CSV_FILE_PATH ), false ),
+                    FILE_CHARSET
+                )
+            );
+        for( String content : fileContentBuffer ) {
+            writer.write( content );
+            writer.newLine();
+        }
+        writer.close();
+        
         return false;
     }
     
