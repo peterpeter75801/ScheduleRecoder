@@ -9,6 +9,7 @@ public class MainFrame extends JFrame {
     
     private JTabbedPane tabbedPane;
     private ItemPanel itemPanel;
+    private ScheduledItemPanel scheduledItemPanel; 
     
     public MainFrame() {
         super( "Schedule Recorder" );
@@ -16,7 +17,9 @@ public class MainFrame extends JFrame {
         tabbedPane = new JTabbedPane();
         
         itemPanel = new ItemPanel( this );
+        scheduledItemPanel = new ScheduledItemPanel( this );
         tabbedPane.addTab( "時間記錄", null, itemPanel, "時間項目記錄" );
+        tabbedPane.addTab( "事項排程", null, scheduledItemPanel, "預計執行事項排程" );
         
         add( tabbedPane );
         
