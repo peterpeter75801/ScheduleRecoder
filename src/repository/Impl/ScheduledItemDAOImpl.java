@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -12,7 +13,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import commonUtil.ComparingUtil;
-import commonUtil.ItemUtil;
 import commonUtil.ScheduledItemUtil;
 import domain.ScheduledItem;
 import repository.ScheduledItemDAO;
@@ -77,6 +77,38 @@ public class ScheduledItemDAOImpl implements ScheduledItemDAO {
         writer.close();
         
         return true;
+    }
+
+    @Override
+    public ScheduledItem findById( Integer id ) throws Exception {
+        if( !checkIfFileExists( S_ITEM_CSV_FILE_PATH ) ) {
+            return null;
+        }
+        
+        String currentTuple = "";
+        ScheduledItem currentScheduledItem = new ScheduledItem();
+        ScheduledItem searchResultScheduledItem = null;
+        try {
+            BufferedReader bufReader = new BufferedReader( new InputStreamReader(
+                    new FileInputStream( new File( S_ITEM_CSV_FILE_PATH ) ),
+                    FILE_CHARSET
+                ));
+            // read attribute titles
+            bufReader.readLine();
+            // search data
+            while( (currentTuple = bufReader.readLine()) != null ) {
+                currentScheduledItem = ScheduledItemUtil.getScheduledItemFromCsvTupleString( currentTuple );
+                if( ComparingUtil.compare( currentScheduledItem.getId(), id ) == 0 ) {
+                    searchResultScheduledItem = currentScheduledItem;
+                    break;
+                }
+            }
+            bufReader.close();
+        } catch( FileNotFoundException e ) {
+            return null;
+        }
+        
+        return searchResultScheduledItem;
     }
 
     @Override
@@ -193,6 +225,29 @@ public class ScheduledItemDAOImpl implements ScheduledItemDAO {
         writer.close();
         
         return false;
+    }
+
+    @Override
+    public int getCurrentSeqNumber() throws Exception {
+        if( !checkIfFileExists( S_ITEM_SEQ_FILE_PATH ) ) {
+            return Integer.parseInt( INITIAL_SEQ_NUMBER ) - 1;
+        }
+        
+        BufferedReader bufReader = new BufferedReader( new InputStreamReader(
+                new FileInputStream( new File( S_ITEM_SEQ_FILE_PATH ) ),
+                FILE_CHARSET
+            )
+        );
+        Integer currentSeqNumber = null;
+        try {
+            currentSeqNumber = Integer.parseInt( bufReader.readLine() );
+        } catch( NumberFormatException e ) {
+            return Integer.MAX_VALUE;
+        } finally {
+            bufReader.close();
+        }
+        
+        return currentSeqNumber;
     }
     
     private boolean checkIfFileExists( String fileName ) {

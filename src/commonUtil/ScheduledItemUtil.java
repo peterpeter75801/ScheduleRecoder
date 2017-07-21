@@ -1,5 +1,6 @@
 package commonUtil;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
@@ -75,6 +76,25 @@ public class ScheduledItemUtil {
                     scheduledItemList.set( j + 1, swap );
                 }
             }
+        }
+        
+        return scheduledItemList;
+    }
+    
+    public static List<ScheduledItem> moveTypeNDataToBottom( List<ScheduledItem> scheduledItemList ) {
+        if( scheduledItemList == null ) {
+            return scheduledItemList;
+        }
+        List<ScheduledItem> typeNDataList = new ArrayList<ScheduledItem>();
+        for( int i = 0; i < scheduledItemList.size(); i++ ) {
+            if( scheduledItemList.get( i ).getType() == 'N' ) {
+                typeNDataList.add( scheduledItemList.get( i ) );
+                scheduledItemList.remove( i );
+                i--;
+            }
+        }
+        for( ScheduledItem typeNData : typeNDataList ) {
+            scheduledItemList.add( typeNData );
         }
         
         return scheduledItemList;

@@ -19,6 +19,7 @@ public class ScheduledItemDAOImplTests extends TestCase {
     private final String S_ITEM_CSV_FILE_BACKUP_PATH = "data\\ScheduledItem_backup.csv";
     private final String S_ITEM_SEQ_FILE_PATH = "data\\ScheduledItemSeq.txt";
     private final String S_ITEM_SEQ_FILE_BACKUP_PATH = "data\\ScheduledItemSeq_backup.txt";
+    private final Integer INITIAL_SEQ_NUMBER = 1;
     private final String FILE_CHARSET = "big5";
     
     public void testInsert() throws IOException {
@@ -53,6 +54,32 @@ public class ScheduledItemDAOImplTests extends TestCase {
             for( int i = 0; i < expectedData.size(); i++ ) {
                 assertEquals( "failed at i = " + i, expectedData.get( i ), actualData.get( i ) );
             }
+        } catch( Exception e ) {
+            e.printStackTrace();
+            assertTrue( e.getMessage(), false );
+        } finally {
+            restoreFile( S_ITEM_SEQ_FILE_BACKUP_PATH, S_ITEM_SEQ_FILE_PATH );
+            restoreFile( S_ITEM_CSV_FILE_BACKUP_PATH, S_ITEM_CSV_FILE_PATH );
+        }
+    }
+    
+    public void testFindById() throws IOException {
+        ScheduledItemDAOImpl scheduledItemDAOImpl = new ScheduledItemDAOImpl();
+        ScheduledItem expectedData = getTestData2();
+        expectedData.setId( 2 );
+        ScheduledItem actualData = null;
+        try {
+            backupFile( S_ITEM_CSV_FILE_PATH, S_ITEM_CSV_FILE_BACKUP_PATH );
+            backupFile( S_ITEM_SEQ_FILE_PATH, S_ITEM_SEQ_FILE_BACKUP_PATH );
+            
+            scheduledItemDAOImpl.insert( getTestData1() );
+            scheduledItemDAOImpl.insert( getTestData2() );
+            scheduledItemDAOImpl.insert( getTestData3() );
+            
+            actualData = scheduledItemDAOImpl.findById( 2 );
+            assertTrue( ScheduledItemUtil.equals( expectedData, actualData ) );
+            
+            assertNull( scheduledItemDAOImpl.findById( 4 ) );
         } catch( Exception e ) {
             e.printStackTrace();
             assertTrue( e.getMessage(), false );
@@ -180,6 +207,35 @@ public class ScheduledItemDAOImplTests extends TestCase {
             for( int i = 0; i < expectedData.size(); i++ ) {
                 assertEquals( "failed at i = " + i, expectedData.get( i ), actualData.get( i ) );
             }
+        } catch( Exception e ) {
+            e.printStackTrace();
+            assertTrue( e.getMessage(), false );
+        } finally {
+            restoreFile( S_ITEM_SEQ_FILE_BACKUP_PATH, S_ITEM_SEQ_FILE_PATH );
+            restoreFile( S_ITEM_CSV_FILE_BACKUP_PATH, S_ITEM_CSV_FILE_PATH );
+        }
+    }
+    
+    public void testGetCurrentSeqNumber() throws IOException {
+        ScheduledItemDAOImpl scheduledItemDAOImpl = new ScheduledItemDAOImpl();
+        
+        try {
+            backupFile( S_ITEM_CSV_FILE_PATH, S_ITEM_CSV_FILE_BACKUP_PATH );
+            backupFile( S_ITEM_SEQ_FILE_PATH, S_ITEM_SEQ_FILE_BACKUP_PATH );
+            
+            // 測試初始情況
+            int expect1 = INITIAL_SEQ_NUMBER - 1;
+            int actual1 = scheduledItemDAOImpl.getCurrentSeqNumber();
+            assertEquals( expect1, actual1 );
+            
+            // 測試新增資料後的情況
+            int expect2 = INITIAL_SEQ_NUMBER + 2;
+            
+            scheduledItemDAOImpl.insert( getTestData1() );
+            scheduledItemDAOImpl.insert( getTestData2() );
+            
+            int actual2 = scheduledItemDAOImpl.getCurrentSeqNumber();
+            assertEquals( expect2, actual2 );
         } catch( Exception e ) {
             e.printStackTrace();
             assertTrue( e.getMessage(), false );

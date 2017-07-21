@@ -59,6 +59,26 @@ public class ScheduledItemUtilTests extends TestCase {
         }
     }
     
+    public void testMoveTypeNDataToBottom() {
+        List<ScheduledItem> input = new ArrayList<ScheduledItem>();
+        input.add( getTestData3() );
+        input.add( getTestData4() );
+        input.add( getTestData5() );
+        input.add( getTestData6() );
+        List<ScheduledItem> expect = new ArrayList<ScheduledItem>();
+        expect.add( getTestData3() );
+        expect.add( getTestData4() );
+        expect.add( getTestData6() );
+        expect.add( getTestData5() );
+        
+        input = ScheduledItemUtil.moveTypeNDataToBottom( input );
+        
+        assertEquals( expect.size(), input.size() );
+        for( int i = 0; i < expect.size(); i++ ) {
+            assertTrue( ScheduledItemUtil.equals( expect.get( i ), input.get( i ) ) );
+        }
+    }
+    
     public void testCopy() {
         ScheduledItem expect = getTestData1();
         ScheduledItem copy = ScheduledItemUtil.copy( getTestData3() );
