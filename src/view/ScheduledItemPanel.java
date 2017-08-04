@@ -1,12 +1,18 @@
 package view;
 
 import java.awt.AWTKeyStroke;
+import java.awt.Component;
+import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.FocusTraversalPolicy;
 import java.awt.Font;
 import java.awt.Insets;
 import java.awt.KeyboardFocusManager;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.Vector;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -19,12 +25,17 @@ import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableModel;
 
 import common.Contants;
+import service.ScheduledItemService;
+import service.Impl.ScheduledItemServiceImpl;
 
 public class ScheduledItemPanel extends JPanel {
     
     private static final long serialVersionUID = 1L;
+    
+    private ScheduledItemService scheduledItemService;
 
     private MainFrame ownerFrame;
+    private ScheduledItemCreateDialog scheduledItemCreateDialog; 
     
     private Font generalFont;
     private JTable itemTable;
@@ -40,9 +51,12 @@ public class ScheduledItemPanel extends JPanel {
     public ScheduledItemPanel( MainFrame ownerFrame ) {
         setLayout( null );
         
+        scheduledItemService = new ScheduledItemServiceImpl();
+        
         generalFont = new Font( "細明體", Font.PLAIN, 16 );
         
         this.ownerFrame = ownerFrame;
+        scheduledItemCreateDialog = new ScheduledItemCreateDialog( ownerFrame, scheduledItemService );
         
         initialItemTable();
         
@@ -50,6 +64,12 @@ public class ScheduledItemPanel extends JPanel {
         createButton.setBounds( 697, 54, 72, 22 );
         createButton.setMargin( new Insets( 0, 0, 0, 0 ) );
         createButton.setFont( generalFont );
+        createButton.addActionListener( new ActionListener() {
+            @Override
+            public void actionPerformed( ActionEvent event ) {
+                scheduledItemCreateDialog.openDialog();
+            }
+        });
         add( createButton );
         
         updateButton = new JButton( "修改(U)" );
@@ -80,6 +100,8 @@ public class ScheduledItemPanel extends JPanel {
         versionLabel.setBounds( 520, 508, 265, 22 );
         versionLabel.setFont( generalFont );
         add( versionLabel );
+        
+        adjustComponentOrder();
     }
     
     private void initialItemTable() {
@@ -128,5 +150,47 @@ public class ScheduledItemPanel extends JPanel {
         itemTableScrollPane.setBounds( 16, 29, TABLE_WIDTH, TABLE_HEIGHT + TABLE_HEADER_HEIGHT + BORDER_HEIGHT_FIX );
         
         add( itemTableScrollPane );
+    }
+    
+    private void adjustComponentOrder() {
+        final int FOCUSABLE_COMPONENT_COUNT = 10;
+        Vector<Component> order = new Vector<Component>( FOCUSABLE_COMPONENT_COUNT );
+        order.add( itemTable );
+        order.add( createButton );
+        order.add( updateButton );
+        order.add( completeButton );
+        order.add( cancelButton );
+        order.add( detailButton );
+        this.setFocusTraversalPolicyProvider( true );
+        this.setFocusTraversalPolicy( new FocusTraversalPolicy() {
+            @Override
+            public Component getComponentAfter( Container aContainer, Component aComponent ) {
+                return order.get( (order.indexOf( aComponent ) + 1) % order.size() );
+            }
+
+            @Override
+            public Component getComponentBefore( Container aContainer, Component aComponent ) {
+                int index = order.indexOf( aComponent ) - 1;
+                if( index < 0 ) {
+                    index = order.size() - 1;
+                }
+                return order.get( index );
+            }
+
+            @Override
+            public Component getDefaultComponent( Container aContainer ) {
+                return itemTable;
+            }
+
+            @Override
+            public Component getFirstComponent( Container aContainer ) {
+                return itemTable;
+            }
+
+            @Override
+            public Component getLastComponent( Container aContainer ) {
+                return detailButton;
+            }
+        });
     }
 }

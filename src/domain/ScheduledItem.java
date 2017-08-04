@@ -9,7 +9,7 @@ public class ScheduledItem {
     private Integer hour;           // 時
     private Integer minute;         // 分
     private Integer expectedTime;   // 預計花費時間
-    private Character type;         // 種類: N-不限時, O-準時, D-期限
+    private Character type;         // 種類: N-不限時, O-準時, D-期限, P-建議
     private String name;            // 項目名稱
     private String description;     // 項目說明
 
