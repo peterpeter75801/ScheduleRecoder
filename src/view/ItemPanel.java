@@ -169,7 +169,7 @@ public class ItemPanel extends JPanel {
         versionLabel.setFont( generalFont );
         add( versionLabel );
         
-        adjustComponentOrder();
+        //adjustComponentOrder();
         
         setPreferredSize( new Dimension( 793, 533 ) );
     }

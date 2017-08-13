@@ -101,7 +101,7 @@ public class ScheduledItemPanel extends JPanel {
         versionLabel.setFont( generalFont );
         add( versionLabel );
         
-        adjustComponentOrder();
+        //adjustComponentOrder();
     }
     
     private void initialItemTable() {
@@ -153,7 +153,7 @@ public class ScheduledItemPanel extends JPanel {
     }
     
     private void adjustComponentOrder() {
-        final int FOCUSABLE_COMPONENT_COUNT = 10;
+        final int FOCUSABLE_COMPONENT_COUNT = 6;
         Vector<Component> order = new Vector<Component>( FOCUSABLE_COMPONENT_COUNT );
         order.add( itemTable );
         order.add( createButton );
