@@ -12,6 +12,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.Calendar;
@@ -23,6 +24,7 @@ import java.util.Vector;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
@@ -56,6 +58,7 @@ public class ItemPanel extends JPanel {
     
     private FocusHandler focusHandler;
     private MnemonicKeyHandler mnemonicKeyHandler;
+    private SpecialFocusTraversalPolicyHandler specialFocusTraversalPolicyHandler;
     private Font generalFont;
     private JLabel yearLabel;
     private JTextField yearTextField;
@@ -85,6 +88,7 @@ public class ItemPanel extends JPanel {
         
         focusHandler = new FocusHandler();
         mnemonicKeyHandler = new MnemonicKeyHandler();
+        specialFocusTraversalPolicyHandler = new SpecialFocusTraversalPolicyHandler();
         
         generalFont = new Font( "細明體", Font.PLAIN, 16 );
         
@@ -104,6 +108,8 @@ public class ItemPanel extends JPanel {
         createButton.setMargin( new Insets( 0, 0, 0, 0 ) );
         createButton.setFont( generalFont );
         createButton.addKeyListener( mnemonicKeyHandler );
+        createButton.setFocusTraversalKeysEnabled( false );
+        createButton.addKeyListener( specialFocusTraversalPolicyHandler );
         createButton.addActionListener( new ActionListener() {
             @Override
             public void actionPerformed( ActionEvent event ) {
@@ -245,6 +251,8 @@ public class ItemPanel extends JPanel {
         listDateButton.setBounds( 120, 10, 40, 22 );
         listDateButton.setMargin( new Insets( 0, 0, 0, 0 ) );
         listDateButton.setFont( generalFont );
+        listDateButton.setFocusTraversalKeysEnabled( false );
+        listDateButton.addKeyListener( specialFocusTraversalPolicyHandler );
         listDateButton.addActionListener( new ActionListener() {
             @Override
             public void actionPerformed( ActionEvent event ) {
@@ -318,6 +326,8 @@ public class ItemPanel extends JPanel {
         dateList.setSelectedIndex( calendar.get( Calendar.DAY_OF_MONTH ) - 1 );
         dateList.setFont( generalFont );
         dateList.addKeyListener( mnemonicKeyHandler );
+        dateList.setFocusTraversalKeysEnabled( false );
+        dateList.addKeyListener( specialFocusTraversalPolicyHandler );
         
         dateListScrollPane = new JScrollPane( dateList );
         dateListScrollPane.setBounds( 16, 54, 144, 440 );
@@ -404,14 +414,22 @@ public class ItemPanel extends JPanel {
         itemTable.setPreferredScrollableViewportSize( new Dimension( TABLE_WIDTH, TABLE_HEIGHT ) );
         itemTable.addKeyListener( mnemonicKeyHandler );
         
-        Set<AWTKeyStroke> forward = new HashSet<AWTKeyStroke>(
-                itemTable.getFocusTraversalKeys( KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS ) );
-        forward.add( KeyStroke.getKeyStroke( "TAB" ) );
-        itemTable.setFocusTraversalKeys( KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS, forward );
-        Set<AWTKeyStroke> backward = new HashSet<AWTKeyStroke>(
-                itemTable.getFocusTraversalKeys( KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS ) );
-        backward.add( KeyStroke.getKeyStroke( "shift TAB" ) );
-        itemTable.setFocusTraversalKeys( KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS, backward );
+        //Set<AWTKeyStroke> forward = new HashSet<AWTKeyStroke>(
+        //        itemTable.getFocusTraversalKeys( KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS ) );
+        //forward.add( KeyStroke.getKeyStroke( "TAB" ) );
+        //itemTable.setFocusTraversalKeys( KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS, forward );
+        //Set<AWTKeyStroke> backward = new HashSet<AWTKeyStroke>(
+        //        itemTable.getFocusTraversalKeys( KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS ) );
+        //backward.add( KeyStroke.getKeyStroke( "shift TAB" ) );
+        //itemTable.setFocusTraversalKeys( KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS, backward );
+        
+        itemTable.getInputMap( JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT ).put(
+            KeyStroke.getKeyStroke( KeyEvent.VK_TAB, 0 ), "none" );
+        itemTable.getInputMap( JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT ).put(
+            KeyStroke.getKeyStroke( KeyEvent.VK_TAB, InputEvent.SHIFT_DOWN_MASK ), "none" );        
+        
+        itemTable.setFocusTraversalKeysEnabled( false );
+        itemTable.addKeyListener( specialFocusTraversalPolicyHandler );
         
         itemTableScrollPane = new JScrollPane( itemTable );
         itemTableScrollPane.setBounds( 176, 29, TABLE_WIDTH, TABLE_HEIGHT + TABLE_HEADER_HEIGHT + BORDER_HEIGHT_FIX );
@@ -563,6 +581,40 @@ public class ItemPanel extends JPanel {
                 break;
             default:
                 break;
+            }
+        }
+
+        @Override
+        public void keyReleased( KeyEvent event ) {}
+
+        @Override
+        public void keyTyped( KeyEvent event ) {}
+    }
+    
+    private class SpecialFocusTraversalPolicyHandler implements KeyListener {
+
+        @Override
+        public void keyPressed( KeyEvent event ) {
+            if( event.getKeyCode() != KeyEvent.VK_TAB ) {
+                return;
+            }
+            
+            if( event.getSource() == listDateButton && !event.isShiftDown() ) {
+                dateList.requestFocus();
+            } else if( event.getSource() == listDateButton && event.isShiftDown() ) {
+                monthTextField.requestFocus();
+            } else if( event.getSource() == dateList && !event.isShiftDown() ) {
+                itemTable.requestFocus();
+            } else if( event.getSource() == dateList && event.isShiftDown() ) {
+                listDateButton.requestFocus();
+            } else if( event.getSource() == itemTable && !event.isShiftDown() ) {
+                createButton.requestFocus();
+            } else if( event.getSource() == itemTable && event.isShiftDown() ) {
+                dateList.requestFocus();
+            } else if( event.getSource() == createButton && !event.isShiftDown() ) {
+                updateButton.requestFocus();
+            } else if( event.getSource() == createButton && event.isShiftDown() ) {
+                itemTable.requestFocus();
             }
         }
 

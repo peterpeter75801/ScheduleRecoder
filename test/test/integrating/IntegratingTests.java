@@ -28,7 +28,7 @@ public class IntegratingTests extends TestCase {
     private final String ITEM_CSV_FILE_BACKUP_PATH_2 = "data\\Item\\2017.05.01_backup.csv";
     private final String FILE_CHARSET = "big5";
     
-    public void testDataListSelection() throws IOException {
+    public void testDateListSelection() throws IOException {
         ItemDAOImpl itemDAO = new ItemDAOImpl();
         int testerSelection = 0;
         
@@ -50,30 +50,32 @@ public class IntegratingTests extends TestCase {
             
             Robot bot =  new Robot();
             Thread.sleep( 3000 );
+            // 選擇年份為2017
             bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
-            bot.keyPress( KeyEvent.VK_SHIFT );
+            inputString( bot, "2017" );
+            // 選擇月份為06，列出2017/06的日期清單
             bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
-            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
-            bot.keyRelease( KeyEvent.VK_SHIFT );
             inputString( bot, "06" );
             bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
             bot.keyPress( KeyEvent.VK_SPACE ); bot.keyRelease( KeyEvent.VK_SPACE ); Thread.sleep( 100 );
-            
+            // 檢查執行結果
             testerSelection = JOptionPane.showConfirmDialog( 
                 mainFrame, "是否有在表格區域的右側出現捲軸", "Check", JOptionPane.YES_NO_OPTION );
             assertEquals( JOptionPane.YES_OPTION, testerSelection );
-
             Thread.sleep( 1000 );
+            
+            // 選擇月份為05，列出2017/05的日期清單
             bot.keyPress( KeyEvent.VK_SHIFT );
             bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
             bot.keyRelease( KeyEvent.VK_SHIFT );
             inputString( bot, "05" );
             bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
             bot.keyPress( KeyEvent.VK_SPACE ); bot.keyRelease( KeyEvent.VK_SPACE ); Thread.sleep( 100 );
-            
+            // 檢查執行結果
             testerSelection = JOptionPane.showConfirmDialog( 
                 mainFrame, "是否有在表格區域的右側出現捲軸", "Check", JOptionPane.YES_NO_OPTION );
             assertEquals( JOptionPane.NO_OPTION, testerSelection );
+            Thread.sleep( 1000 );
         } catch( Exception e ) {
             assertTrue( e.getMessage(), false );
         } finally {
@@ -95,13 +97,11 @@ public class IntegratingTests extends TestCase {
             
             Robot bot =  new Robot();
             Thread.sleep( 3000 );
-            
-            // 選擇月份為06
+            // 選擇年份為2017
             bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
-            bot.keyPress( KeyEvent.VK_SHIFT );
+            inputString( bot, "2017" );
+            // 選擇月份為06，列出2017/06的日期清單
             bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
-            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
-            bot.keyRelease( KeyEvent.VK_SHIFT );
             inputString( bot, "06" );
             bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
             bot.keyPress( KeyEvent.VK_SPACE ); bot.keyRelease( KeyEvent.VK_SPACE ); Thread.sleep( 100 );
@@ -144,6 +144,7 @@ public class IntegratingTests extends TestCase {
             testerSelection = JOptionPane.showConfirmDialog( 
                 mainFrame, "新增的資料是否有出現在畫面上", "Check", JOptionPane.YES_NO_OPTION );
             assertEquals( JOptionPane.YES_OPTION, testerSelection );
+            Thread.sleep( 1000 );
         } catch ( Exception e ) {
             e.printStackTrace();
             assertTrue( e.getMessage(), false );
@@ -173,12 +174,11 @@ public class IntegratingTests extends TestCase {
             Robot bot =  new Robot();
             Thread.sleep( 3000 );
             
-            // 選擇月份為06
+            // 選擇年份為2017
             bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
-            bot.keyPress( KeyEvent.VK_SHIFT );
+            inputString( bot, "2017" );
+            // 選擇月份為06，列出2017/06的日期清單
             bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
-            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
-            bot.keyRelease( KeyEvent.VK_SHIFT );
             inputString( bot, "06" );
             bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
             bot.keyPress( KeyEvent.VK_SPACE ); bot.keyRelease( KeyEvent.VK_SPACE ); Thread.sleep( 100 );
@@ -214,6 +214,7 @@ public class IntegratingTests extends TestCase {
             bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
             bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
             bot.keyPress( KeyEvent.VK_SPACE ); bot.keyRelease( KeyEvent.VK_SPACE ); Thread.sleep( 100 );
+            Thread.sleep( 1000 );
             
             // 檢查資料是否正確新增
             String[] expect = {
@@ -274,12 +275,11 @@ public class IntegratingTests extends TestCase {
             Robot bot =  new Robot();
             Thread.sleep( 3000 );
             
-            // 選擇月份為06
+            // 選擇年份為2017
             bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
-            bot.keyPress( KeyEvent.VK_SHIFT );
+            inputString( bot, "2017" );
+            // 選擇月份為06，列出2017/06的日期清單
             bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
-            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
-            bot.keyRelease( KeyEvent.VK_SHIFT );
             inputString( bot, "06" );
             bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
             bot.keyPress( KeyEvent.VK_SPACE ); bot.keyRelease( KeyEvent.VK_SPACE ); Thread.sleep( 100 );
@@ -337,12 +337,11 @@ public class IntegratingTests extends TestCase {
             Robot bot =  new Robot();
             Thread.sleep( 3000 );
             
-            // 選擇月份為06
+            // 選擇年份為2017
             bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
-            bot.keyPress( KeyEvent.VK_SHIFT );
+            inputString( bot, "2017" );
+            // 選擇月份為06，列出2017/06的日期清單
             bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
-            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
-            bot.keyRelease( KeyEvent.VK_SHIFT );
             inputString( bot, "06" );
             bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
             bot.keyPress( KeyEvent.VK_SPACE ); bot.keyRelease( KeyEvent.VK_SPACE ); Thread.sleep( 100 );
@@ -396,12 +395,11 @@ public class IntegratingTests extends TestCase {
             Robot bot =  new Robot();
             Thread.sleep( 3000 );
             
-            // 選擇月份為06
+            // 選擇年份為2017
             bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
-            bot.keyPress( KeyEvent.VK_SHIFT );
+            inputString( bot, "2017" );
+            // 選擇月份為06，列出2017/06的日期清單
             bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
-            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
-            bot.keyRelease( KeyEvent.VK_SHIFT );
             inputString( bot, "06" );
             bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
             bot.keyPress( KeyEvent.VK_SPACE ); bot.keyRelease( KeyEvent.VK_SPACE ); Thread.sleep( 100 );
@@ -492,12 +490,11 @@ public class IntegratingTests extends TestCase {
             Robot bot =  new Robot();
             Thread.sleep( 3000 );
             
-            // 選擇月份為06
+            // 選擇年份為2017
             bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
-            bot.keyPress( KeyEvent.VK_SHIFT );
+            inputString( bot, "2017" );
+            // 選擇月份為06，列出2017/06的日期清單
             bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
-            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
-            bot.keyRelease( KeyEvent.VK_SHIFT );
             inputString( bot, "06" );
             bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
             bot.keyPress( KeyEvent.VK_SPACE ); bot.keyRelease( KeyEvent.VK_SPACE ); Thread.sleep( 100 );
