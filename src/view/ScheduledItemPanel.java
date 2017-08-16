@@ -11,11 +11,13 @@ import java.awt.KeyboardFocusManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -25,6 +27,8 @@ import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableModel;
 
 import common.Contants;
+import commonUtil.ScheduledItemUtil;
+import domain.ScheduledItem;
 import service.ScheduledItemService;
 import service.Impl.ScheduledItemServiceImpl;
 
@@ -101,7 +105,54 @@ public class ScheduledItemPanel extends JPanel {
         versionLabel.setFont( generalFont );
         add( versionLabel );
         
+        loadScheduledItems();
+        
         //adjustComponentOrder();
+    }
+    
+    public void loadScheduledItems() {
+        // 初始化畫面中的排程項目列表
+        final int DEFAULT_ROW_COUNT = 20;
+        DefaultTableModel itemTableModel = (DefaultTableModel) itemTable.getModel();
+        if( itemTable.getRowCount() > DEFAULT_ROW_COUNT ) {
+            for( int i = itemTable.getRowCount() - 1; i >= DEFAULT_ROW_COUNT; i-- ) {
+                itemTableModel.removeRow( i );
+            }
+        }
+        for( int i = 0; i < itemTable.getRowCount(); i++ ) {
+            itemTableModel.setValueAt( "", i, 0 );
+            itemTableModel.setValueAt( "", i, 1 );
+            itemTableModel.setValueAt( "", i, 2 );
+            itemTableModel.setValueAt( "", i, 3 );
+            itemTableModel.setValueAt( "", i, 4 );
+        }
+        
+        // 取得目前所有的排程項目(ScheduledItem)資料
+        try {
+            List<ScheduledItem> scheduledItemList = scheduledItemService.findAllSortByTime();
+            for( int i = 0; i < scheduledItemList.size(); i++ ) {
+                ScheduledItem scheduledItem = scheduledItemList.get( i );
+                DefaultTableModel model = (DefaultTableModel) itemTable.getModel();
+                if( i >= itemTable.getRowCount() ) {
+                    model.addRow( new Object[]{
+                        ScheduledItemUtil.getTypeNameFromCode( scheduledItem.getType() ),
+                        String.format( "%04d.%02d.%02d", scheduledItem.getYear(), scheduledItem.getMonth(), scheduledItem.getDay() ),
+                        String.format( "%02d:%02d", scheduledItem.getHour(), scheduledItem.getMinute() ),
+                        scheduledItem.getName(),
+                        String.format( "%d min", scheduledItem.getExpectedTime() ) } );
+                } else {
+                    model.setValueAt( ScheduledItemUtil.getTypeNameFromCode( scheduledItem.getType() ), i, 0 );
+                    model.setValueAt( String.format( "%04d.%02d.%02d", scheduledItem.getYear(), scheduledItem.getMonth(), scheduledItem.getDay() ), 
+                        i, 1 );
+                    model.setValueAt( String.format( "%02d:%02d", scheduledItem.getHour(), scheduledItem.getMinute() ), i, 2 );
+                    model.setValueAt( scheduledItem.getName(), i, 3 );
+                    model.setValueAt( String.format( "%d min", scheduledItem.getExpectedTime() ), i, 4 );
+                }
+            }
+        } catch ( Exception e ) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog( null, "排程事項讀取資料發生錯誤", "Error", JOptionPane.ERROR_MESSAGE );
+        }
     }
     
     private void initialItemTable() {

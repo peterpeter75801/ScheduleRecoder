@@ -9,7 +9,7 @@ public class MainFrame extends JFrame {
     
     private JTabbedPane tabbedPane;
     private ItemPanel itemPanel;
-    private ScheduledItemPanel scheduledItemPanel; 
+    private ScheduledItemPanel scheduledItemPanel;
     
     public MainFrame() {
         super( "Schedule Recorder" );
@@ -29,5 +29,9 @@ public class MainFrame extends JFrame {
     
     public ItemPanel getItemPanel() {
         return itemPanel;
+    }
+    
+    public ScheduledItemPanel getScheduledItemPanel() {
+        return scheduledItemPanel;
     }
 }

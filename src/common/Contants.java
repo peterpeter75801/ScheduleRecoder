@@ -10,5 +10,5 @@ public class Contants {
     public static final int ERROR_EXCEED_UPPER_LIMIT = -6;
     public static final int DUPLICATE_DATA = -3;
     
-    public static final String VERSION = "Ver. alpha-0.20";
+    public static final String VERSION = "Ver. alpha-0.21";
 }

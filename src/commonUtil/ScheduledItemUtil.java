@@ -148,4 +148,19 @@ public class ScheduledItemUtil {
             return true;
         }
     }
+    
+    public static String getTypeNameFromCode( char typeCode ) {
+        switch( typeCode ) {
+        case 'O':
+            return "準時";
+        case 'D':
+            return "期限";
+        case 'P':
+            return "建議";
+        case 'N':
+            return "不限時";
+        default:
+            return "";
+        }
+    }
 }
