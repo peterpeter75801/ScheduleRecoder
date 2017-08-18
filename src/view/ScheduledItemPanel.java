@@ -40,6 +40,7 @@ public class ScheduledItemPanel extends JPanel {
 
     private MainFrame ownerFrame;
     private ScheduledItemCreateDialog scheduledItemCreateDialog; 
+    private ScheduledItemUpdateDialog scheduledItemUpdateDialog;
     
     private Font generalFont;
     private JTable itemTable;
@@ -61,6 +62,7 @@ public class ScheduledItemPanel extends JPanel {
         
         this.ownerFrame = ownerFrame;
         scheduledItemCreateDialog = new ScheduledItemCreateDialog( ownerFrame, scheduledItemService );
+        scheduledItemUpdateDialog = new ScheduledItemUpdateDialog( ownerFrame, scheduledItemService );
         
         initialItemTable();
         
@@ -80,6 +82,12 @@ public class ScheduledItemPanel extends JPanel {
         updateButton.setBounds( 697, 98, 72, 22 );
         updateButton.setMargin( new Insets( 0, 0, 0, 0 ) );
         updateButton.setFont( generalFont );
+        updateButton.addActionListener( new ActionListener() {
+            @Override
+            public void actionPerformed( ActionEvent event ) {
+                openScheduledItemUpdateDialog();
+            }
+        });
         add( updateButton );
         
         completeButton = new JButton( "完成(O)" );
@@ -125,6 +133,7 @@ public class ScheduledItemPanel extends JPanel {
             itemTableModel.setValueAt( "", i, 2 );
             itemTableModel.setValueAt( "", i, 3 );
             itemTableModel.setValueAt( "", i, 4 );
+            itemTableModel.setValueAt( "", i, 5 );
         }
         
         // 取得目前所有的排程項目(ScheduledItem)資料
@@ -139,7 +148,8 @@ public class ScheduledItemPanel extends JPanel {
                         String.format( "%04d.%02d.%02d", scheduledItem.getYear(), scheduledItem.getMonth(), scheduledItem.getDay() ),
                         String.format( "%02d:%02d", scheduledItem.getHour(), scheduledItem.getMinute() ),
                         scheduledItem.getName(),
-                        String.format( "%d min", scheduledItem.getExpectedTime() ) } );
+                        String.format( "%d min", scheduledItem.getExpectedTime() ),
+                        String.format( "%d", scheduledItem.getId() ) } );
                 } else {
                     model.setValueAt( ScheduledItemUtil.getTypeNameFromCode( scheduledItem.getType() ), i, 0 );
                     model.setValueAt( String.format( "%04d.%02d.%02d", scheduledItem.getYear(), scheduledItem.getMonth(), scheduledItem.getDay() ), 
@@ -147,6 +157,7 @@ public class ScheduledItemPanel extends JPanel {
                     model.setValueAt( String.format( "%02d:%02d", scheduledItem.getHour(), scheduledItem.getMinute() ), i, 2 );
                     model.setValueAt( scheduledItem.getName(), i, 3 );
                     model.setValueAt( String.format( "%d min", scheduledItem.getExpectedTime() ), i, 4 );
+                    model.setValueAt( String.format( "%d", scheduledItem.getId() ), i, 5 );
                 }
             }
         } catch ( Exception e ) {
@@ -161,9 +172,9 @@ public class ScheduledItemPanel extends JPanel {
         final int TABLE_HEIGHT = 440;
         final int TABLE_HEADER_HEIGHT = 22;
         final int TABLE_ROW_HEIGHT = 22;
-        final int[] TABLE_COLUMN_WIDTH = { 48, 96, 56, 392, 64 };
+        final int[] TABLE_COLUMN_WIDTH = { 48, 96, 56, 392, 64, 0 };
         final int BORDER_HEIGHT_FIX = 3;
-        final String[] columnNames = { "類型", "日期", "時間", "項目", "預計花費" };
+        final String[] columnNames = { "類型", "日期", "時間", "項目", "預計花費", "ID(hidden)" };
         
         itemTable = new JTable( new DefaultTableModel( columnNames, DEFAULT_ROW_COUNT ) {
             private static final long serialVersionUID = 1L;
@@ -183,6 +194,7 @@ public class ScheduledItemPanel extends JPanel {
         itemTable.getColumnModel().getColumn( 2 ).setPreferredWidth( TABLE_COLUMN_WIDTH[ 2 ] );
         itemTable.getColumnModel().getColumn( 3 ).setPreferredWidth( TABLE_COLUMN_WIDTH[ 3 ] );
         itemTable.getColumnModel().getColumn( 4 ).setPreferredWidth( TABLE_COLUMN_WIDTH[ 4 ] );
+        itemTable.removeColumn( itemTable.getColumnModel().getColumn( 5 ) );
         
         itemTable.setSelectionMode( ListSelectionModel.SINGLE_SELECTION );
         itemTable.setPreferredScrollableViewportSize( new Dimension( TABLE_WIDTH, TABLE_HEIGHT ) );
@@ -243,5 +255,29 @@ public class ScheduledItemPanel extends JPanel {
                 return detailButton;
             }
         });
+    }
+    
+    private void openScheduledItemUpdateDialog() {
+        int itemTableSelectedIndex = itemTable.getSelectedRow();
+        
+        if( itemTableSelectedIndex < 0 ) {
+            JOptionPane.showMessageDialog( ownerFrame, "未選擇資料", "Warning", JOptionPane.WARNING_MESSAGE );
+            return;
+        }
+        
+        int id = 0;
+        //String itemTableSelectedIdValue = (String) itemTable.getValueAt( itemTableSelectedIndex, 5 );
+        String itemTableSelectedIdValue = (String) itemTable.getModel().getValueAt( itemTableSelectedIndex, 5 );
+        try {
+            id = Integer.parseInt( itemTableSelectedIdValue );
+        } catch( NumberFormatException e ) {
+            JOptionPane.showMessageDialog( ownerFrame, "選擇無效的資料", "Warning", JOptionPane.WARNING_MESSAGE );
+            return;
+        } catch( StringIndexOutOfBoundsException e ) {
+            JOptionPane.showMessageDialog( ownerFrame, "選擇無效的資料", "Warning", JOptionPane.WARNING_MESSAGE );
+            return;
+        }
+        
+        scheduledItemUpdateDialog.openDialog( id );
     }
 }

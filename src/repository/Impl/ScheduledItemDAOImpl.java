@@ -181,7 +181,7 @@ public class ScheduledItemDAOImpl implements ScheduledItemDAO {
         }
         writer.close();
         
-        return false;
+        return true;
     }
 
     @Override
