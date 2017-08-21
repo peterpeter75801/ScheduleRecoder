@@ -199,6 +199,63 @@ public class SItemIntegratingTests extends TestCase {
         }
     }
     
+    public void testDeleteScheduledItem() throws IOException {
+        int testerSelection = 0;
+        ScheduledItemService scheduledItemService = new ScheduledItemServiceImpl();
+        
+        try {
+            backupFile( S_ITEM_CSV_FILE_PATH, S_ITEM_CSV_FILE_BACKUP_PATH );
+            backupFile( S_ITEM_SEQ_FILE_PATH, S_ITEM_SEQ_FILE_BACKUP_PATH );
+            
+            // 新增初始資料
+            for( int i = 1; i <= 5; i++ ) {
+                ScheduledItem scheduledItem = getTestData1();
+                scheduledItem.setMinute( scheduledItem.getMinute() + i * 5 );
+                scheduledItem.setName( scheduledItem.getName() + i );
+                scheduledItemService.insert( scheduledItem );
+            }
+            
+            MainFrame mainFrame = new MainFrame();
+            mainFrame.setVisible( true );
+            
+            JOptionPane.showMessageDialog( mainFrame, "請切換為英文輸入法", "Message", JOptionPane.INFORMATION_MESSAGE );
+            
+            Robot bot =  new Robot();
+            Thread.sleep( 3000 );
+            // 選擇事項排程頁籤資料列表的第一筆資料
+            bot.keyPress( KeyEvent.VK_RIGHT ); bot.keyRelease( KeyEvent.VK_RIGHT ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_DOWN ); bot.keyRelease( KeyEvent.VK_DOWN ); Thread.sleep( 100 );
+            // 點選事項排程頁籤的"取消"按鈕
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_SPACE ); bot.keyRelease( KeyEvent.VK_SPACE ); Thread.sleep( 100 );
+            Thread.sleep( 1000 );
+            // 確認取消(刪除)排程事項
+            bot.keyPress( KeyEvent.VK_SPACE ); bot.keyRelease( KeyEvent.VK_SPACE ); Thread.sleep( 100 );
+            Thread.sleep( 1000 );
+            
+            // 檢查畫面是否有更新
+            testerSelection = JOptionPane.showConfirmDialog( 
+                mainFrame, "畫面上是否只剩4筆資料\"test2\"、\"test3\"、\"test4\"和\"test5\"", "Check", JOptionPane.YES_NO_OPTION );
+            assertEquals( JOptionPane.YES_OPTION, testerSelection );
+            Thread.sleep( 1000 );
+            
+            // 檢查是否刪除成功
+            ScheduledItem expect = null;
+            ScheduledItem actual = scheduledItemService.findById( 1 );
+            assertEquals( expect, actual );
+        } catch ( Exception e ) {
+            e.printStackTrace();
+            assertTrue( e.getMessage(), false );
+        } finally {
+            restoreFile( S_ITEM_SEQ_FILE_BACKUP_PATH, S_ITEM_SEQ_FILE_PATH );
+            restoreFile( S_ITEM_CSV_FILE_BACKUP_PATH, S_ITEM_CSV_FILE_PATH );
+        }
+    }
+    
     private ScheduledItem getTestData1() {
         ScheduledItem testData = new ScheduledItem();
         testData.setId( 0 );

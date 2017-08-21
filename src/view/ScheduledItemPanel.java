@@ -100,6 +100,12 @@ public class ScheduledItemPanel extends JPanel {
         cancelButton.setBounds( 697, 186, 72, 22 );
         cancelButton.setMargin( new Insets( 0, 0, 0, 0 ) );
         cancelButton.setFont( generalFont );
+        cancelButton.addActionListener( new ActionListener() {
+            @Override
+            public void actionPerformed( ActionEvent event ) {
+                deleteScheduledItem();
+            }
+        });
         add( cancelButton );
         
         detailButton = new JButton( "詳細(D)" );
@@ -163,6 +169,54 @@ public class ScheduledItemPanel extends JPanel {
         } catch ( Exception e ) {
             e.printStackTrace();
             JOptionPane.showMessageDialog( null, "排程事項讀取資料發生錯誤", "Error", JOptionPane.ERROR_MESSAGE );
+        }
+    }
+    
+    private void deleteScheduledItem() {
+        int itemTableSelectedIndex = itemTable.getSelectedRow();
+        
+        if( itemTableSelectedIndex < 0 ) {
+            JOptionPane.showMessageDialog( ownerFrame, "未選擇資料", "Warning", JOptionPane.WARNING_MESSAGE );
+            return;
+        }
+        
+        int id = 0;
+        String itemTableSelectedIdValue = (String) itemTable.getModel().getValueAt( itemTableSelectedIndex, 5 );
+        try {
+            id = Integer.parseInt( itemTableSelectedIdValue );
+        } catch( NumberFormatException e ) {
+            JOptionPane.showMessageDialog( ownerFrame, "選擇無效的資料", "Warning", JOptionPane.WARNING_MESSAGE );
+            return;
+        } catch( StringIndexOutOfBoundsException e ) {
+            JOptionPane.showMessageDialog( ownerFrame, "選擇無效的資料", "Warning", JOptionPane.WARNING_MESSAGE );
+            return;
+        }
+        
+        int comfirmation = JOptionPane.showConfirmDialog( 
+                ownerFrame, "確認刪除?", "Check", JOptionPane.YES_NO_OPTION );
+        if( comfirmation != JOptionPane.YES_OPTION ) {
+            return;
+        }
+        
+        ScheduledItem scheduledItemForDelete = new ScheduledItem();
+        scheduledItemForDelete.setId( id );
+        
+        int returnCode = 0;
+        try {
+            returnCode = scheduledItemService.delete( scheduledItemForDelete );
+        } catch ( Exception e ) {
+            e.printStackTrace();
+            returnCode = Contants.ERROR;
+        }
+        switch( returnCode ) {
+        case Contants.SUCCESS:
+            loadScheduledItems();
+            break;
+        case Contants.ERROR:
+            JOptionPane.showMessageDialog( null, "刪除失敗", "Error", JOptionPane.ERROR_MESSAGE );
+            break;
+        default:
+            break;
         }
     }
     
@@ -266,7 +320,6 @@ public class ScheduledItemPanel extends JPanel {
         }
         
         int id = 0;
-        //String itemTableSelectedIdValue = (String) itemTable.getValueAt( itemTableSelectedIndex, 5 );
         String itemTableSelectedIdValue = (String) itemTable.getModel().getValueAt( itemTableSelectedIndex, 5 );
         try {
             id = Integer.parseInt( itemTableSelectedIdValue );
