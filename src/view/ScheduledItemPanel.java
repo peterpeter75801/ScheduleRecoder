@@ -10,6 +10,8 @@ import java.awt.Insets;
 import java.awt.KeyboardFocusManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -42,6 +44,7 @@ public class ScheduledItemPanel extends JPanel {
     private ScheduledItemCreateDialog scheduledItemCreateDialog; 
     private ScheduledItemUpdateDialog scheduledItemUpdateDialog;
     
+    private MnemonicKeyHandler mnemonicKeyHandler;
     private Font generalFont;
     private JTable itemTable;
     private JScrollPane itemTableScrollPane;
@@ -58,6 +61,8 @@ public class ScheduledItemPanel extends JPanel {
         
         scheduledItemService = new ScheduledItemServiceImpl();
         
+        mnemonicKeyHandler = new MnemonicKeyHandler();
+        
         generalFont = new Font( "細明體", Font.PLAIN, 16 );
         
         this.ownerFrame = ownerFrame;
@@ -70,6 +75,7 @@ public class ScheduledItemPanel extends JPanel {
         createButton.setBounds( 697, 54, 72, 22 );
         createButton.setMargin( new Insets( 0, 0, 0, 0 ) );
         createButton.setFont( generalFont );
+        createButton.addKeyListener( mnemonicKeyHandler );
         createButton.addActionListener( new ActionListener() {
             @Override
             public void actionPerformed( ActionEvent event ) {
@@ -82,6 +88,7 @@ public class ScheduledItemPanel extends JPanel {
         updateButton.setBounds( 697, 98, 72, 22 );
         updateButton.setMargin( new Insets( 0, 0, 0, 0 ) );
         updateButton.setFont( generalFont );
+        updateButton.addKeyListener( mnemonicKeyHandler );
         updateButton.addActionListener( new ActionListener() {
             @Override
             public void actionPerformed( ActionEvent event ) {
@@ -94,12 +101,14 @@ public class ScheduledItemPanel extends JPanel {
         completeButton.setBounds( 697, 142, 72, 22 );
         completeButton.setMargin( new Insets( 0, 0, 0, 0 ) );
         completeButton.setFont( generalFont );
+        completeButton.addKeyListener( mnemonicKeyHandler );
         add( completeButton );
         
         cancelButton = new JButton( "取消(C)" );
         cancelButton.setBounds( 697, 186, 72, 22 );
         cancelButton.setMargin( new Insets( 0, 0, 0, 0 ) );
         cancelButton.setFont( generalFont );
+        cancelButton.addKeyListener( mnemonicKeyHandler );
         cancelButton.addActionListener( new ActionListener() {
             @Override
             public void actionPerformed( ActionEvent event ) {
@@ -112,6 +121,7 @@ public class ScheduledItemPanel extends JPanel {
         detailButton.setBounds( 697, 230, 72, 22 );
         detailButton.setMargin( new Insets( 0, 0, 0, 0 ) );
         detailButton.setFont( generalFont );
+        detailButton.addKeyListener( mnemonicKeyHandler );
         add( detailButton );
         
         versionLabel = new JLabel( Contants.VERSION, SwingConstants.RIGHT );
@@ -120,8 +130,6 @@ public class ScheduledItemPanel extends JPanel {
         add( versionLabel );
         
         loadScheduledItems();
-        
-        //adjustComponentOrder();
     }
     
     public void loadScheduledItems() {
@@ -252,7 +260,7 @@ public class ScheduledItemPanel extends JPanel {
         
         itemTable.setSelectionMode( ListSelectionModel.SINGLE_SELECTION );
         itemTable.setPreferredScrollableViewportSize( new Dimension( TABLE_WIDTH, TABLE_HEIGHT ) );
-        //itemTable.addKeyListener( mnemonicKeyHandler );
+        itemTable.addKeyListener( mnemonicKeyHandler );
         
         Set<AWTKeyStroke> forward = new HashSet<AWTKeyStroke>(
                 itemTable.getFocusTraversalKeys( KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS ) );
@@ -267,48 +275,6 @@ public class ScheduledItemPanel extends JPanel {
         itemTableScrollPane.setBounds( 16, 29, TABLE_WIDTH, TABLE_HEIGHT + TABLE_HEADER_HEIGHT + BORDER_HEIGHT_FIX );
         
         add( itemTableScrollPane );
-    }
-    
-    private void adjustComponentOrder() {
-        final int FOCUSABLE_COMPONENT_COUNT = 6;
-        Vector<Component> order = new Vector<Component>( FOCUSABLE_COMPONENT_COUNT );
-        order.add( itemTable );
-        order.add( createButton );
-        order.add( updateButton );
-        order.add( completeButton );
-        order.add( cancelButton );
-        order.add( detailButton );
-        this.setFocusTraversalPolicyProvider( true );
-        this.setFocusTraversalPolicy( new FocusTraversalPolicy() {
-            @Override
-            public Component getComponentAfter( Container aContainer, Component aComponent ) {
-                return order.get( (order.indexOf( aComponent ) + 1) % order.size() );
-            }
-
-            @Override
-            public Component getComponentBefore( Container aContainer, Component aComponent ) {
-                int index = order.indexOf( aComponent ) - 1;
-                if( index < 0 ) {
-                    index = order.size() - 1;
-                }
-                return order.get( index );
-            }
-
-            @Override
-            public Component getDefaultComponent( Container aContainer ) {
-                return itemTable;
-            }
-
-            @Override
-            public Component getFirstComponent( Container aContainer ) {
-                return itemTable;
-            }
-
-            @Override
-            public Component getLastComponent( Container aContainer ) {
-                return detailButton;
-            }
-        });
     }
     
     private void openScheduledItemUpdateDialog() {
@@ -332,5 +298,40 @@ public class ScheduledItemPanel extends JPanel {
         }
         
         scheduledItemUpdateDialog.openDialog( id );
+    }
+    
+    private class MnemonicKeyHandler implements KeyListener {
+        
+        @Override
+        public void keyPressed( KeyEvent event ) {
+            switch( event.getKeyCode() ) {
+            case KeyEvent.VK_ENTER:
+                if( event.getSource() == createButton ) {
+                    scheduledItemCreateDialog.openDialog();
+                } else if( event.getSource() == updateButton ) {
+                    openScheduledItemUpdateDialog();
+                } else if( event.getSource() == cancelButton ) {
+                    deleteScheduledItem();
+                }
+                break;
+            case KeyEvent.VK_N:
+                scheduledItemCreateDialog.openDialog();
+                break;
+            case KeyEvent.VK_U:
+                openScheduledItemUpdateDialog();
+                break;
+            case KeyEvent.VK_C:
+                deleteScheduledItem();
+                break;
+            default:
+                break;
+            }
+        }
+
+        @Override
+        public void keyReleased( KeyEvent event ) {}
+
+        @Override
+        public void keyTyped( KeyEvent event ) {}
     }
 }

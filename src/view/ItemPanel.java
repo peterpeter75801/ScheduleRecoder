@@ -1,10 +1,6 @@
 package view;
 
-import java.awt.AWTKeyStroke;
-import java.awt.Component;
-import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.FocusTraversalPolicy;
 import java.awt.Font;
 import java.awt.Insets;
 import java.awt.KeyboardFocusManager;
@@ -174,8 +170,6 @@ public class ItemPanel extends JPanel {
         versionLabel.setBounds( 520, 508, 265, 22 );
         versionLabel.setFont( generalFont );
         add( versionLabel );
-        
-        //adjustComponentOrder();
         
         setPreferredSize( new Dimension( 793, 533 ) );
     }
@@ -414,15 +408,6 @@ public class ItemPanel extends JPanel {
         itemTable.setPreferredScrollableViewportSize( new Dimension( TABLE_WIDTH, TABLE_HEIGHT ) );
         itemTable.addKeyListener( mnemonicKeyHandler );
         
-        //Set<AWTKeyStroke> forward = new HashSet<AWTKeyStroke>(
-        //        itemTable.getFocusTraversalKeys( KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS ) );
-        //forward.add( KeyStroke.getKeyStroke( "TAB" ) );
-        //itemTable.setFocusTraversalKeys( KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS, forward );
-        //Set<AWTKeyStroke> backward = new HashSet<AWTKeyStroke>(
-        //        itemTable.getFocusTraversalKeys( KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS ) );
-        //backward.add( KeyStroke.getKeyStroke( "shift TAB" ) );
-        //itemTable.setFocusTraversalKeys( KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS, backward );
-        
         itemTable.getInputMap( JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT ).put(
             KeyStroke.getKeyStroke( KeyEvent.VK_TAB, 0 ), "none" );
         itemTable.getInputMap( JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT ).put(
@@ -452,52 +437,6 @@ public class ItemPanel extends JPanel {
             itemTableModel.setValueAt( "", i, 0 );
             itemTableModel.setValueAt( "", i, 1 );
         }
-    }
-    
-    private void adjustComponentOrder() {
-        final int FOCUSABLE_COMPONENT_COUNT = 10;
-        Vector<Component> order = new Vector<Component>( FOCUSABLE_COMPONENT_COUNT );
-        order.add( yearTextField );
-        order.add( monthTextField );
-        order.add( listDateButton );
-        order.add( dateList );
-        order.add( itemTable );
-        order.add( createButton );
-        order.add( updateButton );
-        order.add( deleteButton );
-        order.add( importButton );
-        order.add( exportButton );
-        this.setFocusTraversalPolicyProvider( true );
-        this.setFocusTraversalPolicy( new FocusTraversalPolicy() {
-            @Override
-            public Component getComponentAfter( Container aContainer, Component aComponent ) {
-                return order.get( (order.indexOf( aComponent ) + 1) % order.size() );
-            }
-
-            @Override
-            public Component getComponentBefore( Container aContainer, Component aComponent ) {
-                int index = order.indexOf( aComponent ) - 1;
-                if( index < 0 ) {
-                    index = order.size() - 1;
-                }
-                return order.get( index );
-            }
-
-            @Override
-            public Component getDefaultComponent( Container aContainer ) {
-                return dateList;
-            }
-
-            @Override
-            public Component getFirstComponent( Container aContainer ) {
-                return yearTextField;
-            }
-
-            @Override
-            public Component getLastComponent( Container aContainer ) {
-                return exportButton;
-            }
-        });
     }
     
     private void openItemUpdateDialog() {
