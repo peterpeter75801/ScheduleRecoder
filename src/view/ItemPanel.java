@@ -56,6 +56,7 @@ public class ItemPanel extends JPanel {
     private MnemonicKeyHandler mnemonicKeyHandler;
     private SpecialFocusTraversalPolicyHandler specialFocusTraversalPolicyHandler;
     private Font generalFont;
+    private Font itemTableFont;
     private JLabel yearLabel;
     private JTextField yearTextField;
     private JLabel monthLabel;
@@ -87,6 +88,7 @@ public class ItemPanel extends JPanel {
         specialFocusTraversalPolicyHandler = new SpecialFocusTraversalPolicyHandler();
         
         generalFont = new Font( "細明體", Font.PLAIN, 16 );
+        itemTableFont = new Font( "細明體", Font.PLAIN, 12 );
         
         this.ownerFrame = ownerFrame;
         itemCreateDialog = new ItemCreateDialog( ownerFrame, itemService );
@@ -384,7 +386,7 @@ public class ItemPanel extends JPanel {
         final int TABLE_HEIGHT = 440;
         final int TABLE_HEADER_HEIGHT = 22;
         final int TABLE_ROW_HEIGHT = 22;
-        final int[] TABLE_COLUMN_WIDTH = { 128, 368 };
+        final int[] TABLE_COLUMN_WIDTH = { 104, 392 };
         final int BORDER_HEIGHT_FIX = 3;
         final String[] columnNames = { "時間", "項目" };
         
@@ -396,6 +398,7 @@ public class ItemPanel extends JPanel {
                 return false;
             }
         });
+        itemTable.setFont( itemTableFont );
         
         itemTable.getTableHeader().setReorderingAllowed( false );
         itemTable.getTableHeader().setPreferredSize( new Dimension( TABLE_WIDTH, TABLE_HEADER_HEIGHT ) );

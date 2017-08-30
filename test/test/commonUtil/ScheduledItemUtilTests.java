@@ -37,6 +37,14 @@ public class ScheduledItemUtilTests extends TestCase {
     public void testCompareToByTime() {
         assertTrue( ScheduledItemUtil.compareToByTime( getTestData1(), getTestData3() ) == 0 );
         assertTrue( ScheduledItemUtil.compareToByTime( getTestData3(), getTestData4() ) < 0 );
+        
+        ScheduledItem sitem1 = getTestData5();
+        sitem1.setMonth( 8 );
+        sitem1.setDay( 31 );
+        ScheduledItem sitem2 = getTestData5();
+        sitem2.setMonth( 9 );
+        sitem2.setDay( 1 );
+        assertTrue( ScheduledItemUtil.compareToByTime( sitem1, sitem2 ) < 0 );
     }
     
     public void testSortByTime() {

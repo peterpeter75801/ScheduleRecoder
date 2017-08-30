@@ -130,6 +130,70 @@ public class SItemIntegratingTests extends TestCase {
         }
     }
     
+    public void testCreateScheduledItemWithEmptyExpectedTime() throws IOException {
+        int testerSelection = 0;
+        ScheduledItemService scheduledItemService = new ScheduledItemServiceImpl();
+        
+        try {
+            backupFile( S_ITEM_CSV_FILE_PATH, S_ITEM_CSV_FILE_BACKUP_PATH );
+            backupFile( S_ITEM_SEQ_FILE_PATH, S_ITEM_SEQ_FILE_BACKUP_PATH );
+            
+            MainFrame mainFrame = new MainFrame();
+            mainFrame.setVisible( true );
+            
+            JOptionPane.showMessageDialog( mainFrame, "請切換為英文輸入法", "Message", JOptionPane.INFORMATION_MESSAGE );
+            
+            Robot bot =  new Robot();
+            Thread.sleep( 3000 );
+            // 點選事項排程頁籤的"新增"按鈕
+            bot.keyPress( KeyEvent.VK_RIGHT ); bot.keyRelease( KeyEvent.VK_RIGHT ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_SPACE ); bot.keyRelease( KeyEvent.VK_SPACE ); Thread.sleep( 100 );
+            Thread.sleep( 1000 );
+            
+            // 新增資料
+            ScheduledItem scheduledItem = getTestData1();
+            inputString( bot, String.format( "%c", scheduledItem.getType() ) );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            inputString( bot, String.format( "%04d", scheduledItem.getYear() ) );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            inputString( bot, String.format( "%02d", scheduledItem.getMonth() ) );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            inputString( bot, String.format( "%02d", scheduledItem.getDay() ) );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            inputString( bot, String.format( "%02d", scheduledItem.getHour() ) );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            inputString( bot, String.format( "%02d", scheduledItem.getMinute() ) );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            // 預計花費時間(ExpectedTime)欄位設為空白
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            inputString( bot, scheduledItem.getName() );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            inputString( bot, scheduledItem.getDescription() );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_SPACE ); bot.keyRelease( KeyEvent.VK_SPACE ); Thread.sleep( 100 );
+            
+            // 檢查是否新增成功，並顯示在畫面上
+            testerSelection = JOptionPane.showConfirmDialog( 
+                mainFrame, "新增的資料是否有出現在畫面上，且預計花費時間欄位為空白", "Check", JOptionPane.YES_NO_OPTION );
+            assertEquals( JOptionPane.YES_OPTION, testerSelection );
+            Thread.sleep( 1000 );
+            
+            ScheduledItem expect = getTestData1();
+            expect.setId( 1 );
+            expect.setExpectedTime( -1 );
+            ScheduledItem actual = scheduledItemService.findById( 1 );
+            assertTrue( ScheduledItemUtil.equals( expect, actual ) );
+        } catch ( Exception e ) {
+            e.printStackTrace();
+            assertTrue( e.getMessage(), false );
+        } finally {
+            restoreFile( S_ITEM_SEQ_FILE_BACKUP_PATH, S_ITEM_SEQ_FILE_PATH );
+            restoreFile( S_ITEM_CSV_FILE_BACKUP_PATH, S_ITEM_CSV_FILE_PATH );
+        }
+    }
+    
     public void testUpdateScheduledItem() throws IOException {
         int testerSelection = 0;
         ScheduledItemService scheduledItemService = new ScheduledItemServiceImpl();

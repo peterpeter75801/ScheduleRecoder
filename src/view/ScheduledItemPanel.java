@@ -46,6 +46,7 @@ public class ScheduledItemPanel extends JPanel {
     
     private MnemonicKeyHandler mnemonicKeyHandler;
     private Font generalFont;
+    private Font itemTableFont;
     private JTable itemTable;
     private JScrollPane itemTableScrollPane;
     private JButton createButton;
@@ -64,6 +65,7 @@ public class ScheduledItemPanel extends JPanel {
         mnemonicKeyHandler = new MnemonicKeyHandler();
         
         generalFont = new Font( "細明體", Font.PLAIN, 16 );
+        itemTableFont = new Font( "細明體", Font.PLAIN, 12 );
         
         this.ownerFrame = ownerFrame;
         scheduledItemCreateDialog = new ScheduledItemCreateDialog( ownerFrame, scheduledItemService );
@@ -246,6 +248,7 @@ public class ScheduledItemPanel extends JPanel {
                 return false;
             }
         });
+        itemTable.setFont( itemTableFont );
         
         itemTable.getTableHeader().setReorderingAllowed( false );
         itemTable.getTableHeader().setPreferredSize( new Dimension( TABLE_WIDTH, TABLE_HEADER_HEIGHT ) );

@@ -54,9 +54,9 @@ public class ScheduledItemUtil {
         }
         
         calendar1.clear();
-        calendar1.set( sitem1.getYear(), sitem1.getMonth(), sitem1.getDay(), sitem1.getHour(), sitem1.getMinute() );
+        calendar1.set( sitem1.getYear(), sitem1.getMonth() - 1, sitem1.getDay(), sitem1.getHour(), sitem1.getMinute() );
         calendar2.clear();
-        calendar2.set( sitem2.getYear(), sitem2.getMonth(), sitem2.getDay(), sitem2.getHour(), sitem2.getMinute() );
+        calendar2.set( sitem2.getYear(), sitem2.getMonth() - 1, sitem2.getDay(), sitem2.getHour(), sitem2.getMinute() );
         
         @SuppressWarnings("unused")
         int test = calendar1.compareTo( calendar2 );

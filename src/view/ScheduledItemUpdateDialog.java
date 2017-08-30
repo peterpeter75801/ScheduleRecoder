@@ -268,6 +268,12 @@ private static final long serialVersionUID = 1L;
         cancelButton.setFont( generalFont );
         cancelButton.setMargin( new Insets( 0, 0, 0, 0 ) );
         cancelButton.addKeyListener( mnemonicKeyHandler );
+        cancelButton.addActionListener( new ActionListener() {
+            @Override
+            public void actionPerformed( ActionEvent event ) {
+                setVisible( false );
+            }
+        });
         dialogPanel.add( cancelButton );
         
         dialogPanel.setPreferredSize( new Dimension( 482, 340 ) );
