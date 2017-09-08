@@ -125,7 +125,7 @@ public class CsvFormatParser {
     public static boolean checkSpecialCharacter( String data ) {
         if( data == null ) {
             return false;
-        } else if( data.indexOf( System.lineSeparator() ) == -1 &&
+        } else if( data.indexOf( System.lineSeparator() ) == -1 && data.indexOf( "\n" ) == -1 &&
                 data.indexOf( "<" ) == -1 && data.indexOf( ">" ) == -1 && data.indexOf( "&" ) == -1 ) {
             return false;
         } else {
