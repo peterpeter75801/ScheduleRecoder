@@ -3,7 +3,6 @@ package view;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Insets;
-import java.awt.KeyboardFocusManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
@@ -13,10 +12,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.Vector;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
@@ -248,6 +244,7 @@ public class ItemPanel extends JPanel {
         listDateButton.setMargin( new Insets( 0, 0, 0, 0 ) );
         listDateButton.setFont( generalFont );
         listDateButton.setFocusTraversalKeysEnabled( false );
+        listDateButton.addKeyListener( mnemonicKeyHandler );
         listDateButton.addKeyListener( specialFocusTraversalPolicyHandler );
         listDateButton.addActionListener( new ActionListener() {
             @Override
@@ -267,6 +264,7 @@ public class ItemPanel extends JPanel {
         yearTextField.setBounds( 16, 10, 40, 22 );
         yearTextField.setFont( generalFont );
         yearTextField.addFocusListener( focusHandler );
+        yearTextField.addKeyListener( mnemonicKeyHandler );
         yearTextField.setText( String.format( "%04d", calendar.get( Calendar.YEAR ) ) );
         add( yearTextField );
         
@@ -279,6 +277,7 @@ public class ItemPanel extends JPanel {
         monthTextField.setBounds( 72, 10, 24, 22 );
         monthTextField.setFont( generalFont );
         monthTextField.addFocusListener( focusHandler );
+        monthTextField.addKeyListener( mnemonicKeyHandler );
         monthTextField.setText( String.format( "%02d", calendar.get( Calendar.MONTH ) + 1 ) );
         add( monthTextField );
         

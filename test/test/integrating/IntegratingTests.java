@@ -256,6 +256,7 @@ public class IntegratingTests extends TestCase {
     
     public void testUpdateItem() throws IOException {
         ItemDAOImpl itemDAO = new ItemDAOImpl();
+        int testerSelection = 0;
         
         try {
             backupFile( ITEM_CSV_FILE_PATH, ITEM_CSV_FILE_BACKUP_PATH );
@@ -298,6 +299,13 @@ public class IntegratingTests extends TestCase {
             // 修改資料
             inputString( bot, "test123" );
             bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            inputString( bot, "<test123>" );
+            bot.keyPress( KeyEvent.VK_ENTER ); bot.keyRelease( KeyEvent.VK_ENTER ); Thread.sleep( 100 );
+            inputString( bot, "test1," );
+            bot.keyPress( KeyEvent.VK_ENTER ); bot.keyRelease( KeyEvent.VK_ENTER ); Thread.sleep( 100 );
+            inputString( bot, "test2 &" );
+            bot.keyPress( KeyEvent.VK_ENTER ); bot.keyRelease( KeyEvent.VK_ENTER ); Thread.sleep( 100 );
+            inputString( bot, "test3" );
             bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
             bot.keyPress( KeyEvent.VK_SPACE ); bot.keyRelease( KeyEvent.VK_SPACE ); Thread.sleep( 100 );
             Thread.sleep( 1000 );
@@ -307,13 +315,28 @@ public class IntegratingTests extends TestCase {
                 getTestData1().getYear(), getTestData1().getMonth(), getTestData1().getDay(), 
                 getTestData1().getStartHour(), getTestData1().getStartMinute() );
             assertEquals( "test123", item.getName() );
+            assertEquals( "&lt;test123&gt;<br />test1,<br />test2 &amp;<br />test3", item.getDescription() );
+            
+            // 檢查資料是否有正確顯示在修改對話框
+            bot.keyPress( KeyEvent.VK_SPACE ); bot.keyRelease( KeyEvent.VK_SPACE ); Thread.sleep( 100 );
+            Thread.sleep( 1000 );
+            testerSelection = JOptionPane.showConfirmDialog( 
+                mainFrame, 
+                "項目名稱是否顯示為: test123\n描述是否顯示為: \n<test123>\ntest1,\ntest2 &\ntest3", 
+                "Check", JOptionPane.YES_NO_OPTION );
+            assertEquals( JOptionPane.YES_OPTION, testerSelection );
+            
+            // 回到主畫面
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_SPACE ); bot.keyRelease( KeyEvent.VK_SPACE ); Thread.sleep( 100 );
+            Thread.sleep( 1000 );
         } catch ( Exception e ) {
             e.printStackTrace();
             assertTrue( e.getMessage(), false );
         } finally {
             restoreFile( ITEM_CSV_FILE_BACKUP_PATH, ITEM_CSV_FILE_PATH );
         }
-        
     }
     
     public void testDeleteItem() throws IOException {
@@ -516,6 +539,11 @@ public class IntegratingTests extends TestCase {
                 "匯出的資料是否為:\n10:00 ~ 10:10  測試\n10:10 ~ 10:20  測試\n10:20 ~ 10:30  測試", 
                 "Check", JOptionPane.YES_NO_OPTION );
             assertEquals( JOptionPane.YES_OPTION, testerSelection );
+            
+            // 回到主畫面
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_SPACE ); bot.keyRelease( KeyEvent.VK_SPACE ); Thread.sleep( 100 );
+            Thread.sleep( 1000 );
         } catch ( Exception e ) {
             e.printStackTrace();
             assertTrue( e.getMessage(), false );

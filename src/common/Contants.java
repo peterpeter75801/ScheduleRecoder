@@ -11,10 +11,10 @@ public class Contants {
     public static final int DUPLICATE_DATA = -3;
     
     /**
-     * Verion alpha-0.25
-     * <br /> Bug fix: ScheduledItemUtil.compareToByTime() method incorrect result for comparing yyyy.08.31 and yyyy.09.01 date value.
-     * <br /> View: Adjust the width of the ItemPanel -> itemTable's column
-     * <br /> Bug fix: The cancel button in ScheduledItemCreateDialog and ScheduledItemUpdateDialog is no response after clicking.
+     * Verion alpha-0.26
+     * <br /> View: Add hot key on ItemPanel -> date selection text fields and button
+     * <br /> Feature: Support inputing "line separator" character on description column.
+     * <br /> Feature: Support inputing empty content on expected time column of scheduled item creating and updating dialog.
      */
-    public static final String VERSION = "Ver. alpha-0.25";
+    public static final String VERSION = "Ver. alpha-0.26";
 }

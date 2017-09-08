@@ -185,6 +185,25 @@ public class SItemIntegratingTests extends TestCase {
             expect.setExpectedTime( -1 );
             ScheduledItem actual = scheduledItemService.findById( 1 );
             assertTrue( ScheduledItemUtil.equals( expect, actual ) );
+            
+            // 檢查資料是否有正確顯示在修改對話框
+            bot.keyPress( KeyEvent.VK_SHIFT );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyRelease( KeyEvent.VK_SHIFT ); Thread.sleep( 1000 );
+            bot.keyPress( KeyEvent.VK_DOWN ); bot.keyRelease( KeyEvent.VK_DOWN ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_SPACE ); bot.keyRelease( KeyEvent.VK_SPACE ); Thread.sleep( 100 );
+            Thread.sleep( 1000 );
+            testerSelection = JOptionPane.showConfirmDialog( 
+                mainFrame, "預計花費時間欄位是否為空白?", "Check", JOptionPane.YES_NO_OPTION );
+            assertEquals( JOptionPane.YES_OPTION, testerSelection );
+            
+            // 回到主畫面
+            bot.keyPress( KeyEvent.VK_SHIFT );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyRelease( KeyEvent.VK_SHIFT );
+            bot.keyPress( KeyEvent.VK_SPACE ); bot.keyRelease( KeyEvent.VK_SPACE ); Thread.sleep( 100 );
         } catch ( Exception e ) {
             e.printStackTrace();
             assertTrue( e.getMessage(), false );
@@ -237,6 +256,13 @@ public class SItemIntegratingTests extends TestCase {
             bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
             inputString( bot, "test123" );
             bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            inputString( bot, "<test123>" );
+            bot.keyPress( KeyEvent.VK_ENTER ); bot.keyRelease( KeyEvent.VK_ENTER ); Thread.sleep( 100 );
+            inputString( bot, "test1," );
+            bot.keyPress( KeyEvent.VK_ENTER ); bot.keyRelease( KeyEvent.VK_ENTER ); Thread.sleep( 100 );
+            inputString( bot, "test2 &" );
+            bot.keyPress( KeyEvent.VK_ENTER ); bot.keyRelease( KeyEvent.VK_ENTER ); Thread.sleep( 100 );
+            inputString( bot, "test3" );
             bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
             bot.keyPress( KeyEvent.VK_SPACE ); bot.keyRelease( KeyEvent.VK_SPACE ); Thread.sleep( 100 );
             Thread.sleep( 1000 );
@@ -252,8 +278,24 @@ public class SItemIntegratingTests extends TestCase {
             expect.setName( "test123" );
             expect.setMinute( 30 );
             expect.setId( 1 );
+            expect.setDescription( "&lt;test123&gt;<br />test1,<br />test2 &amp;<br />test3" );
             ScheduledItem actual = scheduledItemService.findById( 1 );
             assertTrue( ScheduledItemUtil.equals( expect, actual ) );
+            
+            // 檢查資料是否有正確顯示在修改對話框
+            bot.keyPress( KeyEvent.VK_SPACE ); bot.keyRelease( KeyEvent.VK_SPACE ); Thread.sleep( 100 );
+            Thread.sleep( 1000 );
+            testerSelection = JOptionPane.showConfirmDialog( 
+                mainFrame, 
+                "項目名稱是否顯示為: test123\n描述是否顯示為: \n<test123>\ntest1,\ntest2 &\ntest3", 
+                "Check", JOptionPane.YES_NO_OPTION );
+            assertEquals( JOptionPane.YES_OPTION, testerSelection );
+            
+            // 回到主畫面
+            bot.keyPress( KeyEvent.VK_SHIFT );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyRelease( KeyEvent.VK_SHIFT );
+            bot.keyPress( KeyEvent.VK_SPACE ); bot.keyRelease( KeyEvent.VK_SPACE ); Thread.sleep( 100 );
         } catch ( Exception e ) {
             e.printStackTrace();
             assertTrue( e.getMessage(), false );

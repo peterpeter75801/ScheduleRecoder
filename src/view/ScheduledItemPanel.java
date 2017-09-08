@@ -1,10 +1,7 @@
 package view;
 
 import java.awt.AWTKeyStroke;
-import java.awt.Component;
-import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.FocusTraversalPolicy;
 import java.awt.Font;
 import java.awt.Insets;
 import java.awt.KeyboardFocusManager;
@@ -15,7 +12,6 @@ import java.awt.event.KeyListener;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.Vector;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -158,13 +154,17 @@ public class ScheduledItemPanel extends JPanel {
             for( int i = 0; i < scheduledItemList.size(); i++ ) {
                 ScheduledItem scheduledItem = scheduledItemList.get( i );
                 DefaultTableModel model = (DefaultTableModel) itemTable.getModel();
+                String currentExpectedTimeString = "";
+                if( scheduledItem.getExpectedTime() != -1 ) {
+                    currentExpectedTimeString = String.format( "%d min", scheduledItem.getExpectedTime() );
+                }
                 if( i >= itemTable.getRowCount() ) {
                     model.addRow( new Object[]{
                         ScheduledItemUtil.getTypeNameFromCode( scheduledItem.getType() ),
                         String.format( "%04d.%02d.%02d", scheduledItem.getYear(), scheduledItem.getMonth(), scheduledItem.getDay() ),
                         String.format( "%02d:%02d", scheduledItem.getHour(), scheduledItem.getMinute() ),
                         scheduledItem.getName(),
-                        String.format( "%d min", scheduledItem.getExpectedTime() ),
+                        currentExpectedTimeString,
                         String.format( "%d", scheduledItem.getId() ) } );
                 } else {
                     model.setValueAt( ScheduledItemUtil.getTypeNameFromCode( scheduledItem.getType() ), i, 0 );
@@ -172,7 +172,7 @@ public class ScheduledItemPanel extends JPanel {
                         i, 1 );
                     model.setValueAt( String.format( "%02d:%02d", scheduledItem.getHour(), scheduledItem.getMinute() ), i, 2 );
                     model.setValueAt( scheduledItem.getName(), i, 3 );
-                    model.setValueAt( String.format( "%d min", scheduledItem.getExpectedTime() ), i, 4 );
+                    model.setValueAt( currentExpectedTimeString, i, 4 );
                     model.setValueAt( String.format( "%d", scheduledItem.getId() ), i, 5 );
                 }
             }

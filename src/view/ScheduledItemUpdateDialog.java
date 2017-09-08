@@ -27,6 +27,7 @@ import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 
 import common.Contants;
+import commonUtil.CsvFormatParser;
 import domain.ScheduledItem;
 import service.ScheduledItemService;
 
@@ -328,9 +329,13 @@ private static final long serialVersionUID = 1L;
         dayTextField.setText( String.format( "%02d", scheduledItem.getDay() ) );
         hourTextField.setText( String.format( "%02d", scheduledItem.getHour() ) );
         minuteTextField.setText( String.format( "%02d", scheduledItem.getMinute() ) );
-        expectedTimeTextField.setText( String.format( "%d", scheduledItem.getExpectedTime() ) );
+        if( scheduledItem.getExpectedTime() == -1 ) {
+            expectedTimeTextField.setText( "" );
+        } else {
+            expectedTimeTextField.setText( String.format( "%d", scheduledItem.getExpectedTime() ) );
+        }
         nameTextField.setText( scheduledItem.getName() );
-        descriptionTextArea.setText( scheduledItem.getDescription() );
+        descriptionTextArea.setText( CsvFormatParser.restoreCharacterFromHtmlFormat( scheduledItem.getDescription() ) );
         
         setVisible( true );
     }
@@ -345,7 +350,11 @@ private static final long serialVersionUID = 1L;
             scheduledItem.setDay( Integer.parseInt( dayTextField.getText() ) );
             scheduledItem.setHour( Integer.parseInt( hourTextField.getText() ) );
             scheduledItem.setMinute( Integer.parseInt( minuteTextField.getText() ) );
-            scheduledItem.setExpectedTime( Integer.parseInt( expectedTimeTextField.getText() ) );
+            if( expectedTimeTextField.getText() == null || expectedTimeTextField.getText().length() <= 0 ) {
+                scheduledItem.setExpectedTime( -1 );
+            } else {
+                scheduledItem.setExpectedTime( Integer.parseInt( expectedTimeTextField.getText() ) );
+            }
             if( onTimeRadioButton.isSelected() ) {
                 scheduledItem.setType( 'O' );
             } else if( dueTimeRadioButton.isSelected() ) {
@@ -358,7 +367,11 @@ private static final long serialVersionUID = 1L;
                 scheduledItem.setType( '\0' );
             }
             scheduledItem.setName( nameTextField.getText() );
-            scheduledItem.setDescription( descriptionTextArea.getText() );
+            if( CsvFormatParser.checkSpecialCharacter( descriptionTextArea.getText() ) ) {
+                scheduledItem.setDescription( CsvFormatParser.specialCharacterToHtmlFormat( descriptionTextArea.getText() ) );
+            } else {
+                scheduledItem.setDescription( descriptionTextArea.getText() );
+            }
             returnCode = scheduledItemService.update( scheduledItem );
         } catch ( Exception e ) {
             e.printStackTrace();

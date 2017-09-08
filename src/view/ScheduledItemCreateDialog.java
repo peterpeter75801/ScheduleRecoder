@@ -29,6 +29,7 @@ import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 
 import common.Contants;
+import commonUtil.CsvFormatParser;
 import domain.ScheduledItem;
 import service.ScheduledItemService;
 
@@ -317,7 +318,11 @@ public class ScheduledItemCreateDialog extends JDialog {
             scheduledItem.setDay( Integer.parseInt( dayTextField.getText() ) );
             scheduledItem.setHour( Integer.parseInt( hourTextField.getText() ) );
             scheduledItem.setMinute( Integer.parseInt( minuteTextField.getText() ) );
-            scheduledItem.setExpectedTime( Integer.parseInt( expectedTimeTextField.getText() ) );
+            if( expectedTimeTextField.getText() == null || expectedTimeTextField.getText().length() <= 0 ) {
+                scheduledItem.setExpectedTime( -1 );
+            } else {
+                scheduledItem.setExpectedTime( Integer.parseInt( expectedTimeTextField.getText() ) );
+            }
             if( onTimeRadioButton.isSelected() ) {
                 scheduledItem.setType( 'O' );
             } else if( dueTimeRadioButton.isSelected() ) {
@@ -330,7 +335,11 @@ public class ScheduledItemCreateDialog extends JDialog {
                 scheduledItem.setType( '\0' );
             }
             scheduledItem.setName( nameTextField.getText() );
-            scheduledItem.setDescription( descriptionTextArea.getText() );
+            if( CsvFormatParser.checkSpecialCharacter( descriptionTextArea.getText() ) ) {
+                scheduledItem.setDescription( CsvFormatParser.specialCharacterToHtmlFormat( descriptionTextArea.getText() ) );
+            } else {
+                scheduledItem.setDescription( descriptionTextArea.getText() );
+            }
             returnCode = scheduledItemService.insert( scheduledItem );
         } catch ( Exception e ) {
             e.printStackTrace();

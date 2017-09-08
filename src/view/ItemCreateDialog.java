@@ -27,6 +27,7 @@ import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 
 import common.Contants;
+import commonUtil.CsvFormatParser;
 import domain.Item;
 import service.ItemService;
 
@@ -278,7 +279,11 @@ public class ItemCreateDialog extends JDialog {
             item.setEndHour( Integer.parseInt( endHourTextField.getText() ) );
             item.setEndMinute( Integer.parseInt( endMinuteTextField.getText() ) );
             item.setName( itemTextField.getText() );
-            item.setDescription( descriptionTextArea.getText() );
+            if( CsvFormatParser.checkSpecialCharacter( descriptionTextArea.getText() ) ) {
+                item.setDescription( CsvFormatParser.specialCharacterToHtmlFormat( descriptionTextArea.getText() ) );
+            } else {
+                item.setDescription( descriptionTextArea.getText() );
+            }
             returnCode = itemService.insert( item );
         } catch ( Exception e ) {
             e.printStackTrace();
