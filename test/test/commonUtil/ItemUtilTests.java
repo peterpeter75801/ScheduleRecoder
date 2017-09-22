@@ -12,7 +12,7 @@ import junit.framework.TestCase;
 public class ItemUtilTests extends TestCase {
     
     public void testGetItemFromCsvTupleString() {
-        String input = "2017,4,21,13,0,16,0,\"撰寫時間記錄程式\",\"\"";
+        String input = "2017,4,21,13,0,0,16,0,\"撰寫時間記錄程式\",\"\"";
         Item expectedData = getTestData1();
         Item actualData = null;
         try {
@@ -25,7 +25,7 @@ public class ItemUtilTests extends TestCase {
     
     public void testGetCsvTupleStringFromItem() {
         Item input = getTestData1();
-        String expectedTupleString = "2017,4,21,13,0,16,0,\"撰寫時間記錄程式\",\"\"";
+        String expectedTupleString = "2017,4,21,13,0,0,16,0,\"撰寫時間記錄程式\",\"\"";
         String actualTupleString = "";
         try {
             actualTupleString = ItemUtil.getCsvTupleStringFromItem( input );
@@ -125,6 +125,7 @@ public class ItemUtilTests extends TestCase {
         testData.setDay( 21 );
         testData.setStartHour( 13 );
         testData.setStartMinute( 0 );
+        testData.setSeq( 0 );
         testData.setEndHour( 16 );
         testData.setEndMinute( 0 );
         testData.setName( "撰寫時間記錄程式" );
@@ -139,6 +140,7 @@ public class ItemUtilTests extends TestCase {
         testData.setDay( 21 );
         testData.setStartHour( 16 );
         testData.setStartMinute( 10 );
+        testData.setSeq( 0 );
         testData.setEndHour( 17 );
         testData.setEndMinute( 0 );
         testData.setName( "撰寫時間記錄程式" );
@@ -153,6 +155,7 @@ public class ItemUtilTests extends TestCase {
         testData.setDay( 21 );
         testData.setStartHour( 13 );
         testData.setStartMinute( 0 );
+        testData.setSeq( 0 );
         testData.setEndHour( 16 );
         testData.setEndMinute( 0 );
         testData.setName( "撰寫時間記錄程式" );
@@ -167,6 +170,7 @@ public class ItemUtilTests extends TestCase {
         testData.setDay( 21 );
         testData.setStartHour( 10 );
         testData.setStartMinute( 5 );
+        testData.setSeq( 0 );
         testData.setEndHour( 10 );
         testData.setEndMinute( 40 );
         testData.setName( "洗碗" );
@@ -181,6 +185,7 @@ public class ItemUtilTests extends TestCase {
         testData.setDay( 21 );
         testData.setStartHour( 11 );
         testData.setStartMinute( 25 );
+        testData.setSeq( 0 );
         testData.setEndHour( 12 );
         testData.setEndMinute( 50 );
         testData.setName( "辦理國泰金融卡的問題" );

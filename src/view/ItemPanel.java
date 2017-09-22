@@ -196,14 +196,16 @@ public class ItemPanel extends JPanel {
             return;
         }
         
-        int year, month, day, startHour, startMinute;
+        int year, month, day, startHour, startMinute, seq;
         String itemTableSelectedTimeValue = (String) itemTable.getValueAt( itemTableSelectedIndex, 0 );
+        String itemTableSelectedSeqValue = (String) itemTable.getModel().getValueAt( itemTableSelectedIndex, 2 );
         try {
             year = Integer.parseInt( dateListSelectedValue.substring( 0, 4 ) );
             month = Integer.parseInt( dateListSelectedValue.substring( 5, 7 ) );
             day = Integer.parseInt( dateListSelectedValue.substring( 8, 10 ) );
             startHour = Integer.parseInt( itemTableSelectedTimeValue.substring( 0, 2 ) );
             startMinute = Integer.parseInt( itemTableSelectedTimeValue.substring( 3, 5 ) );
+            seq = Integer.parseInt( itemTableSelectedSeqValue );
         } catch( NumberFormatException e ) {
             JOptionPane.showMessageDialog( ownerFrame, "選擇無效的資料", "Warning", JOptionPane.WARNING_MESSAGE );
             return;
@@ -218,6 +220,7 @@ public class ItemPanel extends JPanel {
         itemForDelete.setDay( day );
         itemForDelete.setStartHour( startHour );
         itemForDelete.setStartMinute( startMinute );
+        itemForDelete.setSeq( seq );
         
         int returnCode = 0;
         try {
@@ -315,6 +318,48 @@ public class ItemPanel extends JPanel {
                 int day = Integer.parseInt( dateString.substring( 8, 10 ) );
 
                 reInitialItemTable();
+                
+                // 判斷item檔案版本是否 <= 0.26，以及詢問使用者是否要執行轉檔
+                boolean beforeVersion26Flag = false;
+                int userSelection = 0;
+                try {
+                    beforeVersion26Flag = ( itemService.checkItemDataVersion( year, month, day ) == Contants.ERROR_VERSION_OUT_OF_DATE );
+                } catch ( Exception e ) {
+                    e.printStackTrace();
+                }
+                if( beforeVersion26Flag ) {
+                    userSelection = JOptionPane.showConfirmDialog( 
+                        ownerFrame, 
+                        "<html><body><div style=\"width: 100%; text-align: center;\">" + 
+                            "偵測到時間記錄的檔案為\"alpha-0.26\"之前的版本，<br />需要進行轉檔才能繼續執行，<br />" + 
+                            "請問是否進行轉檔? <br />(注意：版本\"alpha-0.26\"以前的程式將無法讀取轉檔之後的檔案)" +
+                        "</div></body></html>", 
+                        "Check", JOptionPane.YES_NO_OPTION );
+                }
+
+                // 若item檔案版本是否 <= 0.26，且使用者同意進行轉檔，則執行item檔案轉檔作業
+                String convertingMsg = "";
+                if( beforeVersion26Flag && userSelection == JOptionPane.YES_OPTION ) {
+                    try {
+                        convertingMsg = itemService.convertOldItemDataToCurrentVersion();
+                    } catch ( Exception e ) {
+                        e.printStackTrace();
+                        convertingMsg = e.getMessage();
+                    }
+                }
+                
+                // 判斷是否能夠載入item檔案到畫面中
+                if( beforeVersion26Flag && userSelection == JOptionPane.YES_OPTION && convertingMsg.equals( "Success" ) ) {
+                    JOptionPane.showMessageDialog( ownerFrame, "轉檔成功\n", "Information", JOptionPane.INFORMATION_MESSAGE );
+                } else if( beforeVersion26Flag && userSelection == JOptionPane.YES_OPTION && !convertingMsg.equals( "Success" ) ) {
+                    JOptionPane.showMessageDialog( ownerFrame, "轉檔失敗\n" + convertingMsg, "Error", JOptionPane.ERROR_MESSAGE );
+                    return;
+                } else if( beforeVersion26Flag && userSelection != JOptionPane.YES_OPTION ) {
+                    JOptionPane.showMessageDialog( ownerFrame, "無法讀取舊版本(<= alpha-0.26)的時間記錄資料", "Error", JOptionPane.ERROR_MESSAGE );
+                    return;
+                }
+                
+                // 載入item檔案到畫面中
                 findByDateIntoItemTable( year, month, day );
             }
         });
@@ -367,10 +412,12 @@ public class ItemPanel extends JPanel {
                 if( i >= itemTable.getRowCount() ) {
                     model.addRow( new Object[]{ 
                         String.format( "%02d:%02d ~ %02d:%02d", item.getStartHour(), item.getStartMinute(), item.getEndHour(), item.getEndMinute() ),
-                        item.getName() } );
+                        item.getName(),
+                        String.format( "%d", item.getSeq() ) } );
                 } else {
                     model.setValueAt( String.format( "%02d:%02d ~ %02d:%02d", item.getStartHour(), item.getStartMinute(), item.getEndHour(), item.getEndMinute() ), i, 0 );
                     model.setValueAt( item.getName(), i, 1 );
+                    model.setValueAt( String.format( "%d", item.getSeq() ), i, 2 );
                 }
             }
         } catch ( Exception e ) {
@@ -385,9 +432,9 @@ public class ItemPanel extends JPanel {
         final int TABLE_HEIGHT = 440;
         final int TABLE_HEADER_HEIGHT = 22;
         final int TABLE_ROW_HEIGHT = 22;
-        final int[] TABLE_COLUMN_WIDTH = { 104, 392 };
+        final int[] TABLE_COLUMN_WIDTH = { 104, 392, 0 };
         final int BORDER_HEIGHT_FIX = 3;
-        final String[] columnNames = { "時間", "項目" };
+        final String[] columnNames = { "時間", "項目", "Seq(hidden)" };
         
         itemTable = new JTable( new DefaultTableModel( columnNames, DEFAULT_ROW_COUNT ) {
             private static final long serialVersionUID = 1L;
@@ -405,6 +452,7 @@ public class ItemPanel extends JPanel {
         
         itemTable.getColumnModel().getColumn( 0 ).setPreferredWidth( TABLE_COLUMN_WIDTH[ 0 ] );
         itemTable.getColumnModel().getColumn( 1 ).setPreferredWidth( TABLE_COLUMN_WIDTH[ 1 ] );
+        itemTable.removeColumn( itemTable.getColumnModel().getColumn( 2 ) );
         
         itemTable.setSelectionMode( ListSelectionModel.SINGLE_SELECTION );
         itemTable.setPreferredScrollableViewportSize( new Dimension( TABLE_WIDTH, TABLE_HEIGHT ) );
@@ -438,6 +486,7 @@ public class ItemPanel extends JPanel {
         for( int i = 0; i < itemTable.getRowCount(); i++ ) {
             itemTableModel.setValueAt( "", i, 0 );
             itemTableModel.setValueAt( "", i, 1 );
+            itemTableModel.setValueAt( "", i, 2 );
         }
     }
     
@@ -450,14 +499,16 @@ public class ItemPanel extends JPanel {
             return;
         }
         
-        int year, month, day, startHour, startMinute;
-        String itemTableSelectedTimeValue = (String) itemTable.getValueAt( itemTableSelectedIndex, 0 );
+        int year, month, day, startHour, startMinute, seq;
+        String itemTableSelectedTimeValue = (String) itemTable.getModel().getValueAt( itemTableSelectedIndex, 0 );
+        String itemTableSelectedSeqValue = (String) itemTable.getModel().getValueAt( itemTableSelectedIndex, 2 );
         try {
             year = Integer.parseInt( dateListSelectedValue.substring( 0, 4 ) );
             month = Integer.parseInt( dateListSelectedValue.substring( 5, 7 ) );
             day = Integer.parseInt( dateListSelectedValue.substring( 8, 10 ) );
             startHour = Integer.parseInt( itemTableSelectedTimeValue.substring( 0, 2 ) );
             startMinute = Integer.parseInt( itemTableSelectedTimeValue.substring( 3, 5 ) );
+            seq = Integer.parseInt( itemTableSelectedSeqValue );
         } catch( NumberFormatException e ) {
             JOptionPane.showMessageDialog( ownerFrame, "選擇無效的資料", "Warning", JOptionPane.WARNING_MESSAGE );
             return;
@@ -466,7 +517,7 @@ public class ItemPanel extends JPanel {
             return;
         }
         
-        itemUpdateDialog.openDialog( year, month, day, startHour, startMinute );
+        itemUpdateDialog.openDialog( year, month, day, startHour, startMinute, seq );
     }
     
     public void reselectDateList() {

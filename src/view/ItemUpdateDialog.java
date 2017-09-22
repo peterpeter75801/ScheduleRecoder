@@ -35,6 +35,8 @@ public class ItemUpdateDialog extends JDialog {
     
     private ItemService itemService;
     
+    private int itemSeq = 0;
+    
     private MainFrame ownerFrame;
     
     private FocusHandler focusHandler;
@@ -245,11 +247,11 @@ public class ItemUpdateDialog extends JDialog {
         setVisible( false );
     }
     
-    public void openDialog( int year, int month, int day, int startHour, int startMinute ) {
+    public void openDialog( int year, int month, int day, int startHour, int startMinute, int seq ) {
         Item item = null;
         
         try {
-            item = itemService.findByTime( year, month, day, startHour, startMinute );
+            item = itemService.findOne( year, month, day, startHour, startMinute, seq );
         } catch ( Exception e ) {
             e.printStackTrace();
         }
@@ -257,6 +259,8 @@ public class ItemUpdateDialog extends JDialog {
             JOptionPane.showMessageDialog( this, "載入資料失敗", "Error", JOptionPane.ERROR_MESSAGE );
             return;
         }
+        
+        itemSeq = seq;
         
         yearTextField.setText( String.format( "%04d", item.getYear() ) );
         monthTextField.setText( String.format( "%02d", item.getMonth() ) );
@@ -282,6 +286,7 @@ public class ItemUpdateDialog extends JDialog {
             item.setDay( Integer.parseInt( dayTextField.getText() ) );
             item.setStartHour( Integer.parseInt( startHourTextField.getText() ) );
             item.setStartMinute( Integer.parseInt( startMinuteTextField.getText() ) );
+            item.setSeq( itemSeq );
             item.setEndHour( Integer.parseInt( endHourTextField.getText() ) );
             item.setEndMinute( Integer.parseInt( endMinuteTextField.getText() ) );
             item.setName( itemTextField.getText() );

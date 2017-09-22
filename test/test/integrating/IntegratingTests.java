@@ -2,11 +2,8 @@ package test.integrating;
 
 import java.awt.Robot;
 import java.awt.event.KeyEvent;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -14,10 +11,14 @@ import java.util.List;
 
 import javax.swing.JOptionPane;
 
+import common.Contants;
 import commonUtil.ItemUtil;
 import domain.Item;
 import junit.framework.TestCase;
-import repository.Impl.ItemDAOImpl;
+import repository.ItemDAO;
+import repository.Impl.ItemDAOImplBeforeVer26;
+import service.ItemService;
+import service.Impl.ItemServiceImpl;
 import view.MainFrame;
 
 public class IntegratingTests extends TestCase {
@@ -26,10 +27,9 @@ public class IntegratingTests extends TestCase {
     private final String ITEM_CSV_FILE_BACKUP_PATH = "data\\Item\\2017.06.01_backup.csv";
     private final String ITEM_CSV_FILE_PATH_2 = "data\\Item\\2017.05.01.csv";
     private final String ITEM_CSV_FILE_BACKUP_PATH_2 = "data\\Item\\2017.05.01_backup.csv";
-    private final String FILE_CHARSET = "big5";
     
     public void testDateListSelection() throws IOException {
-        ItemDAOImpl itemDAO = new ItemDAOImpl();
+        ItemService itemService = new ItemServiceImpl();
         int testerSelection = 0;
         
         try {
@@ -40,7 +40,7 @@ public class IntegratingTests extends TestCase {
                 Item item = getTestData1();
                 item.setStartMinute( item.getStartMinute() + i );
                 item.setEndMinute( item.getEndMinute() + i );
-                itemDAO.insert( item );
+                itemService.insert( item );
             }
             
             MainFrame mainFrame = new MainFrame();
@@ -85,6 +85,7 @@ public class IntegratingTests extends TestCase {
     }
     
     public void testCreateItem() throws IOException {
+        ItemService itemService = new ItemServiceImpl();
         int testerSelection = 0;
         
         try {
@@ -145,6 +146,16 @@ public class IntegratingTests extends TestCase {
                 mainFrame, "新增的資料是否有出現在畫面上", "Check", JOptionPane.YES_NO_OPTION );
             assertEquals( JOptionPane.YES_OPTION, testerSelection );
             Thread.sleep( 1000 );
+            
+            List<Item> expect = new ArrayList<Item>();
+            expect.add( getTestData1() );
+            expect.get( expect.size() - 1 ).setName( "test" );
+            expect.get( expect.size() - 1 ).setSeq( 0 );
+            List<Item> actual = itemService.findByDate( 2017, 6, 1 );
+            assertEquals( expect.size(), actual.size() );
+            for( int i = 0; i < expect.size(); i++ ) {
+                assertTrue( ItemUtil.equals( expect.get( i ), actual.get( i ) ) );
+            }
         } catch ( Exception e ) {
             e.printStackTrace();
             assertTrue( e.getMessage(), false );
@@ -154,7 +165,7 @@ public class IntegratingTests extends TestCase {
     }
     
     public void testInsertItem() throws IOException {
-        ItemDAOImpl itemDAO = new ItemDAOImpl();
+        ItemService itemService = new ItemServiceImpl();
         
         try {
             backupFile( ITEM_CSV_FILE_PATH, ITEM_CSV_FILE_BACKUP_PATH );
@@ -163,7 +174,7 @@ public class IntegratingTests extends TestCase {
                 Item item = getTestData1();
                 item.setStartMinute( item.getStartMinute() + i*10 );
                 item.setEndMinute( item.getEndMinute() + i*10 + 5 );
-                itemDAO.insert( item );
+                itemService.insert( item );
             }
             
             MainFrame mainFrame = new MainFrame();
@@ -204,7 +215,7 @@ public class IntegratingTests extends TestCase {
             bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
             inputString( bot, "10" );
             bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
-            inputString( bot, "05" );
+            inputString( bot, "00" );
             bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
             inputString( bot, "10" );
             bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
@@ -217,34 +228,25 @@ public class IntegratingTests extends TestCase {
             Thread.sleep( 1000 );
             
             // 檢查資料是否正確新增
-            String[] expect = {
-                "2017,6,1,10,0,10,5,\"測試\",\"\"",
-                "2017,6,1,10,5,10,10,\"test\",\"\"",
-                "2017,6,1,10,10,10,15,\"測試\",\"\"",
-                "2017,6,1,10,20,10,25,\"測試\",\"\"" };
-            String[] actual = new String[ 4 ];
+            List<Item> expect = new ArrayList<Item>();
+            expect.add( getTestData1() );
+            expect.get( expect.size() - 1 ).setEndMinute( 5 );
+            expect.add( getTestData1() );
+            expect.get( expect.size() - 1 ).setSeq( 1 );
+            expect.get( expect.size() - 1 ).setEndMinute( 10 );
+            expect.get( expect.size() - 1 ).setName( "test" );
+            expect.add( getTestData1() );
+            expect.get( expect.size() - 1 ).setStartMinute( 10 );
+            expect.get( expect.size() - 1 ).setEndMinute( 15 );
+            expect.add( getTestData1() );
+            expect.get( expect.size() - 1 ).setStartMinute( 20 );
+            expect.get( expect.size() - 1 ).setEndMinute( 25 );
             
-            BufferedReader bufReader = new BufferedReader( new InputStreamReader(
-                    new FileInputStream( new File( ITEM_CSV_FILE_PATH ) ),
-                    FILE_CHARSET
-                )
-            );
-            bufReader.readLine();    // skip attribute titles
+            List<Item> actual = itemService.findByDate( 2017, 6, 1 );
             
-            String currentTuple = "";
-            int i = 0;
-            for( ; (currentTuple = bufReader.readLine()) != null; i++ ) {
-                if( i >= 4 ) {
-                    bufReader.close();
-                    assertTrue( "data count > 4", false );
-                }
-                actual[ i ] = currentTuple;
-            }
-            bufReader.close();
-            
-            assertEquals( 4, i );
-            for( i = 0; i < 4; i++ ) {
-                assertEquals( "failed at i = " + i, expect[ i ], actual[ i ] );
+            assertEquals( expect.size(), actual.size() );
+            for( int i = 0; i < expect.size(); i++ ) {
+                assertTrue( ItemUtil.equals( expect.get( i ), actual.get( i ) ) );
             }
         } catch ( Exception e ) {
             e.printStackTrace();
@@ -255,7 +257,7 @@ public class IntegratingTests extends TestCase {
     }
     
     public void testUpdateItem() throws IOException {
-        ItemDAOImpl itemDAO = new ItemDAOImpl();
+        ItemService itemService = new ItemServiceImpl();
         int testerSelection = 0;
         
         try {
@@ -265,7 +267,7 @@ public class IntegratingTests extends TestCase {
                 Item item = getTestData1();
                 item.setStartMinute( item.getStartMinute() + i*10 );
                 item.setEndMinute( item.getEndMinute() + i*10 );
-                itemDAO.insert( item );
+                itemService.insert( item );
             }
             
             MainFrame mainFrame = new MainFrame();
@@ -311,9 +313,9 @@ public class IntegratingTests extends TestCase {
             Thread.sleep( 1000 );
             
             // 檢查資料是否有成功修改
-            Item item = itemDAO.findByTime(
+            Item item = itemService.findOne(
                 getTestData1().getYear(), getTestData1().getMonth(), getTestData1().getDay(), 
-                getTestData1().getStartHour(), getTestData1().getStartMinute() );
+                getTestData1().getStartHour(), getTestData1().getStartMinute(), getTestData1().getSeq() );
             assertEquals( "test123", item.getName() );
             assertEquals( "&lt;test123&gt;<br />test1,<br />test2 &amp;<br />test3", item.getDescription() );
             
@@ -340,7 +342,7 @@ public class IntegratingTests extends TestCase {
     }
     
     public void testDeleteItem() throws IOException {
-        ItemDAOImpl itemDAO = new ItemDAOImpl();
+        ItemService itemService = new ItemServiceImpl();
         
         try {
             backupFile( ITEM_CSV_FILE_PATH, ITEM_CSV_FILE_BACKUP_PATH );
@@ -349,7 +351,7 @@ public class IntegratingTests extends TestCase {
                 Item item = getTestData1();
                 item.setStartMinute( item.getStartMinute() + i*10 );
                 item.setEndMinute( item.getEndMinute() + i*10 );
-                itemDAO.insert( item );
+                itemService.insert( item );
             }
             
             MainFrame mainFrame = new MainFrame();
@@ -383,20 +385,21 @@ public class IntegratingTests extends TestCase {
             Thread.sleep( 1000 );
             
             // 檢查資料是否有成功刪除
-            List<Item> expectItems = new ArrayList<Item>();
+            List<Item> expect = new ArrayList<Item>();
             for( int i = 0; i < 3; i++ ) {
                 Item item = getTestData1();
+                item.setSeq( 0 );
                 item.setStartMinute( item.getStartMinute() + i*10 );
                 item.setEndMinute( item.getEndMinute() + i*10 );
                 if( i != 1 ) {
-                    expectItems.add( item );
+                    expect.add( item );
                 }
             }
-            List<Item> actualItems = itemDAO.findByDate( getTestData1().getYear(), getTestData1().getMonth(), getTestData1().getDay() );
+            List<Item> actual = itemService.findByDate( 2017, 6, 1 );
             
-            assertEquals( expectItems.size(), actualItems.size() );
-            for( int i = 0; i < expectItems.size(); i++ ) {
-                assertTrue( ItemUtil.equals( expectItems.get( i ), actualItems.get( i ) ) );
+            assertEquals( expect.size(), actual.size() );
+            for( int i = 0; i < expect.size(); i++ ) {
+                assertTrue( ItemUtil.equals( expect.get( i ), actual.get( i ) ) );
             }
         } catch ( Exception e ) {
             e.printStackTrace();
@@ -407,6 +410,8 @@ public class IntegratingTests extends TestCase {
     }
     
     public void testImportItem() throws IOException {
+        ItemService itemService = new ItemServiceImpl();
+        
         try {
             backupFile( ITEM_CSV_FILE_PATH, ITEM_CSV_FILE_BACKUP_PATH );
             
@@ -444,6 +449,7 @@ public class IntegratingTests extends TestCase {
             inputList.add( "10:20 ~ 10:30  test3" );
             inputList.add( "10:30 ~ 10:40  test4" );
             inputList.add( "10:40 ~ 10:50  test5" );
+            inputList.add( "10:40 ~ 10:55  test6" );
             for( String input : inputList ) {
                 inputString( bot, input );
                 bot.keyPress( KeyEvent.VK_ENTER ); bot.keyRelease( KeyEvent.VK_ENTER ); Thread.sleep( 100 );
@@ -453,35 +459,25 @@ public class IntegratingTests extends TestCase {
             Thread.sleep( 1000 );
             
             // 檢查資料是否正確匯入
-            String[] expect = {
-                "2017,6,1,10,0,10,10,\"test\",\"\"",
-                "2017,6,1,10,10,10,20,\"test2\",\"\"",
-                "2017,6,1,10,20,10,30,\"test3\",\"\"",
-                "2017,6,1,10,30,10,40,\"test4\",\"\"",
-                "2017,6,1,10,40,10,50,\"test5\",\"\"" };
-            String[] actual = new String[ 5 ];
-            
-            BufferedReader bufReader = new BufferedReader( new InputStreamReader(
-                    new FileInputStream( new File( ITEM_CSV_FILE_PATH ) ),
-                    FILE_CHARSET
-                )
-            );
-            bufReader.readLine();    // skip attribute titles
-            
-            String currentTuple = "";
-            int i = 0;
-            for( ; (currentTuple = bufReader.readLine()) != null; i++ ) {
-                if( i >= 5 ) {
-                    bufReader.close();
-                    assertTrue( "data count > 5", false );
+            List<Item> expect = new ArrayList<Item>();
+            for( int i = 0; i < 6; i++ ) {
+                Item item = getTestData1();
+                item.setSeq( 0 );
+                item.setStartMinute( item.getStartMinute() + i*10 );
+                item.setEndMinute( item.getEndMinute() + i*10 + 10 );
+                item.setName( "test" + ((i == 0) ? "" : (i + 1)) );
+                if( i == 5 ) {
+                    item.setSeq( 1 );
+                    item.setStartMinute( 40 );
+                    item.setEndMinute( 55 );
                 }
-                actual[ i ] = currentTuple;
+                expect.add( item );
             }
-            bufReader.close();
+            List<Item> actual = itemService.findByDate( 2017, 6, 1 );
             
-            assertEquals( 5, i );
-            for( i = 0; i < 5; i++ ) {
-                assertEquals( "failed at i = " + i, expect[ i ], actual[ i ] );
+            assertEquals( expect.size(), actual.size() );
+            for( int i = 0; i < expect.size(); i++ ) {
+                assertTrue( "failed at i = " + i, ItemUtil.equals( expect.get( i ), actual.get( i ) ) );
             }
         } catch ( Exception e ) {
             e.printStackTrace();
@@ -492,7 +488,7 @@ public class IntegratingTests extends TestCase {
     }
     
     public void testExportItem() throws IOException {
-        ItemDAOImpl itemDAO = new ItemDAOImpl();
+        ItemService itemService = new ItemServiceImpl();
         int testerSelection = 0;
         
         try {
@@ -502,7 +498,7 @@ public class IntegratingTests extends TestCase {
                 Item item = getTestData1();
                 item.setStartMinute( item.getStartMinute() + i*10 );
                 item.setEndMinute( item.getEndMinute() + i*10 + 10 );
-                itemDAO.insert( item );
+                itemService.insert( item );
             }
             
             MainFrame mainFrame = new MainFrame();
@@ -552,6 +548,124 @@ public class IntegratingTests extends TestCase {
         }
     }
     
+    public void testConvertOldItemDataToCurrentVersion() throws IOException {
+        final String ITEM_CSV_FILE_PATH_1 = "data\\Item\\2017.06.01.csv";
+        final String ITEM_CSV_FILE_BACKUP_PATH_1 = "data\\Item\\2017.06.01_backup.csv";
+        final String ITEM_CSV_FILE_PATH_2 = "data\\Item\\2017.05.01.csv";
+        final String ITEM_CSV_FILE_BACKUP_PATH_2 = "data\\Item\\2017.05.01_backup.csv";
+        final String ITEM_CSV_FILE_PATH_3 = "data\\Item\\2017.06.03.csv";
+        final String ITEM_CSV_FILE_BACKUP_PATH_3 = "data\\Item\\2017.06.03_backup.csv";
+        
+        ItemDAO itemDAOBeforeVer26 = new ItemDAOImplBeforeVer26();
+        ItemService itemService = new ItemServiceImpl();
+        int testerSelection = 0;
+        
+        try {
+            backupFile( ITEM_CSV_FILE_PATH_1, ITEM_CSV_FILE_BACKUP_PATH_1 );
+            backupFile( ITEM_CSV_FILE_PATH_2, ITEM_CSV_FILE_BACKUP_PATH_2 );
+            backupFile( ITEM_CSV_FILE_PATH_3, ITEM_CSV_FILE_BACKUP_PATH_3 );
+            
+            for( int i = 0; i < 5; i++ ) {
+                Item item = getTestData1();
+                item.setStartMinute( item.getStartMinute() + i*10 );
+                item.setEndMinute( item.getEndMinute() + i*10 );
+                if( i == 3 ) {
+                    item.setMonth( 5 );
+                } else if( i == 4 ) {
+                    item.setDay( 3 );
+                }
+                itemDAOBeforeVer26.insert( item );
+            }
+            
+            MainFrame mainFrame = new MainFrame();
+            mainFrame.setVisible( true );
+            
+            JOptionPane.showMessageDialog( mainFrame, "請切換為英文輸入法", "Message", JOptionPane.INFORMATION_MESSAGE );
+            
+            Robot bot =  new Robot();
+            Thread.sleep( 3000 );
+            
+            // 選擇年份為2017
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            inputString( bot, "2017" );
+            // 選擇月份為06，列出2017/06的日期清單
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            inputString( bot, "06" );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_SPACE ); bot.keyRelease( KeyEvent.VK_SPACE ); Thread.sleep( 100 );
+            Thread.sleep( 1000 );
+            
+            // 檢查是否有偵測到item檔案為"alpha-0.26"以前的版本
+            testerSelection = JOptionPane.showConfirmDialog(
+                mainFrame, 
+                "是否有偵測到時間記錄的檔案為\"alpha-0.26\"之前的版本",
+                "Check", JOptionPane.YES_NO_OPTION );
+            assertEquals( JOptionPane.YES_OPTION, testerSelection );
+            
+            // 選擇進行轉檔作業選項
+            bot.keyPress( KeyEvent.VK_ENTER ); bot.keyRelease( KeyEvent.VK_ENTER ); Thread.sleep( 100 );
+            Thread.sleep( 3000 );
+            
+            // 確認轉檔訊息
+            bot.keyPress( KeyEvent.VK_ENTER ); bot.keyRelease( KeyEvent.VK_ENTER ); Thread.sleep( 100 );
+            Thread.sleep( 1000 );
+            
+            // 檢查item檔案是否正確轉檔
+            List<Item> expect1 = new ArrayList<Item>();
+            List<Item> expect2 = new ArrayList<Item>();
+            List<Item> expect3 = new ArrayList<Item>();
+            for( int i = 0; i < 5; i++ ) {
+                Item item = getTestData1();
+                item.setStartMinute( item.getStartMinute() + i*10 );
+                item.setEndMinute( item.getEndMinute() + i*10 );
+                if( i == 3 ) {
+                    item.setMonth( 5 );
+                    expect2.add( item );
+                } else if( i == 4 ) {
+                    item.setDay( 3 );
+                    expect3.add( item );
+                } else {
+                    expect1.add( item );
+                }
+            }
+            
+            assertEquals( Contants.SUCCESS, itemService.checkItemDataVersion( 2017, 6, 1 ) );
+            List<Item> actual1 = itemService.findByDate( 2017, 6, 1 );
+            assertEquals( expect1.size(), actual1.size() );
+            for( int i = 0; i < expect1.size(); i++ ) {
+                assertTrue( ItemUtil.equals( expect1.get( i ), actual1.get( i ) ) );
+            }
+            
+            assertEquals( Contants.SUCCESS, itemService.checkItemDataVersion( 2017, 5, 1 ) );
+            List<Item> actual2 = itemService.findByDate( 2017, 5, 1 );
+            assertEquals( expect2.size(), actual2.size() );
+            for( int i = 0; i < expect2.size(); i++ ) {
+                assertTrue( ItemUtil.equals( expect2.get( i ), actual2.get( i ) ) );
+            }
+            
+            assertEquals( Contants.SUCCESS, itemService.checkItemDataVersion( 2017, 6, 3 ) );
+            List<Item> actual3 = itemService.findByDate( 2017, 6, 3 );
+            assertEquals( expect3.size(), actual3.size() );
+            for( int i = 0; i < expect3.size(); i++ ) {
+                assertTrue( ItemUtil.equals( expect3.get( i ), actual3.get( i ) ) );
+            }
+            
+            // 檢查資料是否正確顯示
+            testerSelection = JOptionPane.showConfirmDialog( 
+                mainFrame, 
+                "顯示的資料是否為:\n10:00 ~ 10:00  測試\n10:10 ~ 10:10  測試\n10:20 ~ 10:20  測試", 
+                "Check", JOptionPane.YES_NO_OPTION );
+            assertEquals( JOptionPane.YES_OPTION, testerSelection );
+        } catch ( Exception e ) {
+            e.printStackTrace();
+            assertTrue( e.getMessage(), false );
+        } finally {
+            restoreFile( ITEM_CSV_FILE_BACKUP_PATH_3, ITEM_CSV_FILE_PATH_3 );
+            restoreFile( ITEM_CSV_FILE_BACKUP_PATH_2, ITEM_CSV_FILE_PATH_2 );
+            restoreFile( ITEM_CSV_FILE_BACKUP_PATH_1, ITEM_CSV_FILE_PATH_1 );
+        }
+    }
+    
     private Item getTestData1() {
         Item testData = new Item();
         testData.setYear( 2017 );
@@ -559,6 +673,7 @@ public class IntegratingTests extends TestCase {
         testData.setDay( 1 );
         testData.setStartHour( 10 );
         testData.setStartMinute( 00 );
+        testData.setSeq( 0 );
         testData.setEndHour( 10 );
         testData.setEndMinute( 00 );
         testData.setName( "測試" );

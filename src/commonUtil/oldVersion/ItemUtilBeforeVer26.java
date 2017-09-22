@@ -1,13 +1,15 @@
-package commonUtil;
+package commonUtil.oldVersion;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import commonUtil.ComparingUtil;
+import commonUtil.CsvFormatParser;
 import domain.Item;
 
-public class ItemUtil {
+public class ItemUtilBeforeVer26 {
     
-    private final static int ATTRIBUTE_NUMBER = 10;
+    private final static int ATTRIBUTE_NUMBER = 9;
     
     public static Item getItemFromCsvTupleString( String tuple ) throws Exception {
         String[] csvDataArray = CsvFormatParser.parseFromTuple( tuple );
@@ -17,11 +19,10 @@ public class ItemUtil {
         item.setDay( Integer.parseInt( csvDataArray[ 2 ] ) );
         item.setStartHour( Integer.parseInt( csvDataArray[ 3 ] ) );
         item.setStartMinute( Integer.parseInt( csvDataArray[ 4 ] ) );
-        item.setSeq( Integer.parseInt( csvDataArray[ 5 ] ) );
-        item.setEndHour( Integer.parseInt( csvDataArray[ 6 ] ) );
-        item.setEndMinute( Integer.parseInt( csvDataArray[ 7 ] ) );
-        item.setName( csvDataArray[ 8 ] );
-        item.setDescription( csvDataArray[ 9 ] );
+        item.setEndHour( Integer.parseInt( csvDataArray[ 5 ] ) );
+        item.setEndMinute( Integer.parseInt( csvDataArray[ 6 ] ) );
+        item.setName( csvDataArray[ 7 ] );
+        item.setDescription( csvDataArray[ 8 ] );
         return item;
     }
     
@@ -32,11 +33,10 @@ public class ItemUtil {
         csvDataArray[ 2 ] = CsvFormatParser.toCsvData( item.getDay() );
         csvDataArray[ 3 ] = CsvFormatParser.toCsvData( item.getStartHour() );
         csvDataArray[ 4 ] = CsvFormatParser.toCsvData( item.getStartMinute() );
-        csvDataArray[ 5 ] = CsvFormatParser.toCsvData( item.getSeq() );
-        csvDataArray[ 6 ] = CsvFormatParser.toCsvData( item.getEndHour() );
-        csvDataArray[ 7 ] = CsvFormatParser.toCsvData( item.getEndMinute() );
-        csvDataArray[ 8 ] = CsvFormatParser.toCsvData( item.getName() );
-        csvDataArray[ 9 ] = CsvFormatParser.toCsvData( item.getDescription() );
+        csvDataArray[ 5 ] = CsvFormatParser.toCsvData( item.getEndHour() );
+        csvDataArray[ 6 ] = CsvFormatParser.toCsvData( item.getEndMinute() );
+        csvDataArray[ 7 ] = CsvFormatParser.toCsvData( item.getName() );
+        csvDataArray[ 8 ] = CsvFormatParser.toCsvData( item.getDescription() );
         return CsvFormatParser.mergeCsvDataToATuple( csvDataArray );
     }
     
@@ -197,8 +197,6 @@ public class ItemUtil {
         } else if( ComparingUtil.compare( item1.getStartHour(), item2.getStartHour() ) != 0 ) {
             return false;
         } else if( ComparingUtil.compare( item1.getStartMinute(), item2.getStartMinute() ) != 0 ) {
-            return false;
-        } else if( ComparingUtil.compare( item1.getSeq(), item2.getSeq() ) != 0 ) {
             return false;
         } else if( ComparingUtil.compare( item1.getEndHour(), item2.getEndHour() ) != 0 ) {
             return false;

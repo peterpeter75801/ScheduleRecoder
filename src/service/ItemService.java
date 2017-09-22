@@ -11,12 +11,16 @@ public interface ItemService {
     public int insertItemsInDateGroup( Integer year, Integer month, Integer day, 
             List<Item> itemList ) throws Exception;
     
-    public Item findByTime( Integer year, Integer month, Integer day, 
-            Integer startHour, Integer startMinute ) throws Exception;
+    public Item findOne( Integer year, Integer month, Integer day, 
+            Integer startHour, Integer startMinute, Integer seq ) throws Exception;
     
     public List<Item> findByDate( Integer year, Integer month, Integer day ) throws Exception;
     
     public int update( Item item ) throws Exception;
     
     public int delete( Item item ) throws Exception;
+    
+    public int checkItemDataVersion( Integer year, Integer month, Integer day ) throws Exception;
+    
+    public String convertOldItemDataToCurrentVersion() throws Exception;
 }

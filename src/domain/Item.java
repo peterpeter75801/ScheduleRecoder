@@ -7,6 +7,7 @@ public class Item {
     private Integer day;            // 日
     private Integer startHour;      // 時-起
     private Integer startMinute;    // 分-起
+    private Integer seq;            // 序號
     private Integer endHour;        // 時-迄
     private Integer endMinute;      // 分-迄
     private String name;            // 項目名稱
@@ -50,6 +51,14 @@ public class Item {
 
     public Integer getStartMinute() {
         return startMinute;
+    }
+    
+    public void setSeq( Integer seq ) {
+        this.seq = seq;
+    }
+    
+    public Integer getSeq() {
+        return seq;
     }
 
     public void setEndHour( Integer endHour ) {
