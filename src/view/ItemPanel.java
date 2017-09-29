@@ -29,7 +29,10 @@ import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.event.UndoableEditEvent;
+import javax.swing.event.UndoableEditListener;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.undo.UndoManager;
 
 import common.Contants;
 import domain.Item;
@@ -48,9 +51,12 @@ public class ItemPanel extends JPanel {
     private ItemImportDialog itemImportDialog;
     private ItemExportDialog itemExportDialog;
     
+    private UndoManager undoManager;
     private FocusHandler focusHandler;
     private MnemonicKeyHandler mnemonicKeyHandler;
     private SpecialFocusTraversalPolicyHandler specialFocusTraversalPolicyHandler;
+    private UndoEditHandler undoEditHandler;
+    private UndoHotKeyHandler undoHotKeyHandler;
     private Font generalFont;
     private Font itemTableFont;
     private JLabel yearLabel;
@@ -72,16 +78,18 @@ public class ItemPanel extends JPanel {
     
     // TODO: 選擇dateList選項以後，自動選擇itemTable的第一筆資料
     // TODO: 將程式初始的焦點設定在itemTable
-    // TODO: 將JTabbedPane標籤加入tab切換的循環中
     
     public ItemPanel( MainFrame ownerFrame ) {
         setLayout( null );
         
         itemService = new ItemServiceImpl();
         
+        undoManager = new UndoManager();
         focusHandler = new FocusHandler();
         mnemonicKeyHandler = new MnemonicKeyHandler();
         specialFocusTraversalPolicyHandler = new SpecialFocusTraversalPolicyHandler();
+        undoEditHandler = new UndoEditHandler();
+        undoHotKeyHandler = new UndoHotKeyHandler();
         
         generalFont = new Font( "細明體", Font.PLAIN, 16 );
         itemTableFont = new Font( "細明體", Font.PLAIN, 12 );
@@ -268,6 +276,8 @@ public class ItemPanel extends JPanel {
         yearTextField.setFont( generalFont );
         yearTextField.addFocusListener( focusHandler );
         yearTextField.addKeyListener( mnemonicKeyHandler );
+        yearTextField.addKeyListener( undoHotKeyHandler );
+        yearTextField.getDocument().addUndoableEditListener( undoEditHandler );
         yearTextField.setText( String.format( "%04d", calendar.get( Calendar.YEAR ) ) );
         add( yearTextField );
         
@@ -281,6 +291,8 @@ public class ItemPanel extends JPanel {
         monthTextField.setFont( generalFont );
         monthTextField.addFocusListener( focusHandler );
         monthTextField.addKeyListener( mnemonicKeyHandler );
+        monthTextField.addKeyListener( undoHotKeyHandler );
+        monthTextField.getDocument().addUndoableEditListener( undoEditHandler );
         monthTextField.setText( String.format( "%02d", calendar.get( Calendar.MONTH ) + 1 ) );
         add( monthTextField );
         
@@ -607,6 +619,32 @@ public class ItemPanel extends JPanel {
                 updateButton.requestFocus();
             } else if( event.getSource() == createButton && event.isShiftDown() ) {
                 itemTable.requestFocus();
+            }
+        }
+
+        @Override
+        public void keyReleased( KeyEvent event ) {}
+
+        @Override
+        public void keyTyped( KeyEvent event ) {}
+    }
+    
+    private class UndoEditHandler implements UndoableEditListener {
+        
+        @Override
+        public void undoableEditHappened( UndoableEditEvent event ) {
+            undoManager.addEdit( event.getEdit() );
+        }
+    }
+    
+    private class UndoHotKeyHandler implements KeyListener {
+        
+        @Override
+        public void keyPressed( KeyEvent event ) {
+            if( event.isControlDown() && event.getKeyCode() == KeyEvent.VK_Z && undoManager.canUndo() ) {
+                undoManager.undo();
+            } else if( event.isControlDown() && event.getKeyCode() == KeyEvent.VK_Y && undoManager.canRedo() ) {
+                undoManager.redo();
             }
         }
 

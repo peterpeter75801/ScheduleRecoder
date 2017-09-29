@@ -28,6 +28,9 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
+import javax.swing.event.UndoableEditEvent;
+import javax.swing.event.UndoableEditListener;
+import javax.swing.undo.UndoManager;
 
 import commonUtil.ItemUtil;
 import domain.Item;
@@ -42,8 +45,11 @@ public class ItemExportDialog extends JDialog {
     private String itemTxtString;
     private String itemStatistics;
     
+    private UndoManager undoManager;
     private FocusHandler focusHandler;
     private MnemonicKeyHandler mnemonicKeyHandler;
+    private UndoEditHandler undoEditHandler;
+    private UndoHotKeyHandler undoHotKeyHandler;
     private Font generalFont;
     private JPanel dialogPanel;
     private JTextField yearTextField;
@@ -65,8 +71,11 @@ public class ItemExportDialog extends JDialog {
         
         this.itemService = itemService;
         
+        undoManager = new UndoManager();
         focusHandler = new FocusHandler();
         mnemonicKeyHandler = new MnemonicKeyHandler();
+        undoEditHandler = new UndoEditHandler();
+        undoHotKeyHandler = new UndoHotKeyHandler();
         
         generalFont = new Font( "細明體", Font.PLAIN, 16 );
         
@@ -79,6 +88,8 @@ public class ItemExportDialog extends JDialog {
         yearTextField.setEditable( false );
         yearTextField.addFocusListener( focusHandler );
         yearTextField.addKeyListener( mnemonicKeyHandler );
+        yearTextField.addKeyListener( undoHotKeyHandler );
+        yearTextField.getDocument().addUndoableEditListener( undoEditHandler );
         dialogPanel.add( yearTextField );
         
         yearLabel = new JLabel( "年" );
@@ -92,6 +103,8 @@ public class ItemExportDialog extends JDialog {
         monthTextField.setEditable( false );
         monthTextField.addFocusListener( focusHandler );
         monthTextField.addKeyListener( mnemonicKeyHandler );
+        monthTextField.addKeyListener( undoHotKeyHandler );
+        monthTextField.getDocument().addUndoableEditListener( undoEditHandler );
         dialogPanel.add( monthTextField );
         
         monthLabel = new JLabel( "月" );
@@ -105,6 +118,8 @@ public class ItemExportDialog extends JDialog {
         dayTextField.setEditable( false );
         dayTextField.addFocusListener( focusHandler );
         dayTextField.addKeyListener( mnemonicKeyHandler );
+        dayTextField.addKeyListener( undoHotKeyHandler );
+        dayTextField.getDocument().addUndoableEditListener( undoEditHandler );
         dialogPanel.add( dayTextField );
         
         dayLabel = new JLabel( "日" );
@@ -155,6 +170,8 @@ public class ItemExportDialog extends JDialog {
         exportContentTextArea.setSize( 425, 198 );
         exportContentTextArea.setFont( generalFont );
         exportContentTextArea.addKeyListener( mnemonicKeyHandler );
+        exportContentTextArea.addKeyListener( undoHotKeyHandler );
+        exportContentTextArea.getDocument().addUndoableEditListener( undoEditHandler );
         exportContentScrollPane = new JScrollPane( exportContentTextArea );
         exportContentScrollPane.setBounds( 16, 76, 449, 203 );
         exportContentScrollPane.setPreferredSize( new Dimension( 449, 203 ) );
@@ -240,8 +257,6 @@ public class ItemExportDialog extends JDialog {
         }
     }
     
-
-    
     private class MnemonicKeyHandler implements KeyListener {
         
         @Override
@@ -255,6 +270,32 @@ public class ItemExportDialog extends JDialog {
             case KeyEvent.VK_ESCAPE:
                 setVisible( false );
                 break;
+            }
+        }
+
+        @Override
+        public void keyReleased( KeyEvent event ) {}
+
+        @Override
+        public void keyTyped( KeyEvent event ) {}
+    }
+    
+    private class UndoEditHandler implements UndoableEditListener {
+        
+        @Override
+        public void undoableEditHappened( UndoableEditEvent event ) {
+            undoManager.addEdit( event.getEdit() );
+        }
+    }
+    
+    private class UndoHotKeyHandler implements KeyListener {
+        
+        @Override
+        public void keyPressed( KeyEvent event ) {
+            if( event.isControlDown() && event.getKeyCode() == KeyEvent.VK_Z && undoManager.canUndo() ) {
+                undoManager.undo();
+            } else if( event.isControlDown() && event.getKeyCode() == KeyEvent.VK_Y && undoManager.canRedo() ) {
+                undoManager.redo();
             }
         }
 

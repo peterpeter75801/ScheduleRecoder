@@ -23,6 +23,9 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
+import javax.swing.event.UndoableEditEvent;
+import javax.swing.event.UndoableEditListener;
+import javax.swing.undo.UndoManager;
 
 import common.Contants;
 import commonUtil.CsvFormatParser;
@@ -35,12 +38,16 @@ public class ItemUpdateDialog extends JDialog {
     
     private ItemService itemService;
     
+    private Item originalItem;
     private int itemSeq = 0;
     
     private MainFrame ownerFrame;
     
+    private UndoManager undoManager;
     private FocusHandler focusHandler;
     private MnemonicKeyHandler mnemonicKeyHandler;
+    private UndoEditHandler undoEditHandler;
+    private UndoHotKeyHandler undoHotKeyHandler;
     private Font generalFont;
     private JPanel dialogPanel;
     private JTextField yearTextField;
@@ -74,8 +81,11 @@ public class ItemUpdateDialog extends JDialog {
         
         this.ownerFrame = ownerFrame;
         
+        undoManager = new UndoManager();
         focusHandler = new FocusHandler();
         mnemonicKeyHandler = new MnemonicKeyHandler();
+        undoEditHandler = new UndoEditHandler();
+        undoHotKeyHandler = new UndoHotKeyHandler();
         
         generalFont = new Font( "細明體", Font.PLAIN, 16 );
         
@@ -85,8 +95,9 @@ public class ItemUpdateDialog extends JDialog {
         yearTextField = new JTextField( 4 );
         yearTextField.setBounds( 16, 10, 40, 22 );
         yearTextField.setFont( generalFont );
-        yearTextField.setEditable( false );
         yearTextField.addFocusListener( focusHandler );
+        yearTextField.addKeyListener( undoHotKeyHandler );
+        yearTextField.getDocument().addUndoableEditListener( undoEditHandler );
         dialogPanel.add( yearTextField );
         
         yearLabel = new JLabel( "年" );
@@ -97,8 +108,9 @@ public class ItemUpdateDialog extends JDialog {
         monthTextField = new JTextField( 2 );
         monthTextField.setBounds( 72, 10, 24, 22 );
         monthTextField.setFont( generalFont );
-        monthTextField.setEditable( false );
         monthTextField.addFocusListener( focusHandler );
+        monthTextField.addKeyListener( undoHotKeyHandler );
+        monthTextField.getDocument().addUndoableEditListener( undoEditHandler );
         dialogPanel.add( monthTextField );
         
         monthLabel = new JLabel( "月" );
@@ -109,8 +121,9 @@ public class ItemUpdateDialog extends JDialog {
         dayTextField = new JTextField( 2 );
         dayTextField.setBounds( 112, 10, 24, 22 );
         dayTextField.setFont( generalFont );
-        dayTextField.setEditable( false );
         dayTextField.addFocusListener( focusHandler );
+        dayTextField.addKeyListener( undoHotKeyHandler );
+        dayTextField.getDocument().addUndoableEditListener( undoEditHandler );
         dialogPanel.add( dayTextField );
         
         dayLabel = new JLabel( "日" );
@@ -126,8 +139,9 @@ public class ItemUpdateDialog extends JDialog {
         startHourTextField = new JTextField( 2 );
         startHourTextField.setBounds( 96, 54, 24, 22 );
         startHourTextField.setFont( generalFont );
-        startHourTextField.setEditable( false );
         startHourTextField.addFocusListener( focusHandler );
+        startHourTextField.addKeyListener( undoHotKeyHandler );
+        startHourTextField.getDocument().addUndoableEditListener( undoEditHandler );
         dialogPanel.add( startHourTextField );
         
         startHourLabel = new JLabel( "時" );
@@ -138,8 +152,9 @@ public class ItemUpdateDialog extends JDialog {
         startMinuteTextField = new JTextField( 2 );
         startMinuteTextField.setBounds( 136, 54, 24, 22 );
         startMinuteTextField.setFont( generalFont );
-        startMinuteTextField.setEditable( false );
         startMinuteTextField.addFocusListener( focusHandler );
+        startMinuteTextField.addKeyListener( undoHotKeyHandler );
+        startMinuteTextField.getDocument().addUndoableEditListener( undoEditHandler );
         dialogPanel.add( startMinuteTextField );
         
         startMinuteLabel = new JLabel( "分" );
@@ -157,6 +172,8 @@ public class ItemUpdateDialog extends JDialog {
         endHourTextField.setFont( generalFont );
         endHourTextField.addFocusListener( focusHandler );
         endHourTextField.addKeyListener( mnemonicKeyHandler );
+        endHourTextField.addKeyListener( undoHotKeyHandler );
+        endHourTextField.getDocument().addUndoableEditListener( undoEditHandler );
         dialogPanel.add( endHourTextField );
         
         endHourLabel = new JLabel( "時" );
@@ -169,6 +186,8 @@ public class ItemUpdateDialog extends JDialog {
         endMinuteTextField.setFont( generalFont );
         endMinuteTextField.addFocusListener( focusHandler );
         endMinuteTextField.addKeyListener( mnemonicKeyHandler );
+        endMinuteTextField.addKeyListener( undoHotKeyHandler );
+        endMinuteTextField.getDocument().addUndoableEditListener( undoEditHandler );
         dialogPanel.add( endMinuteTextField );
         
         endMinuteLabel = new JLabel( "分" );
@@ -186,6 +205,8 @@ public class ItemUpdateDialog extends JDialog {
         itemTextField.setFont( generalFont );
         itemTextField.addFocusListener( focusHandler );
         itemTextField.addKeyListener( mnemonicKeyHandler );
+        itemTextField.addKeyListener( undoHotKeyHandler );
+        itemTextField.getDocument().addUndoableEditListener( undoEditHandler );
         dialogPanel.add( itemTextField );
         
         descriptionLabel = new JLabel( "說明:" );
@@ -198,6 +219,8 @@ public class ItemUpdateDialog extends JDialog {
         descriptionTextArea.setFont( generalFont );
         descriptionTextArea.setLineWrap( true );
         descriptionTextArea.setWrapStyleWord( true );
+        descriptionTextArea.addKeyListener( undoHotKeyHandler );
+        descriptionTextArea.getDocument().addUndoableEditListener( undoEditHandler );
         descriptionScrollPane = new JScrollPane( descriptionTextArea );
         descriptionScrollPane.setBounds( 16, 164, 449, 115 );
         descriptionScrollPane.setPreferredSize( new Dimension( 449, 115 ) );
@@ -272,6 +295,8 @@ public class ItemUpdateDialog extends JDialog {
         itemTextField.setText( item.getName() );
         descriptionTextArea.setText( CsvFormatParser.restoreCharacterFromHtmlFormat( item.getDescription() ) );
         
+        originalItem = item;
+        
         itemTextField.requestFocus();
         
         setVisible( true );
@@ -295,7 +320,7 @@ public class ItemUpdateDialog extends JDialog {
             } else {
                 item.setDescription( descriptionTextArea.getText() );
             }
-            returnCode = itemService.update( item );
+            returnCode = itemService.update( originalItem, item );
         } catch ( Exception e ) {
             e.printStackTrace();
             returnCode = Contants.ERROR;
@@ -336,6 +361,32 @@ public class ItemUpdateDialog extends JDialog {
             case KeyEvent.VK_ESCAPE:
                 setVisible( false );
                 break;
+            }
+        }
+
+        @Override
+        public void keyReleased( KeyEvent event ) {}
+
+        @Override
+        public void keyTyped( KeyEvent event ) {}
+    }
+    
+    private class UndoEditHandler implements UndoableEditListener {
+        
+        @Override
+        public void undoableEditHappened( UndoableEditEvent event ) {
+            undoManager.addEdit( event.getEdit() );
+        }
+    }
+    
+    private class UndoHotKeyHandler implements KeyListener {
+        
+        @Override
+        public void keyPressed( KeyEvent event ) {
+            if( event.isControlDown() && event.getKeyCode() == KeyEvent.VK_Z && undoManager.canUndo() ) {
+                undoManager.undo();
+            } else if( event.isControlDown() && event.getKeyCode() == KeyEvent.VK_Y && undoManager.canRedo() ) {
+                undoManager.redo();
             }
         }
 

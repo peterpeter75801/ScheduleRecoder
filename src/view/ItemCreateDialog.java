@@ -25,6 +25,9 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
+import javax.swing.event.UndoableEditEvent;
+import javax.swing.event.UndoableEditListener;
+import javax.swing.undo.UndoManager;
 
 import common.Contants;
 import commonUtil.CsvFormatParser;
@@ -39,8 +42,11 @@ public class ItemCreateDialog extends JDialog {
     
     private MainFrame ownerFrame;
     
+    private UndoManager undoManager;
     private FocusHandler focusHandler;
     private MnemonicKeyHandler mnemonicKeyHandler;
+    private UndoEditHandler undoEditHandler;
+    private UndoHotKeyHandler undoHotKeyHandler;
     private Font generalFont;
     private JPanel dialogPanel;
     private JTextField yearTextField;
@@ -74,8 +80,11 @@ public class ItemCreateDialog extends JDialog {
         
         this.ownerFrame = ownerFrame;
         
+        undoManager = new UndoManager();
         focusHandler = new FocusHandler();
         mnemonicKeyHandler = new MnemonicKeyHandler();
+        undoEditHandler = new UndoEditHandler();
+        undoHotKeyHandler = new UndoHotKeyHandler();
         
         generalFont = new Font( "細明體", Font.PLAIN, 16 );
         
@@ -87,6 +96,8 @@ public class ItemCreateDialog extends JDialog {
         yearTextField.setFont( generalFont );
         yearTextField.addFocusListener( focusHandler );
         yearTextField.addKeyListener( mnemonicKeyHandler );
+        yearTextField.addKeyListener( undoHotKeyHandler );
+        yearTextField.getDocument().addUndoableEditListener( undoEditHandler );
         dialogPanel.add( yearTextField );
         
         yearLabel = new JLabel( "年" );
@@ -99,6 +110,8 @@ public class ItemCreateDialog extends JDialog {
         monthTextField.setFont( generalFont );
         monthTextField.addFocusListener( focusHandler );
         monthTextField.addKeyListener( mnemonicKeyHandler );
+        monthTextField.addKeyListener( undoHotKeyHandler );
+        monthTextField.getDocument().addUndoableEditListener( undoEditHandler );
         dialogPanel.add( monthTextField );
         
         monthLabel = new JLabel( "月" );
@@ -111,6 +124,8 @@ public class ItemCreateDialog extends JDialog {
         dayTextField.setFont( generalFont );
         dayTextField.addFocusListener( focusHandler );
         dayTextField.addKeyListener( mnemonicKeyHandler );
+        dayTextField.addKeyListener( undoHotKeyHandler );
+        dayTextField.getDocument().addUndoableEditListener( undoEditHandler );
         dialogPanel.add( dayTextField );
         
         dayLabel = new JLabel( "日" );
@@ -128,6 +143,8 @@ public class ItemCreateDialog extends JDialog {
         startHourTextField.setFont( generalFont );
         startHourTextField.addFocusListener( focusHandler );
         startHourTextField.addKeyListener( mnemonicKeyHandler );
+        startHourTextField.addKeyListener( undoHotKeyHandler );
+        startHourTextField.getDocument().addUndoableEditListener( undoEditHandler );
         dialogPanel.add( startHourTextField );
         
         startHourLabel = new JLabel( "時" );
@@ -140,6 +157,8 @@ public class ItemCreateDialog extends JDialog {
         startMinuteTextField.setFont( generalFont );
         startMinuteTextField.addFocusListener( focusHandler );
         startMinuteTextField.addKeyListener( mnemonicKeyHandler );
+        startMinuteTextField.addKeyListener( undoHotKeyHandler );
+        startMinuteTextField.getDocument().addUndoableEditListener( undoEditHandler );
         dialogPanel.add( startMinuteTextField );
         
         startMinuteLabel = new JLabel( "分" );
@@ -157,6 +176,8 @@ public class ItemCreateDialog extends JDialog {
         endHourTextField.setFont( generalFont );
         endHourTextField.addFocusListener( focusHandler );
         endHourTextField.addKeyListener( mnemonicKeyHandler );
+        endHourTextField.addKeyListener( undoHotKeyHandler );
+        endHourTextField.getDocument().addUndoableEditListener( undoEditHandler );
         dialogPanel.add( endHourTextField );
         
         endHourLabel = new JLabel( "時" );
@@ -169,6 +190,8 @@ public class ItemCreateDialog extends JDialog {
         endMinuteTextField.setFont( generalFont );
         endMinuteTextField.addFocusListener( focusHandler );
         endMinuteTextField.addKeyListener( mnemonicKeyHandler );
+        endMinuteTextField.addKeyListener( undoHotKeyHandler );
+        endMinuteTextField.getDocument().addUndoableEditListener( undoEditHandler );
         dialogPanel.add( endMinuteTextField );
         
         endMinuteLabel = new JLabel( "分" );
@@ -186,6 +209,8 @@ public class ItemCreateDialog extends JDialog {
         itemTextField.setFont( generalFont );
         itemTextField.addFocusListener( focusHandler );
         itemTextField.addKeyListener( mnemonicKeyHandler );
+        itemTextField.addKeyListener( undoHotKeyHandler );
+        itemTextField.getDocument().addUndoableEditListener( undoEditHandler );
         dialogPanel.add( itemTextField );
         
         descriptionLabel = new JLabel( "說明:" );
@@ -198,6 +223,8 @@ public class ItemCreateDialog extends JDialog {
         descriptionTextArea.setFont( generalFont );
         descriptionTextArea.setLineWrap( true );
         descriptionTextArea.setWrapStyleWord( true );
+        descriptionTextArea.addKeyListener( undoHotKeyHandler );
+        descriptionTextArea.getDocument().addUndoableEditListener( undoEditHandler );
         descriptionScrollPane = new JScrollPane( descriptionTextArea );
         descriptionScrollPane.setBounds( 16, 164, 449, 115 );
         descriptionScrollPane.setPreferredSize( new Dimension( 449, 115 ) );
@@ -328,6 +355,32 @@ public class ItemCreateDialog extends JDialog {
             case KeyEvent.VK_ESCAPE:
                 setVisible( false );
                 break;
+            }
+        }
+
+        @Override
+        public void keyReleased( KeyEvent event ) {}
+
+        @Override
+        public void keyTyped( KeyEvent event ) {}
+    }
+    
+    private class UndoEditHandler implements UndoableEditListener {
+        
+        @Override
+        public void undoableEditHappened( UndoableEditEvent event ) {
+            undoManager.addEdit( event.getEdit() );
+        }
+    }
+    
+    private class UndoHotKeyHandler implements KeyListener {
+        
+        @Override
+        public void keyPressed( KeyEvent event ) {
+            if( event.isControlDown() && event.getKeyCode() == KeyEvent.VK_Z && undoManager.canUndo() ) {
+                undoManager.undo();
+            } else if( event.isControlDown() && event.getKeyCode() == KeyEvent.VK_Y && undoManager.canRedo() ) {
+                undoManager.redo();
             }
         }
 

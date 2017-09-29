@@ -3,6 +3,7 @@ package service.Impl;
 import java.util.List;
 
 import common.Contants;
+import commonUtil.ItemUtil;
 import domain.Item;
 import repository.ItemDAO;
 import repository.Impl.ItemDAOImpl;
@@ -60,7 +61,6 @@ public class ItemServiceImpl implements ItemService {
                 if( !year.equals( item.getYear() ) || !month.equals( item.getMonth() ) || !day.equals( item.getDay() ) ) {
                     return Contants.ERROR_NOT_SUPPORT;
                 }
-                //returnCode = itemDAO.insert( item );
                 returnCode = insert( item );
                 if( returnCode != Contants.SUCCESS ) {
                     return Contants.ERROR;
@@ -90,8 +90,22 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public int update( Item item ) throws Exception {
-        boolean returnCode = itemDAO.update( item );
+    public int update( Item originalItem, Item newItem ) throws Exception {
+        boolean returnCode = false;
+        
+        if( ItemUtil.comparePrimaryKey( originalItem, newItem ) == 0 ) {
+            returnCode = itemDAO.update( newItem );
+        } else {
+            int status = insert( newItem );
+            if( status != Contants.SUCCESS ) {
+                return status;
+            }
+            status = delete( originalItem );
+            if( status != Contants.SUCCESS ) {
+                return status;
+            }
+            returnCode = true;
+        }
         
         if( !returnCode ) {
             return Contants.ERROR;

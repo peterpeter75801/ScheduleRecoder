@@ -118,6 +118,15 @@ public class ItemUtilTests extends TestCase {
         assertFalse( ItemUtil.equals( item1, item2 ) );
     }
     
+    public void testComparePrimaryKey() {
+        Item item1 = getTestData1();
+        Item item2 = getTestData2();
+        Item item3 = getTestData3();
+        
+        assertTrue( ItemUtil.comparePrimaryKey( item1, item3 ) == 0 );
+        assertFalse( ItemUtil.comparePrimaryKey( item1, item2 ) == 0 );
+    }
+    
     private Item getTestData1() {
         Item testData = new Item();
         testData.setYear( 2017 );

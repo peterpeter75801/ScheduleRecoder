@@ -14,10 +14,10 @@ public class Contants {
     public static final int DUPLICATE_DATA = -3;
     
     /**
-     * Version alpha-0.27
-     * <br /> Rename: Rename ItemDAO.findByTime() method to ItemDAO.findOne()
-     * <br /> Domain update: Add column "seq" into Item domain. And consider column "seq" as one of its primary key.
-     * <br /> New Feature: Allow creating Items with duplicated date and time.
+     * Version alpha-0.28
+     * <br /> Bug fix: Fix description column line separator modifying error.
+     * <br /> New Feature: Add Undo feature in text editable columns.
+     * <br /> New Feature: Allow user modifying start date or time of an item.
      */
-    public static final String VERSION = "Ver. alpha-0.27";
+    public static final String VERSION = "Ver. alpha-0.28";
 }

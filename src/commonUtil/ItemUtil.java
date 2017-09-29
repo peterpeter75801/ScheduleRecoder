@@ -213,6 +213,39 @@ public class ItemUtil {
         }
     }
     
+    public static int comparePrimaryKey( Item item1, Item item2 ) {
+        int compareValue = 0;
+        
+        if( item1 == null && item2 == null ) {
+            return 0;
+        } else if( item1 != null && item2 == null ) {
+            return 1;
+        } else if( item1 == null && item2 != null ) {
+            return -1;
+        }
+        
+        if( (compareValue = ComparingUtil.compare( item1.getYear(), item2.getYear() )) != 0 ) {
+            return compareValue;
+        }
+        if( (compareValue = ComparingUtil.compare( item1.getMonth(), item2.getMonth() )) != 0 ) {
+            return compareValue;
+        }
+        if( (compareValue = ComparingUtil.compare( item1.getDay(), item2.getDay() )) != 0 ) {
+            return compareValue;
+        }
+        if( (compareValue = ComparingUtil.compare( item1.getStartHour(), item2.getStartHour() )) != 0 ) {
+            return compareValue;
+        }
+        if( (compareValue = ComparingUtil.compare( item1.getStartMinute(), item2.getStartMinute() )) != 0 ) {
+            return compareValue;
+        }
+        if( (compareValue = ComparingUtil.compare( item1.getSeq(), item2.getSeq() )) != 0 ) {
+            return compareValue;
+        }
+        
+        return 0;
+    }
+    
     private static class ItemSpendingTime {
         
         private String name;

@@ -136,7 +136,7 @@ public class ItemServiceImplTests extends TestCase {
             Item modifiedData = getTestData2();
             modifiedData.setSeq( 0 );
             modifiedData.setEndHour( 17 );
-            itemService.update( modifiedData );
+            itemService.update( getTestData2(), modifiedData );
             
             List<Item> actual = itemService.findByDate( 2017, 5, 1 );
             
@@ -173,7 +173,7 @@ public class ItemServiceImplTests extends TestCase {
             Item modifiedData = getTestData2();
             modifiedData.setSeq( 0 );
             modifiedData.setEndHour( 17 );
-            itemService.update( modifiedData );
+            itemService.update( getTestData2(), modifiedData );
             
             List<Item> actual = itemService.findByDate( 2017, 5, 1 );
             
@@ -186,6 +186,84 @@ public class ItemServiceImplTests extends TestCase {
             assertTrue( e.getMessage(), false );
         } finally {
             restoreFile( ITEM_CSV_FILE_BACKUP_PATH, ITEM_CSV_FILE_PATH );
+        }
+    }
+    
+    public void testUpdateStartTime() throws IOException {
+        ItemService itemService = new ItemServiceImpl();
+        try {
+            backupFile( ITEM_CSV_FILE_PATH, ITEM_CSV_FILE_BACKUP_PATH );
+            
+            itemService.insert( getTestData1() );
+            itemService.insert( getTestData2() );
+            itemService.insert( getTestData3() );
+            
+            List<Item> expect = new ArrayList<Item>();
+            expect.add( getTestData1() );
+            expect.get( expect.size() - 1 ).setStartHour( 12 );
+            expect.add( getTestData2() );
+            expect.add( getTestData3() );
+            
+            Item modifiedData = getTestData1();
+            modifiedData.setSeq( 0 );
+            modifiedData.setStartHour( 12 );
+            itemService.update( getTestData1(), modifiedData );
+            
+            List<Item> actual = itemService.findByDate( 2017, 5, 1 );
+            for( int i = 0; i < expect.size(); i++ ) {
+                assertTrue( ItemUtil.equals( expect.get( i ), actual.get( i ) ) );
+            }
+        } catch( Exception e ) {
+            e.printStackTrace();
+            assertTrue( e.getMessage(), false );
+        } finally {
+            restoreFile( ITEM_CSV_FILE_BACKUP_PATH, ITEM_CSV_FILE_PATH );
+        }
+    }
+    
+    public void testUpdateStartDate() throws IOException {
+        final String ITEM_CSV_FILE_PATH_1 = "data\\Item\\2017.06.01.csv";
+        final String ITEM_CSV_FILE_BACKUP_PATH_1 = "data\\Item\\2017.06.01_backup.csv";
+        final String ITEM_CSV_FILE_PATH_2 = "data\\Item\\2017.05.01.csv";
+        final String ITEM_CSV_FILE_BACKUP_PATH_2 = "data\\Item\\2017.05.01_backup.csv";
+        
+        ItemService itemService = new ItemServiceImpl();
+        try {
+            backupFile( ITEM_CSV_FILE_PATH_1, ITEM_CSV_FILE_BACKUP_PATH_1 );
+            backupFile( ITEM_CSV_FILE_PATH_2, ITEM_CSV_FILE_BACKUP_PATH_2 );
+            
+            itemService.insert( getTestData1() );
+            itemService.insert( getTestData2() );
+            itemService.insert( getTestData3() );
+            
+            List<Item> expect1 = new ArrayList<Item>();
+            expect1.add( getTestData2() );
+            expect1.add( getTestData3() );
+            
+            List<Item> expect2 = new ArrayList<Item>();
+            expect2.add( getTestData1() );
+            expect2.get( expect2.size() - 1 ).setMonth( 6 );
+            
+            Item modifiedData = getTestData1();
+            modifiedData.setSeq( 0 );
+            modifiedData.setMonth( 6 );
+            itemService.update( getTestData1(), modifiedData );
+            
+            List<Item> actual1 = itemService.findByDate( 2017, 5, 1 );
+            for( int i = 0; i < expect1.size(); i++ ) {
+                assertTrue( ItemUtil.equals( expect1.get( i ), actual1.get( i ) ) );
+            }
+            
+            List<Item> actual2 = itemService.findByDate( 2017, 6, 1 );
+            for( int i = 0; i < expect2.size(); i++ ) {
+                assertTrue( ItemUtil.equals( expect2.get( i ), actual2.get( i ) ) );
+            }
+        } catch( Exception e ) {
+            e.printStackTrace();
+            assertTrue( e.getMessage(), false );
+        } finally {
+            restoreFile( ITEM_CSV_FILE_BACKUP_PATH_2, ITEM_CSV_FILE_PATH_2 );
+            restoreFile( ITEM_CSV_FILE_BACKUP_PATH_1, ITEM_CSV_FILE_PATH_1 );
         }
     }
     

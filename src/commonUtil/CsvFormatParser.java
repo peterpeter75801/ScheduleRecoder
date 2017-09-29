@@ -216,7 +216,8 @@ public class CsvFormatParser {
                 } else if( keywordBuffer.toString().equals( "<br " ) && htmlFormatData.charAt( i ) == '/' ) {
                     keywordBuffer.append( '/' );
                 } else if( keywordBuffer.toString().equals( "<br /" ) && htmlFormatData.charAt( i ) == '>' ) {
-                    dataBuffer.append( System.lineSeparator() );
+                    //dataBuffer.append( System.lineSeparator() );
+                    dataBuffer.append( '\n' );
                     keywordBuffer = new StringBuffer();
                     status = HtmlFormatParseStatus.NORMAL;
                 } else {

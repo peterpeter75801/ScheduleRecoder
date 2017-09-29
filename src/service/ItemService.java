@@ -16,7 +16,7 @@ public interface ItemService {
     
     public List<Item> findByDate( Integer year, Integer month, Integer day ) throws Exception;
     
-    public int update( Item item ) throws Exception;
+    public int update( Item originalItem, Item newItem ) throws Exception;
     
     public int delete( Item item ) throws Exception;
     
