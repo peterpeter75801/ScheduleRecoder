@@ -14,10 +14,9 @@ public class Contants {
     public static final int DUPLICATE_DATA = -3;
     
     /**
-     * Version alpha-0.28
-     * <br /> Bug fix: Fix description column line separator modifying error.
-     * <br /> New Feature: Add Undo feature in text editable columns.
-     * <br /> New Feature: Allow user modifying start date or time of an item.
+     * Version alpha-0.29
+     * <br /> New Feature: Add up key & down key operation in date & time text fields.
+     * <br /> View: Add mnemonic key of start date & time columns in item updating dialog.
      */
-    public static final String VERSION = "Ver. alpha-0.28";
+    public static final String VERSION = "Ver. alpha-0.29";
 }

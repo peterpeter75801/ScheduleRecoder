@@ -35,6 +35,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.undo.UndoManager;
 
 import common.Contants;
+import commonUtil.StringUtil;
 import domain.Item;
 import service.ItemService;
 import service.Impl.ItemServiceImpl;
@@ -57,6 +58,7 @@ public class ItemPanel extends JPanel {
     private SpecialFocusTraversalPolicyHandler specialFocusTraversalPolicyHandler;
     private UndoEditHandler undoEditHandler;
     private UndoHotKeyHandler undoHotKeyHandler;
+    private DateTimeTextFieldHotKeyHandler dateTimeTextFieldHotKeyHandler;
     private Font generalFont;
     private Font itemTableFont;
     private JLabel yearLabel;
@@ -90,6 +92,7 @@ public class ItemPanel extends JPanel {
         specialFocusTraversalPolicyHandler = new SpecialFocusTraversalPolicyHandler();
         undoEditHandler = new UndoEditHandler();
         undoHotKeyHandler = new UndoHotKeyHandler();
+        dateTimeTextFieldHotKeyHandler = new DateTimeTextFieldHotKeyHandler();
         
         generalFont = new Font( "細明體", Font.PLAIN, 16 );
         itemTableFont = new Font( "細明體", Font.PLAIN, 12 );
@@ -276,6 +279,7 @@ public class ItemPanel extends JPanel {
         yearTextField.setFont( generalFont );
         yearTextField.addFocusListener( focusHandler );
         yearTextField.addKeyListener( mnemonicKeyHandler );
+        yearTextField.addKeyListener( dateTimeTextFieldHotKeyHandler );
         yearTextField.addKeyListener( undoHotKeyHandler );
         yearTextField.getDocument().addUndoableEditListener( undoEditHandler );
         yearTextField.setText( String.format( "%04d", calendar.get( Calendar.YEAR ) ) );
@@ -291,6 +295,7 @@ public class ItemPanel extends JPanel {
         monthTextField.setFont( generalFont );
         monthTextField.addFocusListener( focusHandler );
         monthTextField.addKeyListener( mnemonicKeyHandler );
+        monthTextField.addKeyListener( dateTimeTextFieldHotKeyHandler );
         monthTextField.addKeyListener( undoHotKeyHandler );
         monthTextField.getDocument().addUndoableEditListener( undoEditHandler );
         monthTextField.setText( String.format( "%02d", calendar.get( Calendar.MONTH ) + 1 ) );
@@ -653,5 +658,55 @@ public class ItemPanel extends JPanel {
 
         @Override
         public void keyTyped( KeyEvent event ) {}
+    }
+    
+    private class DateTimeTextFieldHotKeyHandler implements KeyListener {
+        
+        private final int YEAR_MAX_VALUE = Integer.MAX_VALUE;
+        private final int YEAR_MIN_VALUE = 1900;
+        private final int MONTH_MAX_VALUE = 12;
+        private final int MONTH_MIN_VALUE = 1;
+
+        @Override
+        public void keyPressed( KeyEvent event ) {
+            Calendar calendar = Calendar.getInstance();
+            
+            switch( event.getKeyCode() ) {
+            case KeyEvent.VK_UP:
+                if( event.getSource() == yearTextField ) {
+                    yearTextField.setText( StringUtil.isNumber( yearTextField.getText() )
+                        ? StringUtil.decreaseDateTimeTextFieldValue( yearTextField.getText(), YEAR_MIN_VALUE, 4 )
+                        : String.format( "%04d", calendar.get( Calendar.YEAR ) )
+                    );
+                    yearTextField.selectAll();
+                } else if( event.getSource() == monthTextField ) {
+                    monthTextField.setText( StringUtil.isNumber( monthTextField.getText() )
+                        ? StringUtil.decreaseDateTimeTextFieldValue( monthTextField.getText(), MONTH_MIN_VALUE, 2 )
+                        : String.format( "%02d", calendar.get( Calendar.MONTH ) + 1 )
+                    );
+                }
+                break;
+            case KeyEvent.VK_DOWN:
+                if( event.getSource() == yearTextField ) {
+                    yearTextField.setText( StringUtil.isNumber( yearTextField.getText() )
+                        ? StringUtil.increaseDateTimeTextFieldValue( yearTextField.getText(), YEAR_MAX_VALUE, 4 )
+                        : String.format( "%04d", calendar.get( Calendar.YEAR ) )
+                    );
+                    yearTextField.selectAll();
+                } else if( event.getSource() == monthTextField ) {
+                    monthTextField.setText( StringUtil.isNumber( monthTextField.getText() )
+                        ? StringUtil.increaseDateTimeTextFieldValue( monthTextField.getText(), MONTH_MAX_VALUE, 2 )
+                        : String.format( "%02d", calendar.get( Calendar.MONTH ) + 1 )
+                    );
+                }
+                break;
+            }
+        }
+
+        @Override
+        public void keyReleased( KeyEvent event ) { }
+
+        @Override
+        public void keyTyped( KeyEvent event ) { }
     }
 }

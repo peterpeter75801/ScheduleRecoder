@@ -11,6 +11,7 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.Calendar;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -31,6 +32,8 @@ import javax.swing.undo.UndoManager;
 
 import common.Contants;
 import commonUtil.CsvFormatParser;
+import commonUtil.DateUtil;
+import commonUtil.StringUtil;
 import domain.ScheduledItem;
 import service.ScheduledItemService;
 
@@ -50,6 +53,7 @@ private static final long serialVersionUID = 1L;
     private RadioButtonKeyHandler radioButtonKeyHandler;
     private UndoEditHandler undoEditHandler;
     private UndoHotKeyHandler undoHotKeyHandler;
+    private DateTimeTextFieldHotKeyHandler dateTimeTextFieldHotKeyHandler;
     private Font generalFont;
     private JPanel dialogPanel;
     private JLabel typeLabel;
@@ -93,6 +97,7 @@ private static final long serialVersionUID = 1L;
         radioButtonKeyHandler = new RadioButtonKeyHandler();
         undoEditHandler = new UndoEditHandler();
         undoHotKeyHandler = new UndoHotKeyHandler();
+        dateTimeTextFieldHotKeyHandler = new DateTimeTextFieldHotKeyHandler();
         
         generalFont = new Font( "細明體", Font.PLAIN, 16 );
         
@@ -152,6 +157,7 @@ private static final long serialVersionUID = 1L;
         yearTextField.setFont( generalFont );
         yearTextField.addFocusListener( focusHandler );
         yearTextField.addKeyListener( mnemonicKeyHandler );
+        yearTextField.addKeyListener( dateTimeTextFieldHotKeyHandler );
         yearTextField.addKeyListener( undoHotKeyHandler );
         yearTextField.getDocument().addUndoableEditListener( undoEditHandler );
         dialogPanel.add( yearTextField );
@@ -166,6 +172,7 @@ private static final long serialVersionUID = 1L;
         monthTextField.setFont( generalFont );
         monthTextField.addFocusListener( focusHandler );
         monthTextField.addKeyListener( mnemonicKeyHandler );
+        monthTextField.addKeyListener( dateTimeTextFieldHotKeyHandler );
         monthTextField.addKeyListener( undoHotKeyHandler );
         monthTextField.getDocument().addUndoableEditListener( undoEditHandler );
         dialogPanel.add( monthTextField );
@@ -180,6 +187,7 @@ private static final long serialVersionUID = 1L;
         dayTextField.setFont( generalFont );
         dayTextField.addFocusListener( focusHandler );
         dayTextField.addKeyListener( mnemonicKeyHandler );
+        dayTextField.addKeyListener( dateTimeTextFieldHotKeyHandler );
         dayTextField.addKeyListener( undoHotKeyHandler );
         dayTextField.getDocument().addUndoableEditListener( undoEditHandler );
         dialogPanel.add( dayTextField );
@@ -194,6 +202,7 @@ private static final long serialVersionUID = 1L;
         hourTextField.setFont( generalFont );
         hourTextField.addFocusListener( focusHandler );
         hourTextField.addKeyListener( mnemonicKeyHandler );
+        hourTextField.addKeyListener( dateTimeTextFieldHotKeyHandler );
         hourTextField.addKeyListener( undoHotKeyHandler );
         hourTextField.getDocument().addUndoableEditListener( undoEditHandler );
         dialogPanel.add( hourTextField );
@@ -208,6 +217,7 @@ private static final long serialVersionUID = 1L;
         minuteTextField.setFont( generalFont );
         minuteTextField.addFocusListener( focusHandler );
         minuteTextField.addKeyListener( mnemonicKeyHandler );
+        minuteTextField.addKeyListener( dateTimeTextFieldHotKeyHandler );
         minuteTextField.addKeyListener( undoHotKeyHandler );
         minuteTextField.getDocument().addUndoableEditListener( undoEditHandler );
         dialogPanel.add( minuteTextField );
@@ -510,5 +520,91 @@ private static final long serialVersionUID = 1L;
 
         @Override
         public void keyTyped( KeyEvent event ) {}
+    }
+    
+    private class DateTimeTextFieldHotKeyHandler implements KeyListener {
+        
+        private final int YEAR_MAX_VALUE = Integer.MAX_VALUE;
+        private final int YEAR_MIN_VALUE = 1900;
+        private final int MONTH_MAX_VALUE = 12;
+        private final int MONTH_MIN_VALUE = 1;
+        private final int DAY_MIN_VALUE = 1;
+        private final int HOUR_MAX_VALUE = 23;
+        private final int HOUR_MIN_VALUE = 0;
+        private final int MINUTE_MAX_VALUE = 59;
+        private final int MINUTE_MIN_VALUE = 0;
+
+        @Override
+        public void keyPressed( KeyEvent event ) {
+            Calendar calendar = Calendar.getInstance();
+            
+            switch( event.getKeyCode() ) {
+            case KeyEvent.VK_UP:
+                if( event.getSource() == yearTextField ) {
+                    yearTextField.setText( StringUtil.isNumber( yearTextField.getText() )
+                        ? StringUtil.decreaseDateTimeTextFieldValue( yearTextField.getText(), YEAR_MIN_VALUE, 4 )
+                        : String.format( "%04d", calendar.get( Calendar.YEAR ) )
+                    );
+                    yearTextField.selectAll();
+                } else if( event.getSource() == monthTextField ) {
+                    monthTextField.setText( StringUtil.isNumber( monthTextField.getText() )
+                        ? StringUtil.decreaseDateTimeTextFieldValue( monthTextField.getText(), MONTH_MIN_VALUE, 2 )
+                        : String.format( "%02d", calendar.get( Calendar.MONTH ) + 1 )
+                    );
+                } else if( event.getSource() == dayTextField ) {
+                    dayTextField.setText( StringUtil.isNumber( dayTextField.getText() )
+                        ? StringUtil.decreaseDateTimeTextFieldValue( dayTextField.getText(), DAY_MIN_VALUE, 2 )
+                        : String.format( "%02d", calendar.get( Calendar.DAY_OF_MONTH ) )
+                    );
+                } else if( event.getSource() == hourTextField ) {
+                    hourTextField.setText( StringUtil.isNumber( hourTextField.getText() )
+                        ? StringUtil.decreaseDateTimeTextFieldValue( hourTextField.getText(), HOUR_MIN_VALUE, 2 )
+                        : String.format( "%02d", calendar.get( Calendar.HOUR_OF_DAY ) )
+                    );
+                } else if( event.getSource() == minuteTextField ) {
+                    minuteTextField.setText( StringUtil.isNumber( minuteTextField.getText() )
+                        ? StringUtil.decreaseDateTimeTextFieldValue( minuteTextField.getText(), MINUTE_MIN_VALUE, 2 )
+                        : String.format( "%02d", calendar.get( Calendar.MINUTE ) )
+                    );
+                }
+                break;
+            case KeyEvent.VK_DOWN:
+                if( event.getSource() == yearTextField ) {
+                    yearTextField.setText( StringUtil.isNumber( yearTextField.getText() )
+                        ? StringUtil.increaseDateTimeTextFieldValue( yearTextField.getText(), YEAR_MAX_VALUE, 4 )
+                        : String.format( "%04d", calendar.get( Calendar.YEAR ) )
+                    );
+                    yearTextField.selectAll();
+                } else if( event.getSource() == monthTextField ) {
+                    monthTextField.setText( StringUtil.isNumber( monthTextField.getText() )
+                        ? StringUtil.increaseDateTimeTextFieldValue( monthTextField.getText(), MONTH_MAX_VALUE, 2 )
+                        : String.format( "%02d", calendar.get( Calendar.MONTH ) + 1 )
+                    );
+                } else if( event.getSource() == dayTextField ) {
+                    dayTextField.setText( StringUtil.isNumber( dayTextField.getText() )
+                        ? StringUtil.increaseDateTimeTextFieldValue( dayTextField.getText(), 
+                            DateUtil.getMaxDayValue( yearTextField.getText(), monthTextField.getText() ), 2 )
+                        : String.format( "%02d", calendar.get( Calendar.DAY_OF_MONTH ) )
+                    );
+                } else if( event.getSource() == hourTextField ) {
+                    hourTextField.setText( StringUtil.isNumber( hourTextField.getText() )
+                        ? StringUtil.increaseDateTimeTextFieldValue( hourTextField.getText(), HOUR_MAX_VALUE, 2 )
+                        : String.format( "%02d", calendar.get( Calendar.HOUR_OF_DAY ) )
+                    );
+                } else if( event.getSource() == minuteTextField ) {
+                    minuteTextField.setText( StringUtil.isNumber( minuteTextField.getText() )
+                        ? StringUtil.increaseDateTimeTextFieldValue( minuteTextField.getText(), MINUTE_MAX_VALUE, 2 )
+                        : String.format( "%02d", calendar.get( Calendar.MINUTE ) )
+                    );
+                }
+                break;
+            }
+        }
+
+        @Override
+        public void keyReleased( KeyEvent event ) { }
+
+        @Override
+        public void keyTyped( KeyEvent event ) { }
     }
 }

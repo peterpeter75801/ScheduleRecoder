@@ -85,11 +85,17 @@ public class IntegratingTests extends TestCase {
     }
     
     public void testCreateItem() throws IOException {
+        final String ITEM_CSV_FILE_PATH_1 = "data\\Item\\2017.06.01.csv";
+        final String ITEM_CSV_FILE_BACKUP_PATH_1 = "data\\Item\\2017.06.01_backup.csv";
+        final String ITEM_CSV_FILE_PATH_2 = "data\\Item\\2017.06.30.csv";
+        final String ITEM_CSV_FILE_BACKUP_PATH_2 = "data\\Item\\2017.06.30_backup.csv";
+        
         ItemService itemService = new ItemServiceImpl();
         int testerSelection = 0;
         
         try {
-            backupFile( ITEM_CSV_FILE_PATH, ITEM_CSV_FILE_BACKUP_PATH );
+            backupFile( ITEM_CSV_FILE_PATH_1, ITEM_CSV_FILE_BACKUP_PATH_1 );
+            backupFile( ITEM_CSV_FILE_PATH_2, ITEM_CSV_FILE_BACKUP_PATH_2 );
             
             MainFrame mainFrame = new MainFrame();
             mainFrame.setVisible( true );
@@ -115,29 +121,29 @@ public class IntegratingTests extends TestCase {
             Thread.sleep( 1000 );
             
             // 新增資料
-            Item item = getTestData1();
+            Item item1 = getTestData1();
             bot.keyPress( KeyEvent.VK_SHIFT );
             bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
             bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
             bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
             bot.keyRelease( KeyEvent.VK_SHIFT );
-            inputString( bot, String.format( "%04d", item.getYear() ) );
+            inputString( bot, String.format( "%04d", item1.getYear() ) );
             bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
-            inputString( bot, String.format( "%02d", item.getMonth() ) );
+            inputString( bot, String.format( "%02d", item1.getMonth() ) );
             bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
-            inputString( bot, String.format( "%02d", item.getDay() ) );
+            inputString( bot, String.format( "%02d", item1.getDay() ) );
             bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
-            inputString( bot, String.format( "%02d", item.getStartHour() ) );
+            inputString( bot, String.format( "%02d", item1.getStartHour() ) );
             bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
-            inputString( bot, String.format( "%02d", item.getStartMinute() ) );
+            inputString( bot, String.format( "%02d", item1.getStartMinute() ) );
             bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
-            inputString( bot, String.format( "%02d", item.getEndHour() ) );
+            inputString( bot, String.format( "%02d", item1.getEndHour() ) );
             bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
-            inputString( bot, String.format( "%02d", item.getEndMinute() ) );
+            inputString( bot, String.format( "%02d", item1.getEndMinute() ) );
             bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
             inputString( bot, "test" );
             bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
-            inputString( bot, item.getDescription() );
+            inputString( bot, item1.getDescription() );
             bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
             bot.keyPress( KeyEvent.VK_SPACE ); bot.keyRelease( KeyEvent.VK_SPACE ); Thread.sleep( 100 );
             
@@ -147,20 +153,79 @@ public class IntegratingTests extends TestCase {
             assertEquals( JOptionPane.YES_OPTION, testerSelection );
             Thread.sleep( 1000 );
             
-            List<Item> expect = new ArrayList<Item>();
-            expect.add( getTestData1() );
-            expect.get( expect.size() - 1 ).setName( "test" );
-            expect.get( expect.size() - 1 ).setSeq( 0 );
-            List<Item> actual = itemService.findByDate( 2017, 6, 1 );
-            assertEquals( expect.size(), actual.size() );
-            for( int i = 0; i < expect.size(); i++ ) {
-                assertTrue( ItemUtil.equals( expect.get( i ), actual.get( i ) ) );
+            List<Item> expect1 = new ArrayList<Item>();
+            expect1.add( getTestData1() );
+            expect1.get( expect1.size() - 1 ).setName( "test" );
+            expect1.get( expect1.size() - 1 ).setSeq( 0 );
+            List<Item> actual1 = itemService.findByDate( 2017, 6, 1 );
+            assertEquals( expect1.size(), actual1.size() );
+            for( int i = 0; i < expect1.size(); i++ ) {
+                assertTrue( ItemUtil.equals( expect1.get( i ), actual1.get( i ) ) );
+            }
+            
+            // 新增第2筆資料
+            Item item2 = getTestData1();
+            bot.keyPress( KeyEvent.VK_SPACE ); bot.keyRelease( KeyEvent.VK_SPACE ); Thread.sleep( 100 );
+            Thread.sleep( 1000 );
+            bot.keyPress( KeyEvent.VK_SHIFT );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyRelease( KeyEvent.VK_SHIFT );
+            inputString( bot, String.format( "%04d", item2.getYear() ) );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            inputString( bot, String.format( "%02d", item2.getMonth() ) );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            inputString( bot, "28" );
+            bot.keyPress( KeyEvent.VK_DOWN ); bot.keyRelease( KeyEvent.VK_DOWN ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_DOWN ); bot.keyRelease( KeyEvent.VK_DOWN ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_DOWN ); bot.keyRelease( KeyEvent.VK_DOWN ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_DOWN ); bot.keyRelease( KeyEvent.VK_DOWN ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_DOWN ); bot.keyRelease( KeyEvent.VK_DOWN ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            inputString( bot, String.format( "%02d", item2.getStartHour() ) );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            inputString( bot, String.format( "%02d", item2.getStartMinute() ) );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            inputString( bot, String.format( "%02d", item2.getEndHour() ) );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            inputString( bot, String.format( "%02d", item2.getEndMinute() ) );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            inputString( bot, "test" );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            inputString( bot, item2.getDescription() );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_SPACE ); bot.keyRelease( KeyEvent.VK_SPACE ); Thread.sleep( 100 );
+            
+            // 檢查是否新增成功，並顯示在畫面上
+            Thread.sleep( 1000 );
+            bot.keyPress( KeyEvent.VK_SHIFT );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyRelease( KeyEvent.VK_SHIFT );
+            bot.keyPress( KeyEvent.VK_END ); bot.keyRelease( KeyEvent.VK_END ); Thread.sleep( 100 );
+            Thread.sleep( 1000 );
+            testerSelection = JOptionPane.showConfirmDialog( 
+                mainFrame, "新增的資料是否有出現在畫面上", "Check", JOptionPane.YES_NO_OPTION );
+            assertEquals( JOptionPane.YES_OPTION, testerSelection );
+            Thread.sleep( 1000 );
+            
+            List<Item> expect2 = new ArrayList<Item>();
+            expect2.add( getTestData1() );
+            expect2.get( expect2.size() - 1 ).setDay( 30 );
+            expect2.get( expect2.size() - 1 ).setName( "test" );
+            expect2.get( expect2.size() - 1 ).setSeq( 0 );
+            List<Item> actual2 = itemService.findByDate( 2017, 6, 30 );
+            assertEquals( expect2.size(), actual2.size() );
+            for( int i = 0; i < expect2.size(); i++ ) {
+                assertTrue( ItemUtil.equals( expect2.get( i ), actual2.get( i ) ) );
             }
         } catch ( Exception e ) {
             e.printStackTrace();
             assertTrue( e.getMessage(), false );
         } finally {
-            restoreFile( ITEM_CSV_FILE_BACKUP_PATH, ITEM_CSV_FILE_PATH );
+            restoreFile( ITEM_CSV_FILE_BACKUP_PATH_1, ITEM_CSV_FILE_PATH_1 );
+            restoreFile( ITEM_CSV_FILE_BACKUP_PATH_2, ITEM_CSV_FILE_PATH_2 );
         }
     }
     
@@ -815,6 +880,114 @@ public class IntegratingTests extends TestCase {
             testerSelection = JOptionPane.showConfirmDialog( 
                 mainFrame, 
                 "顯示的資料是否為:\n10:00 ~ 10:00  測試\n10:10 ~ 10:10  測試\n10:20 ~ 10:20  測試", 
+                "Check", JOptionPane.YES_NO_OPTION );
+            assertEquals( JOptionPane.YES_OPTION, testerSelection );
+        } catch ( Exception e ) {
+            e.printStackTrace();
+            assertTrue( e.getMessage(), false );
+        } finally {
+            restoreFile( ITEM_CSV_FILE_BACKUP_PATH_3, ITEM_CSV_FILE_PATH_3 );
+            restoreFile( ITEM_CSV_FILE_BACKUP_PATH_2, ITEM_CSV_FILE_PATH_2 );
+            restoreFile( ITEM_CSV_FILE_BACKUP_PATH_1, ITEM_CSV_FILE_PATH_1 );
+        }
+    }
+    
+    public void testDateTimeTextFieldArrowKeyOperation() throws IOException {
+        final String ITEM_CSV_FILE_PATH_1 = "data\\Item\\2017.06.01.csv";
+        final String ITEM_CSV_FILE_BACKUP_PATH_1 = "data\\Item\\2017.06.01_backup.csv";
+        final String ITEM_CSV_FILE_PATH_2 = "data\\Item\\2017.05.01.csv";
+        final String ITEM_CSV_FILE_BACKUP_PATH_2 = "data\\Item\\2017.05.01_backup.csv";
+        final String ITEM_CSV_FILE_PATH_3 = "data\\Item\\2017.01.01.csv";
+        final String ITEM_CSV_FILE_BACKUP_PATH_3 = "data\\Item\\2017.01.01_backup.csv";
+        
+        ItemService itemService = new ItemServiceImpl();
+        int testerSelection = 0;
+        
+        try {
+            backupFile( ITEM_CSV_FILE_PATH_1, ITEM_CSV_FILE_BACKUP_PATH_1 );
+            backupFile( ITEM_CSV_FILE_PATH_2, ITEM_CSV_FILE_BACKUP_PATH_2 );
+            backupFile( ITEM_CSV_FILE_PATH_3, ITEM_CSV_FILE_BACKUP_PATH_3 );
+            
+            for( int i = 0; i < 3; i++ ) {
+                Item item = getTestData1();
+                item.setMonth( 1 );
+                item.setStartMinute( item.getStartMinute() + i*10 );
+                item.setEndMinute( item.getEndMinute() + i*10 + 5 );
+                itemService.insert( item );
+            }
+            for( int i = 0; i < 4; i++ ) {
+                Item item = getTestData1();
+                item.setMonth( 5 );
+                item.setStartMinute( item.getStartMinute() + i*10 );
+                item.setEndMinute( item.getEndMinute() + i*10 + 5 );
+                itemService.insert( item );
+            }
+            for( int i = 0; i < 5; i++ ) {
+                Item item = getTestData1();
+                item.setStartMinute( item.getStartMinute() + i*10 );
+                item.setEndMinute( item.getEndMinute() + i*10 + 5 );
+                itemService.insert( item );
+            }
+            
+            MainFrame mainFrame = new MainFrame();
+            mainFrame.setVisible( true );
+            
+            JOptionPane.showMessageDialog( mainFrame, "請切換為英文輸入法", "Message", JOptionPane.INFORMATION_MESSAGE );
+            
+            Robot bot =  new Robot();
+            Thread.sleep( 3000 );
+            
+            // 選擇年份為2017
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            inputString( bot, "2017" );
+            // 選擇月份為06，列出2017/06的日期清單
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            inputString( bot, "06" );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_SPACE ); bot.keyRelease( KeyEvent.VK_SPACE ); Thread.sleep( 100 );
+            Thread.sleep( 1000 );
+            
+            // 檢查資料是否有正確的顯示在畫面(6月份)
+            testerSelection = JOptionPane.showConfirmDialog( 
+                mainFrame,
+                "顯示的資料是否為:\n10:00 ~ 10:05  測試\n10:10 ~ 10:15  測試\n10:20 ~ 10:25  測試\n10:30 ~ 10:35  測試\n10:40 ~ 10:45  測試",
+                "Check", JOptionPane.YES_NO_OPTION );
+            assertEquals( JOptionPane.YES_OPTION, testerSelection );
+            
+            // 選擇月份為05(用方向鍵選擇)
+            bot.keyPress( KeyEvent.VK_SHIFT );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyRelease( KeyEvent.VK_SHIFT );
+            bot.keyPress( KeyEvent.VK_UP ); bot.keyRelease( KeyEvent.VK_UP ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_SPACE ); bot.keyRelease( KeyEvent.VK_SPACE ); Thread.sleep( 100 );
+            Thread.sleep( 1000 );
+            
+            // 檢查資料是否有正確的顯示在畫面(5月份)
+            testerSelection = JOptionPane.showConfirmDialog( 
+                mainFrame,
+                "顯示的資料是否為:\n10:00 ~ 10:05  測試\n10:10 ~ 10:15  測試\n10:20 ~ 10:25  測試\n10:30 ~ 10:35  測試",
+                "Check", JOptionPane.YES_NO_OPTION );
+            assertEquals( JOptionPane.YES_OPTION, testerSelection );
+            
+            // 選擇月份為01(用方向鍵選擇)
+            bot.keyPress( KeyEvent.VK_SHIFT );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyRelease( KeyEvent.VK_SHIFT );
+            bot.keyPress( KeyEvent.VK_UP ); bot.keyRelease( KeyEvent.VK_UP ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_UP ); bot.keyRelease( KeyEvent.VK_UP ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_UP ); bot.keyRelease( KeyEvent.VK_UP ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_UP ); bot.keyRelease( KeyEvent.VK_UP ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_UP ); bot.keyRelease( KeyEvent.VK_UP ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_UP ); bot.keyRelease( KeyEvent.VK_UP ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_SPACE ); bot.keyRelease( KeyEvent.VK_SPACE ); Thread.sleep( 100 );
+            Thread.sleep( 1000 );
+            
+            // 檢查資料是否有正確的顯示在畫面(1月份)
+            testerSelection = JOptionPane.showConfirmDialog( 
+                mainFrame,
+                "顯示的資料是否為:\n10:00 ~ 10:05  測試\n10:10 ~ 10:15  測試\n10:20 ~ 10:25  測試",
                 "Check", JOptionPane.YES_NO_OPTION );
             assertEquals( JOptionPane.YES_OPTION, testerSelection );
         } catch ( Exception e ) {

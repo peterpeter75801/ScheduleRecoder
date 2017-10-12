@@ -32,7 +32,9 @@ import javax.swing.event.UndoableEditListener;
 import javax.swing.undo.UndoManager;
 
 import common.Contants;
+import commonUtil.DateUtil;
 import commonUtil.ItemUtil;
+import commonUtil.StringUtil;
 import domain.Item;
 import service.ItemService;
 
@@ -49,6 +51,7 @@ public class ItemImportDialog extends JDialog {
     private MnemonicKeyHandler mnemonicKeyHandler;
     private UndoEditHandler undoEditHandler;
     private UndoHotKeyHandler undoHotKeyHandler;
+    private DateTimeTextFieldHotKeyHandler dateTimeTextFieldHotKeyHandler;
     private Font generalFont;
     private JPanel dialogPanel;
     private JTextField yearTextField;
@@ -75,6 +78,7 @@ public class ItemImportDialog extends JDialog {
         mnemonicKeyHandler = new MnemonicKeyHandler();
         undoEditHandler = new UndoEditHandler();
         undoHotKeyHandler = new UndoHotKeyHandler();
+        dateTimeTextFieldHotKeyHandler = new DateTimeTextFieldHotKeyHandler();
         
         generalFont = new Font( "細明體", Font.PLAIN, 16 );
         
@@ -86,6 +90,7 @@ public class ItemImportDialog extends JDialog {
         yearTextField.setFont( generalFont );
         yearTextField.addFocusListener( focusHandler );
         yearTextField.addKeyListener( mnemonicKeyHandler );
+        yearTextField.addKeyListener( dateTimeTextFieldHotKeyHandler );
         yearTextField.addKeyListener( undoHotKeyHandler );
         yearTextField.getDocument().addUndoableEditListener( undoEditHandler );
         dialogPanel.add( yearTextField );
@@ -100,6 +105,7 @@ public class ItemImportDialog extends JDialog {
         monthTextField.setFont( generalFont );
         monthTextField.addFocusListener( focusHandler );
         monthTextField.addKeyListener( mnemonicKeyHandler );
+        monthTextField.addKeyListener( dateTimeTextFieldHotKeyHandler );
         monthTextField.addKeyListener( undoHotKeyHandler );
         monthTextField.getDocument().addUndoableEditListener( undoEditHandler );
         dialogPanel.add( monthTextField );
@@ -114,6 +120,7 @@ public class ItemImportDialog extends JDialog {
         dayTextField.setFont( generalFont );
         dayTextField.addFocusListener( focusHandler );
         dayTextField.addKeyListener( mnemonicKeyHandler );
+        dayTextField.addKeyListener( dateTimeTextFieldHotKeyHandler );
         dayTextField.addKeyListener( undoHotKeyHandler );
         dayTextField.getDocument().addUndoableEditListener( undoEditHandler );
         dialogPanel.add( dayTextField );
@@ -294,5 +301,67 @@ public class ItemImportDialog extends JDialog {
 
         @Override
         public void keyTyped( KeyEvent event ) {}
+    }
+    
+    private class DateTimeTextFieldHotKeyHandler implements KeyListener {
+        
+        private final int YEAR_MAX_VALUE = Integer.MAX_VALUE;
+        private final int YEAR_MIN_VALUE = 1900;
+        private final int MONTH_MAX_VALUE = 12;
+        private final int MONTH_MIN_VALUE = 1;
+        private final int DAY_MIN_VALUE = 1;
+
+        @Override
+        public void keyPressed( KeyEvent event ) {
+            Calendar calendar = Calendar.getInstance();
+            
+            switch( event.getKeyCode() ) {
+            case KeyEvent.VK_UP:
+                if( event.getSource() == yearTextField ) {
+                    yearTextField.setText( StringUtil.isNumber( yearTextField.getText() )
+                        ? StringUtil.decreaseDateTimeTextFieldValue( yearTextField.getText(), YEAR_MIN_VALUE, 4 )
+                        : String.format( "%04d", calendar.get( Calendar.YEAR ) )
+                    );
+                    yearTextField.selectAll();
+                } else if( event.getSource() == monthTextField ) {
+                    monthTextField.setText( StringUtil.isNumber( monthTextField.getText() )
+                        ? StringUtil.decreaseDateTimeTextFieldValue( monthTextField.getText(), MONTH_MIN_VALUE, 2 )
+                        : String.format( "%02d", calendar.get( Calendar.MONTH ) + 1 )
+                    );
+                } else if( event.getSource() == dayTextField ) {
+                    dayTextField.setText( StringUtil.isNumber( dayTextField.getText() )
+                        ? StringUtil.decreaseDateTimeTextFieldValue( dayTextField.getText(), DAY_MIN_VALUE, 2 )
+                        : String.format( "%02d", calendar.get( Calendar.DAY_OF_MONTH ) )
+                    );
+                }
+                break;
+            case KeyEvent.VK_DOWN:
+                if( event.getSource() == yearTextField ) {
+                    yearTextField.setText( StringUtil.isNumber( yearTextField.getText() )
+                        ? StringUtil.increaseDateTimeTextFieldValue( yearTextField.getText(), YEAR_MAX_VALUE, 4 )
+                        : String.format( "%04d", calendar.get( Calendar.YEAR ) )
+                    );
+                    yearTextField.selectAll();
+                } else if( event.getSource() == monthTextField ) {
+                    monthTextField.setText( StringUtil.isNumber( monthTextField.getText() )
+                        ? StringUtil.increaseDateTimeTextFieldValue( monthTextField.getText(), MONTH_MAX_VALUE, 2 )
+                        : String.format( "%02d", calendar.get( Calendar.MONTH ) + 1 )
+                    );
+                } else if( event.getSource() == dayTextField ) {
+                    dayTextField.setText( StringUtil.isNumber( dayTextField.getText() )
+                        ? StringUtil.increaseDateTimeTextFieldValue( dayTextField.getText(), 
+                            DateUtil.getMaxDayValue( yearTextField.getText(), monthTextField.getText() ), 2 )
+                        : String.format( "%02d", calendar.get( Calendar.DAY_OF_MONTH ) )
+                    );
+                }
+                break;
+            }
+        }
+
+        @Override
+        public void keyReleased( KeyEvent event ) { }
+
+        @Override
+        public void keyTyped( KeyEvent event ) { }
     }
 }
