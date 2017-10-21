@@ -39,6 +39,7 @@ public class ScheduledItemPanel extends JPanel {
     private MainFrame ownerFrame;
     private ScheduledItemCreateDialog scheduledItemCreateDialog; 
     private ScheduledItemUpdateDialog scheduledItemUpdateDialog;
+    private ScheduledItemDetailDialog scheduledItemDetailDialog;
     
     private MnemonicKeyHandler mnemonicKeyHandler;
     private Font generalFont;
@@ -66,6 +67,7 @@ public class ScheduledItemPanel extends JPanel {
         this.ownerFrame = ownerFrame;
         scheduledItemCreateDialog = new ScheduledItemCreateDialog( ownerFrame, scheduledItemService );
         scheduledItemUpdateDialog = new ScheduledItemUpdateDialog( ownerFrame, scheduledItemService );
+        scheduledItemDetailDialog = new ScheduledItemDetailDialog( ownerFrame, scheduledItemService );
         
         initialItemTable();
         
@@ -119,6 +121,12 @@ public class ScheduledItemPanel extends JPanel {
         detailButton.setBounds( 697, 230, 72, 22 );
         detailButton.setMargin( new Insets( 0, 0, 0, 0 ) );
         detailButton.setFont( generalFont );
+        detailButton.addActionListener( new ActionListener() {
+            @Override
+            public void actionPerformed( ActionEvent event ) {
+                openScheduledItemDetailDialog();
+            }
+        });
         detailButton.addKeyListener( mnemonicKeyHandler );
         add( detailButton );
         
@@ -301,6 +309,29 @@ public class ScheduledItemPanel extends JPanel {
         }
         
         scheduledItemUpdateDialog.openDialog( id );
+    }
+    
+    private void openScheduledItemDetailDialog() {
+        int itemTableSelectedIndex = itemTable.getSelectedRow();
+        
+        if( itemTableSelectedIndex < 0 ) {
+            JOptionPane.showMessageDialog( ownerFrame, "未選擇資料", "Warning", JOptionPane.WARNING_MESSAGE );
+            return;
+        }
+        
+        int id = 0;
+        String itemTableSelectedIdValue = (String) itemTable.getModel().getValueAt( itemTableSelectedIndex, 5 );
+        try {
+            id = Integer.parseInt( itemTableSelectedIdValue );
+        } catch( NumberFormatException e ) {
+            JOptionPane.showMessageDialog( ownerFrame, "選擇無效的資料", "Warning", JOptionPane.WARNING_MESSAGE );
+            return;
+        } catch( StringIndexOutOfBoundsException e ) {
+            JOptionPane.showMessageDialog( ownerFrame, "選擇無效的資料", "Warning", JOptionPane.WARNING_MESSAGE );
+            return;
+        }
+        
+        scheduledItemDetailDialog.openDialog( id );
     }
     
     private class MnemonicKeyHandler implements KeyListener {

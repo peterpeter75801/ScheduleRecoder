@@ -14,9 +14,8 @@ public class Contants {
     public static final int DUPLICATE_DATA = -3;
     
     /**
-     * Version alpha-0.29
-     * <br /> New Feature: Add up key & down key operation in date & time text fields.
-     * <br /> View: Add mnemonic key of start date & time columns in item updating dialog.
+     * Version alpha-0.30
+     * <br /> New Feature: Add displaying scheduled item detail dialog.
      */
-    public static final String VERSION = "Ver. alpha-0.29";
+    public static final String VERSION = "Ver. alpha-0.30";
 }
