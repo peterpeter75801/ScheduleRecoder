@@ -322,6 +322,7 @@ public class ScheduledItemExecuteDialog extends JDialog {
         case Contants.SUCCESS:
             setVisible( false );
             ownerFrame.getScheduledItemPanel().loadScheduledItems();
+            ownerFrame.getItemPanel().reselectDateList();
             break;
         case Contants.ERROR:
             JOptionPane.showMessageDialog( null, "執行失敗", "Error", JOptionPane.ERROR_MESSAGE );
