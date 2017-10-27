@@ -14,6 +14,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import javax.swing.AbstractAction;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -482,6 +483,17 @@ public class ItemPanel extends JPanel {
         
         itemTable.setFocusTraversalKeysEnabled( false );
         itemTable.addKeyListener( specialFocusTraversalPolicyHandler );
+        
+        // 移除 JTable 中 Enter 鍵的預設功能
+        itemTable.getInputMap( JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT )
+            .put( KeyStroke.getKeyStroke( KeyEvent.VK_ENTER, 0 ), "Enter" );
+        itemTable.getActionMap().put( "Enter", new AbstractAction() {
+        
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            public void actionPerformed( ActionEvent event ) { /* do nothing */ }
+        });
         
         itemTableScrollPane = new JScrollPane( itemTable );
         itemTableScrollPane.setBounds( 176, 29, TABLE_WIDTH, TABLE_HEIGHT + TABLE_HEADER_HEIGHT + BORDER_HEIGHT_FIX );

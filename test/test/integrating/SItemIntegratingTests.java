@@ -7,13 +7,18 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 import javax.swing.JOptionPane;
 
+import commonUtil.ItemUtil;
 import commonUtil.ScheduledItemUtil;
+import domain.Item;
 import domain.ScheduledItem;
 import junit.framework.TestCase;
+import service.ItemService;
 import service.ScheduledItemService;
+import service.Impl.ItemServiceImpl;
 import service.Impl.ScheduledItemServiceImpl;
 import view.MainFrame;
 
@@ -417,6 +422,259 @@ public class SItemIntegratingTests extends TestCase {
             e.printStackTrace();
             assertTrue( e.getMessage(), false );
         } finally {
+            restoreFile( S_ITEM_SEQ_FILE_BACKUP_PATH, S_ITEM_SEQ_FILE_PATH );
+            restoreFile( S_ITEM_CSV_FILE_BACKUP_PATH, S_ITEM_CSV_FILE_PATH );
+        }
+    }
+    
+    public void testDisplayScheduledItemDetailHotKey() throws IOException {
+        int testerSelection = 0;
+        ScheduledItemService scheduledItemService = new ScheduledItemServiceImpl();
+        
+        try {
+            backupFile( S_ITEM_CSV_FILE_PATH, S_ITEM_CSV_FILE_BACKUP_PATH );
+            backupFile( S_ITEM_SEQ_FILE_PATH, S_ITEM_SEQ_FILE_BACKUP_PATH );
+            
+            // 新增初始資料
+            for( int i = 1; i <= 5; i++ ) {
+                ScheduledItem scheduledItem = getTestData1();
+                scheduledItem.setMinute( scheduledItem.getMinute() + i * 5 );
+                scheduledItem.setName( scheduledItem.getName() + i );
+                if( i == 1 ) {
+                    scheduledItem.setDescription( "&lt;test123&gt;<br />test1,<br />test2 &amp;<br />test3" );
+                }
+                scheduledItemService.insert( scheduledItem );
+            }
+            
+            MainFrame mainFrame = new MainFrame();
+            mainFrame.setVisible( true );
+            
+            JOptionPane.showMessageDialog( mainFrame, "請切換為英文輸入法", "Message", JOptionPane.INFORMATION_MESSAGE );
+            
+            Robot bot =  new Robot();
+            Thread.sleep( 3000 );
+            // 選擇事項排程頁籤資料列表的第一筆資料
+            bot.keyPress( KeyEvent.VK_RIGHT ); bot.keyRelease( KeyEvent.VK_RIGHT ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_DOWN ); bot.keyRelease( KeyEvent.VK_DOWN ); Thread.sleep( 100 );
+            // 測試事項排程清單的Enter HotKey功能
+            bot.keyPress( KeyEvent.VK_ENTER ); bot.keyRelease( KeyEvent.VK_ENTER ); Thread.sleep( 100 );
+            Thread.sleep( 1000 );
+            
+            // 檢查資料是否正確顯示
+            testerSelection = JOptionPane.showConfirmDialog( 
+                mainFrame, 
+                "顯示的資料是否為:\n時間: 2017年05月01日  11時30分    種類: 準時\n" + 
+                    "預計花費時間: 85分\n項目: test1\n說明: \n" + 
+                    "<test123>\ntest1,\ntest2 &\ntest3", 
+                "Check", JOptionPane.YES_NO_OPTION );
+            assertEquals( JOptionPane.YES_OPTION, testerSelection );
+            
+            // 回到主畫面
+            bot.keyPress( KeyEvent.VK_SPACE ); bot.keyRelease( KeyEvent.VK_SPACE ); Thread.sleep( 100 );
+            Thread.sleep( 1000 );
+        } catch ( Exception e ) {
+            e.printStackTrace();
+            assertTrue( e.getMessage(), false );
+        } finally {
+            restoreFile( S_ITEM_SEQ_FILE_BACKUP_PATH, S_ITEM_SEQ_FILE_PATH );
+            restoreFile( S_ITEM_CSV_FILE_BACKUP_PATH, S_ITEM_CSV_FILE_PATH );
+        }
+    }
+    
+    public void testExecuteScheduledItem() throws IOException {
+        final String ITEM_CSV_FILE_PATH = "data\\Item\\2017.05.01.csv";
+        final String ITEM_CSV_FILE_BACKUP_PATH = "data\\Item\\2017.05.01_backup.csv";
+        
+        int testerSelection = 0;
+        ItemService itemService = new ItemServiceImpl();
+        ScheduledItemService scheduledItemService = new ScheduledItemServiceImpl();
+        
+        try {
+            backupFile( S_ITEM_CSV_FILE_PATH, S_ITEM_CSV_FILE_BACKUP_PATH );
+            backupFile( S_ITEM_SEQ_FILE_PATH, S_ITEM_SEQ_FILE_BACKUP_PATH );
+            backupFile( ITEM_CSV_FILE_PATH, ITEM_CSV_FILE_BACKUP_PATH );
+            
+            // 新增初始資料
+            for( int i = 1; i <= 5; i++ ) {
+                ScheduledItem scheduledItem = getTestData1();
+                scheduledItem.setMinute( scheduledItem.getMinute() + i * 5 );
+                scheduledItem.setName( scheduledItem.getName() + i );
+                if( i == 1 ) {
+                    scheduledItem.setDescription( "&lt;test123&gt;<br />test1,<br />test2 &amp;<br />test3" );
+                }
+                scheduledItemService.insert( scheduledItem );
+            }
+            
+            MainFrame mainFrame = new MainFrame();
+            mainFrame.setVisible( true );
+            
+            JOptionPane.showMessageDialog( mainFrame, "請切換為英文輸入法", "Message", JOptionPane.INFORMATION_MESSAGE );
+            
+            Robot bot =  new Robot();
+            Thread.sleep( 3000 );
+            // 選擇事項排程頁籤資料列表的第一筆資料
+            bot.keyPress( KeyEvent.VK_RIGHT ); bot.keyRelease( KeyEvent.VK_RIGHT ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_DOWN ); bot.keyRelease( KeyEvent.VK_DOWN ); Thread.sleep( 100 );
+            // 點選事項排程頁籤的"執行"按鈕
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_SPACE ); bot.keyRelease( KeyEvent.VK_SPACE ); Thread.sleep( 100 );
+            Thread.sleep( 1000 );
+            
+            // 輸入執行日期 & 時間
+            bot.keyPress( KeyEvent.VK_SHIFT );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyRelease( KeyEvent.VK_SHIFT );
+            inputString( bot, "2017" );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            inputString( bot, "05" );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            inputString( bot, "01" );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            inputString( bot, "11" );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            inputString( bot, "50" );
+            // 輸入已執行項目名稱
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            inputString( bot, "test1_completed" );
+            // 輸入已執行項目描述
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_CONTROL );
+            bot.keyPress( KeyEvent.VK_A ); bot.keyRelease( KeyEvent.VK_A ); Thread.sleep( 100 );
+            bot.keyRelease( KeyEvent.VK_CONTROL );
+            inputString( bot, "test123" );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            // 勾選"已完成，刪除此排程項目"
+            bot.keyPress( KeyEvent.VK_SPACE ); bot.keyRelease( KeyEvent.VK_SPACE ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_SPACE ); bot.keyRelease( KeyEvent.VK_SPACE ); Thread.sleep( 100 );
+            Thread.sleep( 1000 );
+            
+            // 執行下一個事項排程，輸入執行日期 & 時間
+            bot.keyPress( KeyEvent.VK_SPACE ); bot.keyRelease( KeyEvent.VK_SPACE ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_SHIFT );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyRelease( KeyEvent.VK_SHIFT );
+            inputString( bot, "2017" );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            inputString( bot, "05" );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            inputString( bot, "01" );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            inputString( bot, "12" );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            inputString( bot, "00" );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            // 輸入已執行項目描述
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            inputString( bot, "test2" );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_SPACE ); bot.keyRelease( KeyEvent.VK_SPACE ); Thread.sleep( 100 );
+            Thread.sleep( 1000 );
+            
+            // 檢查事項排程資料是否正確
+            testerSelection = JOptionPane.showConfirmDialog( 
+                mainFrame, 
+                "<html><head><style type=\"text/css\">" + 
+                    "table, th, td {border: 1px solid black; border-collapse: collapse;}</style></head>" + 
+                "<body><p>顯示的資料是否為:</p><table>" + 
+                    "<tr><th>類型</th><th>日期</th><th>時間</th><th>項目</th><th>預計花費</th></tr>" + 
+                    "<tr><td>準時</td><td>2017.05.01</td><td>11:35</td><td>test2</td><td>85</td></tr>" + 
+                    "<tr><td>準時</td><td>2017.05.01</td><td>11:40</td><td>test3</td><td>85</td></tr>" + 
+                    "<tr><td>準時</td><td>2017.05.01</td><td>11:45</td><td>test4</td><td>85</td></tr>" + 
+                    "<tr><td>準時</td><td>2017.05.01</td><td>11:50</td><td>test5</td><td>85</td></tr>" + 
+                "</table></body></html>", 
+                "Check", JOptionPane.YES_NO_OPTION );
+            assertEquals( JOptionPane.YES_OPTION, testerSelection );
+            
+            List<ScheduledItem> expectScheduledItemData = new ArrayList<ScheduledItem>();
+            for( int i = 2; i <= 5; i++ ) {
+                ScheduledItem scheduledItem = getTestData1();
+                scheduledItem.setId( i );
+                scheduledItem.setMinute( scheduledItem.getMinute() + i * 5 );
+                scheduledItem.setName( scheduledItem.getName() + i );
+                expectScheduledItemData.add( scheduledItem );
+            }
+            List<ScheduledItem> actualScheduledItemData = scheduledItemService.findAllSortByTime();
+            assertEquals( expectScheduledItemData.size(), actualScheduledItemData.size() );
+            for( int i = 0; i < expectScheduledItemData.size(); i++ ) {
+                assertTrue( "failed at i = " + i, ScheduledItemUtil.equals( expectScheduledItemData.get( i ), actualScheduledItemData.get( i ) ) );
+            }
+            
+            // 檢查時間記錄的資料是否正確
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_LEFT ); bot.keyRelease( KeyEvent.VK_LEFT ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            inputString( bot, "2017" );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            inputString( bot, "05" );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_SPACE ); bot.keyRelease( KeyEvent.VK_SPACE ); Thread.sleep( 100 );
+            Thread.sleep( 1000 );
+            
+            testerSelection = JOptionPane.showConfirmDialog( 
+                mainFrame, 
+                "<html><head><style type=\"text/css\">" + 
+                        "table, th, td {border: 1px solid black; border-collapse: collapse;}</style></head>" + 
+                "<body><p>顯示的資料是否為:</p><table>" + 
+                    "<tr><th>時間</th><th>項目</th></tr>" + 
+                    "<tr><td>11:50 ~ 11:50</td><td>test1_completed</td></tr>" + 
+                    "<tr><td>12:00 ~ 12:00</td><td>test2</td></tr>" + 
+                "</table></body></html>", 
+                "Check", JOptionPane.YES_NO_OPTION );
+            assertEquals( JOptionPane.YES_OPTION, testerSelection );
+            
+            List<Item> expectItemData = new ArrayList<Item>();
+            for( int i = 1; i <= 2; i++ ) {
+                Item item = new Item();
+                item.setYear( 2017 );
+                item.setMonth( 5 );
+                item.setDay( 1 );
+                item.setSeq( 0 );
+                switch( i ) {
+                case 1:
+                    item.setStartHour( 11 );
+                    item.setStartMinute( 50 );
+                    item.setEndHour( 11 );
+                    item.setEndMinute( 50 );
+                    item.setName( "test1_completed" );
+                    item.setDescription( "test123" );
+                    break;
+                case 2:
+                    item.setStartHour( 12 );
+                    item.setStartMinute( 00 );
+                    item.setEndHour( 12 );
+                    item.setEndMinute( 00 );
+                    item.setName( "test2" );
+                    item.setDescription( "test2" );
+                    break;
+                }
+                expectItemData.add( item );
+            }
+            List<Item> actualItemData = itemService.findByDate( 2017, 5, 1 );
+            assertEquals( expectItemData.size(), actualItemData.size() );
+            for( int i = 0; i < expectItemData.size(); i++ ) {
+                assertTrue( "failed at i = " + i, ItemUtil.equals( expectItemData.get( i ), actualItemData.get( i ) ) );
+            }
+        } catch ( Exception e ) {
+            e.printStackTrace();
+            assertTrue( e.getMessage(), false );
+        } finally {
+            restoreFile( ITEM_CSV_FILE_BACKUP_PATH, ITEM_CSV_FILE_PATH );
             restoreFile( S_ITEM_SEQ_FILE_BACKUP_PATH, S_ITEM_SEQ_FILE_PATH );
             restoreFile( S_ITEM_CSV_FILE_BACKUP_PATH, S_ITEM_CSV_FILE_PATH );
         }

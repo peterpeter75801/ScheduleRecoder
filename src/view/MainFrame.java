@@ -19,7 +19,7 @@ public class MainFrame extends JFrame {
         itemPanel = new ItemPanel( this );
         scheduledItemPanel = new ScheduledItemPanel( this );
         tabbedPane.addTab( "時間記錄", null, itemPanel, "時間項目記錄" );
-        tabbedPane.addTab( "事項排程", null, scheduledItemPanel, "預計執行事項排程(功能尚未完成)" );
+        tabbedPane.addTab( "事項排程", null, scheduledItemPanel, "預計執行事項排程" );
         
         add( tabbedPane );
         

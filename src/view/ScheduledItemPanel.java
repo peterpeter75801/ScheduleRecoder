@@ -13,7 +13,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.swing.AbstractAction;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -40,6 +42,7 @@ public class ScheduledItemPanel extends JPanel {
     private ScheduledItemCreateDialog scheduledItemCreateDialog; 
     private ScheduledItemUpdateDialog scheduledItemUpdateDialog;
     private ScheduledItemDetailDialog scheduledItemDetailDialog;
+    private ScheduledItemExecuteDialog scheduledItemExecuteDialog;
     
     private MnemonicKeyHandler mnemonicKeyHandler;
     private Font generalFont;
@@ -48,7 +51,7 @@ public class ScheduledItemPanel extends JPanel {
     private JScrollPane itemTableScrollPane;
     private JButton createButton;
     private JButton updateButton;
-    private JButton completeButton;
+    private JButton executeButton;
     private JButton cancelButton;
     private JButton detailButton;
     
@@ -68,6 +71,7 @@ public class ScheduledItemPanel extends JPanel {
         scheduledItemCreateDialog = new ScheduledItemCreateDialog( ownerFrame, scheduledItemService );
         scheduledItemUpdateDialog = new ScheduledItemUpdateDialog( ownerFrame, scheduledItemService );
         scheduledItemDetailDialog = new ScheduledItemDetailDialog( ownerFrame, scheduledItemService );
+        scheduledItemExecuteDialog = new ScheduledItemExecuteDialog( ownerFrame, scheduledItemService );
         
         initialItemTable();
         
@@ -97,12 +101,18 @@ public class ScheduledItemPanel extends JPanel {
         });
         add( updateButton );
         
-        completeButton = new JButton( "完成(O)" );
-        completeButton.setBounds( 697, 142, 72, 22 );
-        completeButton.setMargin( new Insets( 0, 0, 0, 0 ) );
-        completeButton.setFont( generalFont );
-        completeButton.addKeyListener( mnemonicKeyHandler );
-        add( completeButton );
+        executeButton = new JButton( "執行(E)" );
+        executeButton.setBounds( 697, 142, 72, 22 );
+        executeButton.setMargin( new Insets( 0, 0, 0, 0 ) );
+        executeButton.setFont( generalFont );
+        executeButton.addKeyListener( mnemonicKeyHandler );
+        executeButton.addActionListener( new ActionListener() {
+            @Override
+            public void actionPerformed( ActionEvent event ) {
+                openScheduledItemExecuteDialog();
+            }
+        });
+        add( executeButton );
         
         cancelButton = new JButton( "取消(C)" );
         cancelButton.setBounds( 697, 186, 72, 22 );
@@ -273,6 +283,7 @@ public class ScheduledItemPanel extends JPanel {
         itemTable.setPreferredScrollableViewportSize( new Dimension( TABLE_WIDTH, TABLE_HEIGHT ) );
         itemTable.addKeyListener( mnemonicKeyHandler );
         
+        // 設定 Tab 和 Shift+Tab 為跳轉按鍵(traversal key)
         Set<AWTKeyStroke> forward = new HashSet<AWTKeyStroke>(
                 itemTable.getFocusTraversalKeys( KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS ) );
         forward.add( KeyStroke.getKeyStroke( "TAB" ) );
@@ -282,6 +293,17 @@ public class ScheduledItemPanel extends JPanel {
         backward.add( KeyStroke.getKeyStroke( "shift TAB" ) );
         itemTable.setFocusTraversalKeys( KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS, backward );
         
+        // 移除 JTable 中 Enter 鍵的預設功能
+        itemTable.getInputMap( JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT )
+            .put( KeyStroke.getKeyStroke( KeyEvent.VK_ENTER, 0 ), "Enter" );
+        itemTable.getActionMap().put( "Enter", new AbstractAction() {
+        
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            public void actionPerformed( ActionEvent event ) { /* do nothing */ }
+        });
+        
         itemTableScrollPane = new JScrollPane( itemTable );
         itemTableScrollPane.setBounds( 16, 29, TABLE_WIDTH, TABLE_HEIGHT + TABLE_HEADER_HEIGHT + BORDER_HEIGHT_FIX );
         
@@ -289,49 +311,47 @@ public class ScheduledItemPanel extends JPanel {
     }
     
     private void openScheduledItemUpdateDialog() {
-        int itemTableSelectedIndex = itemTable.getSelectedRow();
-        
-        if( itemTableSelectedIndex < 0 ) {
-            JOptionPane.showMessageDialog( ownerFrame, "未選擇資料", "Warning", JOptionPane.WARNING_MESSAGE );
-            return;
+        int id = getItemTableSelectedId();
+        if( id != -1 ) {
+            scheduledItemUpdateDialog.openDialog( id );
         }
-        
-        int id = 0;
-        String itemTableSelectedIdValue = (String) itemTable.getModel().getValueAt( itemTableSelectedIndex, 5 );
-        try {
-            id = Integer.parseInt( itemTableSelectedIdValue );
-        } catch( NumberFormatException e ) {
-            JOptionPane.showMessageDialog( ownerFrame, "選擇無效的資料", "Warning", JOptionPane.WARNING_MESSAGE );
-            return;
-        } catch( StringIndexOutOfBoundsException e ) {
-            JOptionPane.showMessageDialog( ownerFrame, "選擇無效的資料", "Warning", JOptionPane.WARNING_MESSAGE );
-            return;
-        }
-        
-        scheduledItemUpdateDialog.openDialog( id );
     }
     
     private void openScheduledItemDetailDialog() {
+        int id = getItemTableSelectedId();
+        if( id != -1 ) {
+            scheduledItemDetailDialog.openDialog( id );
+        }
+    }
+    
+    private void openScheduledItemExecuteDialog() {
+        int id = getItemTableSelectedId();
+        if( id != -1 ) {
+            scheduledItemExecuteDialog.openDialog( id );
+        }
+    }
+    
+    private int getItemTableSelectedId() {
         int itemTableSelectedIndex = itemTable.getSelectedRow();
         
         if( itemTableSelectedIndex < 0 ) {
             JOptionPane.showMessageDialog( ownerFrame, "未選擇資料", "Warning", JOptionPane.WARNING_MESSAGE );
-            return;
+            return -1;
         }
         
-        int id = 0;
+        int id = -1;
         String itemTableSelectedIdValue = (String) itemTable.getModel().getValueAt( itemTableSelectedIndex, 5 );
         try {
             id = Integer.parseInt( itemTableSelectedIdValue );
         } catch( NumberFormatException e ) {
             JOptionPane.showMessageDialog( ownerFrame, "選擇無效的資料", "Warning", JOptionPane.WARNING_MESSAGE );
-            return;
+            return -1;
         } catch( StringIndexOutOfBoundsException e ) {
             JOptionPane.showMessageDialog( ownerFrame, "選擇無效的資料", "Warning", JOptionPane.WARNING_MESSAGE );
-            return;
+            return -1;
         }
         
-        scheduledItemDetailDialog.openDialog( id );
+        return id;
     }
     
     private class MnemonicKeyHandler implements KeyListener {
@@ -346,6 +366,8 @@ public class ScheduledItemPanel extends JPanel {
                     openScheduledItemUpdateDialog();
                 } else if( event.getSource() == cancelButton ) {
                     deleteScheduledItem();
+                } else if( event.getSource() == detailButton || event.getSource() == itemTable ) {
+                    openScheduledItemDetailDialog();
                 }
                 break;
             case KeyEvent.VK_N:
@@ -356,6 +378,9 @@ public class ScheduledItemPanel extends JPanel {
                 break;
             case KeyEvent.VK_C:
                 deleteScheduledItem();
+                break;
+            case KeyEvent.VK_D:
+                openScheduledItemDetailDialog();
                 break;
             default:
                 break;

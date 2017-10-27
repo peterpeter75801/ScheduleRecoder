@@ -5,9 +5,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import commonUtil.ItemUtil;
 import commonUtil.ScheduledItemUtil;
+import domain.Item;
 import domain.ScheduledItem;
 import junit.framework.TestCase;
+import service.Impl.ItemServiceImpl;
 import service.Impl.ScheduledItemServiceImpl;
 
 public class ScheduledItemServiceImplTests extends TestCase {
@@ -161,6 +164,113 @@ public class ScheduledItemServiceImplTests extends TestCase {
         }
     }
     
+    public void testExecute() throws IOException {
+        final String ITEM_CSV_FILE_PATH = "data\\Item\\2017.05.01.csv";
+        final String ITEM_CSV_FILE_BACKUP_PATH = "data\\Item\\2017.05.01_backup.csv";
+        
+        ItemServiceImpl itemServiceImpl = new ItemServiceImpl();
+        ScheduledItemServiceImpl scheduledItemServiceImpl = new ScheduledItemServiceImpl();
+        
+        try {
+            backupFile( S_ITEM_CSV_FILE_PATH, S_ITEM_CSV_FILE_BACKUP_PATH );
+            backupFile( S_ITEM_SEQ_FILE_PATH, S_ITEM_SEQ_FILE_BACKUP_PATH );
+            backupFile( ITEM_CSV_FILE_PATH, ITEM_CSV_FILE_BACKUP_PATH );
+            
+            scheduledItemServiceImpl.insert( getTestData1() );
+            scheduledItemServiceImpl.insert( getTestData2() );
+            scheduledItemServiceImpl.insert( getTestData3() );
+            scheduledItemServiceImpl.insert( getTestData4() );
+            scheduledItemServiceImpl.insert( getTestData5() );
+            scheduledItemServiceImpl.insert( getTestData6() );
+            
+            ScheduledItem originalData1 = getTestData1();
+            originalData1.setId( 1 );
+            ScheduledItem originalData2 = getTestData2();
+            originalData2.setId( 2 );
+            ScheduledItem originalData3 = getTestData6();
+            originalData3.setId( 6 );
+            ScheduledItem completedData1 = getTestData1();
+            completedData1.setName( "辦理國泰金融卡" );
+            completedData1.setHour( 11 );
+            completedData1.setMinute( 50 );
+            ScheduledItem completedData2 = getTestData2();
+            completedData2.setName( "撰寫時間記錄程式" );
+            completedData2.setHour( 16 );
+            completedData2.setMinute( 30 );
+            ScheduledItem completedData3 = getTestData6();
+            completedData3.setName( "下載更新檔案" );
+            completedData3.setHour( 16 );
+            completedData3.setMinute( 30 );
+            
+            scheduledItemServiceImpl.execute( originalData1, completedData1, true );
+            scheduledItemServiceImpl.execute( originalData2, completedData2, false );
+            scheduledItemServiceImpl.execute( originalData3, completedData3, true );
+            
+            List<Item> expectItemData = new ArrayList<Item>();
+            for( int i = 1; i <= 3; i++ ) {
+                Item item = new Item();
+                item.setYear( 2017 );
+                item.setMonth( 5 );
+                item.setDay( 1 );
+                switch( i ) {
+                case 1:
+                    item.setStartHour( 11 );
+                    item.setStartMinute( 50 );
+                    item.setSeq( 0 );
+                    item.setEndHour( 11 );
+                    item.setEndMinute( 50 );
+                    item.setName( "辦理國泰金融卡" );
+                    break;
+                case 2:
+                    item.setStartHour( 16 );
+                    item.setStartMinute( 30 );
+                    item.setSeq( 0 );
+                    item.setEndHour( 16 );
+                    item.setEndMinute( 30 );
+                    item.setName( "撰寫時間記錄程式" );
+                    break;
+                case 3:
+                    item.setStartHour( 16 );
+                    item.setStartMinute( 30 );
+                    item.setSeq( 1 );
+                    item.setEndHour( 16 );
+                    item.setEndMinute( 30 );
+                    item.setName( "下載更新檔案" );
+                    break;
+                }
+                item.setDescription( "" );
+                expectItemData.add( item );
+            }
+            List<ScheduledItem> expectScheduledItemData = new ArrayList<ScheduledItem>();
+            expectScheduledItemData.add( getTestData5() );
+            expectScheduledItemData.get( expectScheduledItemData.size() - 1 ).setId( 5 );
+            expectScheduledItemData.add( getTestData3() );
+            expectScheduledItemData.get( expectScheduledItemData.size() - 1 ).setId( 3 );
+            expectScheduledItemData.add( getTestData4() );
+            expectScheduledItemData.get( expectScheduledItemData.size() - 1 ).setId( 4 );
+            expectScheduledItemData.add( getTestData2() );
+            expectScheduledItemData.get( expectScheduledItemData.size() - 1 ).setId( 2 );
+            
+            List<Item> actualItemData = itemServiceImpl.findByDate( 2017, 5, 1 );
+            assertEquals( expectItemData.size(), actualItemData.size() );
+            for( int i = 0; i < expectItemData.size(); i++ ) {
+                assertTrue( "failed at i = " + i, ItemUtil.equals( expectItemData.get( i ), actualItemData.get( i ) ) );
+            }
+            List<ScheduledItem> actualScheduledItemData = scheduledItemServiceImpl.findAllSortByTime();
+            assertEquals( expectScheduledItemData.size(), actualScheduledItemData.size() );
+            for( int i = 0; i < expectScheduledItemData.size(); i++ ) {
+                assertTrue( "failed at i = " + i, ScheduledItemUtil.equals( expectScheduledItemData.get( i ), actualScheduledItemData.get( i ) ) );
+            }
+        } catch( Exception e ) {
+            e.printStackTrace();
+            assertTrue( e.getMessage(), false );
+        } finally {
+            restoreFile( ITEM_CSV_FILE_BACKUP_PATH, ITEM_CSV_FILE_PATH );
+            restoreFile( S_ITEM_SEQ_FILE_BACKUP_PATH, S_ITEM_SEQ_FILE_PATH );
+            restoreFile( S_ITEM_CSV_FILE_BACKUP_PATH, S_ITEM_CSV_FILE_PATH );
+        }
+    }
+    
     private ScheduledItem getTestData1() {
         ScheduledItem testData = new ScheduledItem();
         testData.setId( 0 );
@@ -232,6 +342,21 @@ public class ScheduledItemServiceImplTests extends TestCase {
         testData.setExpectedTime( 10 );
         testData.setType( 'D' );
         testData.setName( "統一發票對獎" );
+        testData.setDescription( "" );
+        return testData;
+    }
+    
+    private ScheduledItem getTestData6() {
+        ScheduledItem testData = new ScheduledItem();
+        testData.setId( 0 );
+        testData.setYear( 2017 );
+        testData.setMonth( 5 );
+        testData.setDay( 1 );
+        testData.setHour( 16 );
+        testData.setMinute( 0 );
+        testData.setExpectedTime( 30 );
+        testData.setType( 'O' );
+        testData.setName( "下載更新檔案" );
         testData.setDescription( "" );
         return testData;
     }

@@ -16,6 +16,7 @@ public class Contants {
     /**
      * Version alpha-0.30
      * <br /> New Feature: Add displaying scheduled item detail dialog.
+     * <br /> New Feature: Add executing scheduled item dialog.
      */
     public static final String VERSION = "Ver. alpha-0.30";
 }

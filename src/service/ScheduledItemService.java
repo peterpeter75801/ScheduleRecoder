@@ -15,4 +15,6 @@ public interface ScheduledItemService {
     public int update( ScheduledItem scheduledItem ) throws Exception;
     
     public int delete( ScheduledItem scheduledItem ) throws Exception;
+    
+    public int execute( ScheduledItem original, ScheduledItem completed, boolean deleteFlag ) throws Exception;
 }
