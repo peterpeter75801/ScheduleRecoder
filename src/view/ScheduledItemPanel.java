@@ -364,6 +364,8 @@ public class ScheduledItemPanel extends JPanel {
                     scheduledItemCreateDialog.openDialog();
                 } else if( event.getSource() == updateButton ) {
                     openScheduledItemUpdateDialog();
+                } else if( event.getSource() == executeButton ) {
+                    openScheduledItemExecuteDialog();
                 } else if( event.getSource() == cancelButton ) {
                     deleteScheduledItem();
                 } else if( event.getSource() == detailButton || event.getSource() == itemTable ) {
@@ -375,6 +377,9 @@ public class ScheduledItemPanel extends JPanel {
                 break;
             case KeyEvent.VK_U:
                 openScheduledItemUpdateDialog();
+                break;
+            case KeyEvent.VK_E:
+                openScheduledItemExecuteDialog();
                 break;
             case KeyEvent.VK_C:
                 deleteScheduledItem();
