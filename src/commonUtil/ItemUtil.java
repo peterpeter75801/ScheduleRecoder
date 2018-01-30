@@ -105,6 +105,34 @@ public class ItemUtil {
         return buffer.toString();
     }
     
+    /**
+     * 將輸入的Item物件轉換為指定格式的TXT字串，並包含Item的說明(description)，TXT字串格式同getItemFromTxtString()方法的定義
+     * <br> Example:
+     * <br> &nbsp;&nbsp; If input item is:
+     * <br> &nbsp;&nbsp;&nbsp;&nbsp; startHour: 12, startMinute: 00, endHour: 12, endMinute: 10, name: test
+     * <br> &nbsp;&nbsp;&nbsp;&nbsp; description: 123test
+     * <br> &nbsp;&nbsp; Then the output TXT string will be:
+     * <br> &nbsp;&nbsp;&nbsp;&nbsp; 12:00 ~ 12:10  test 
+     * <br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 123test
+     */
+    public static String getTxtStringIncludingDescFromItem( Item item ) {
+        StringBuffer buffer = new StringBuffer();
+        buffer.append( getTxtStringFromItem( item ) );
+        
+        if( item.getDescription() == null || item.getDescription().length() <= 0 ) {
+            return buffer.toString();
+        } else if( !CsvFormatParser.checkSpecialCharacter( item.getDescription() ) ) {
+            buffer.append( "\n  " );
+            buffer.append( item.getDescription() );
+        } else {
+            String itemDescription = CsvFormatParser.restoreCharacterFromHtmlFormat( item.getDescription() );
+            buffer.append( "\n  " );
+            buffer.append( itemDescription.replace( "\n", "\n  " ) );
+        }
+        
+        return buffer.toString();
+    }
+    
     public static int timeSubtract( int endHour, int endMinute, int startHour, int startMinute ) {
         if( (startHour*60 + startMinute) <= (endHour*60 + endMinute) ) {
             return (endHour*60 + endMinute) - (startHour*60 + startMinute);

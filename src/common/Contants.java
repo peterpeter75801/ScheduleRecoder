@@ -14,9 +14,8 @@ public class Contants {
     public static final int DUPLICATE_DATA = -3;
     
     /**
-     * Version alpha-0.30
-     * <br /> New Feature: Add displaying scheduled item detail dialog.
-     * <br /> New Feature: Add executing scheduled item dialog.
+     * Version alpha-0.31
+     * <br /> New Feature: Add exporting item description feature in item exporting dialog.
      */
-    public static final String VERSION = "Ver. alpha-0.30";
+    public static final String VERSION = "Ver. alpha-0.31";
 }

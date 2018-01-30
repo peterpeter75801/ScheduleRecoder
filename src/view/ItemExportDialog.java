@@ -44,6 +44,7 @@ public class ItemExportDialog extends JDialog {
     
     private String itemTxtString;
     private String itemStatistics;
+    private String itemIncludingDesc;
     
     private UndoManager undoManager;
     private FocusHandler focusHandler;
@@ -60,6 +61,7 @@ public class ItemExportDialog extends JDialog {
     private JLabel dayLabel;
     private JRadioButton txtStringRadioButton;
     private JRadioButton statisticRadioButton;
+    private JRadioButton includingDescRadioButton;
     private ButtonGroup exportTypeButtonGroup;
     private JLabel exportContentLabel;
     private JTextArea exportContentTextArea;
@@ -162,9 +164,25 @@ public class ItemExportDialog extends JDialog {
         });
         dialogPanel.add( statisticRadioButton );
         
+        includingDescRadioButton = new JRadioButton( "包含說明", false );
+        includingDescRadioButton.setBounds( 304, 54, 96, 22 );
+        includingDescRadioButton.setFont( generalFont );
+        includingDescRadioButton.addKeyListener( mnemonicKeyHandler );
+        includingDescRadioButton.addItemListener( new ItemListener() {
+            @Override
+            public void itemStateChanged( ItemEvent event ) {
+                JRadioButton sourceRadioButton = (JRadioButton)event.getSource();
+                if( sourceRadioButton.isSelected() ) {
+                    exportContentTextArea.setText( itemIncludingDesc );
+                }
+            }
+        });
+        dialogPanel.add( includingDescRadioButton );
+        
         exportTypeButtonGroup = new ButtonGroup();
         exportTypeButtonGroup.add( txtStringRadioButton );
         exportTypeButtonGroup.add( statisticRadioButton );
+        exportTypeButtonGroup.add( includingDescRadioButton );
         
         exportContentTextArea = new JTextArea();
         exportContentTextArea.setSize( 425, 198 );
@@ -217,7 +235,7 @@ public class ItemExportDialog extends JDialog {
         monthTextField.setText( selectedDateString.substring( 5, 7 ) );
         dayTextField.setText( selectedDateString.substring( 8, 10 ) );
         
-        exportTxtStringAndStatistics( year, month, day );
+        exportItemListAndStatistics( year, month, day );
         
         txtStringRadioButton.setSelected( true );
         statisticRadioButton.setSelected( false );
@@ -228,21 +246,26 @@ public class ItemExportDialog extends JDialog {
         setVisible( true );
     }
     
-    private void exportTxtStringAndStatistics( int year, int month, int day ) {
+    private void exportItemListAndStatistics( int year, int month, int day ) {
         itemTxtString = new String();
         itemStatistics = new String();
+        itemIncludingDesc = new String();
         
         try {
             List<Item> itemList = itemService.findByDate( year, month, day );
             StringBuffer txtStringBuf = new StringBuffer();
+            StringBuffer txtStringIncludingDesc = new StringBuffer();
             
             for( Item item : itemList ) {
                 txtStringBuf.append( ItemUtil.getTxtStringFromItem( item ) );
                 txtStringBuf.append( "\n" );
+                txtStringIncludingDesc.append( ItemUtil.getTxtStringIncludingDescFromItem( item ) );
+                txtStringIncludingDesc.append( "\n" );
             }
             
             itemTxtString = txtStringBuf.toString();
             itemStatistics = ItemUtil.exportStatistics( itemList );
+            itemIncludingDesc = txtStringIncludingDesc.toString();
         } catch ( Exception e ) {
             e.printStackTrace();
             JOptionPane.showMessageDialog( null, "匯出錯誤", "Error", JOptionPane.ERROR_MESSAGE );

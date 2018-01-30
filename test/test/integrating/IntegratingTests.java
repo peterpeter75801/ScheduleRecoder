@@ -774,6 +774,85 @@ public class IntegratingTests extends TestCase {
         }
     }
     
+    public void testExportItemIncludingDescription() throws IOException {
+        ItemService itemService = new ItemServiceImpl();
+        int testerSelection = 0;
+        
+        try {
+            backupFile( ITEM_CSV_FILE_PATH, ITEM_CSV_FILE_BACKUP_PATH );
+            
+            for( int i = 0; i < 3; i++ ) {
+                Item item = getTestData1();
+                item.setStartMinute( item.getStartMinute() + i*10 );
+                item.setEndMinute( item.getEndMinute() + i*10 + 10 );
+                switch( i ) {
+                case 1:
+                    item.setDescription( "123<br />456" );
+                    break;
+                case 2:
+                    item.setDescription( "123test" );
+                    break;
+                }
+                itemService.insert( item );
+            }
+            
+            MainFrame mainFrame = new MainFrame();
+            mainFrame.setVisible( true );
+            
+            JOptionPane.showMessageDialog( mainFrame, "請切換為英文輸入法", "Message", JOptionPane.INFORMATION_MESSAGE );
+            
+            Robot bot =  new Robot();
+            Thread.sleep( 3000 );
+            
+            // 選擇年份為2017
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            inputString( bot, "2017" );
+            // 選擇月份為06，列出2017/06的日期清單
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            inputString( bot, "06" );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_SPACE ); bot.keyRelease( KeyEvent.VK_SPACE ); Thread.sleep( 100 );
+            
+            // 點選"匯出"
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_SPACE ); bot.keyRelease( KeyEvent.VK_SPACE ); Thread.sleep( 100 );
+            Thread.sleep( 1000 );
+            
+            // 選擇匯出內容為"包含說明"
+            bot.keyPress( KeyEvent.VK_SHIFT );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyRelease( KeyEvent.VK_SHIFT );
+            bot.keyPress( KeyEvent.VK_SPACE ); bot.keyRelease( KeyEvent.VK_SPACE ); Thread.sleep( 100 );
+            Thread.sleep( 500 );
+            
+            // 檢查資料是否正確匯出
+            testerSelection = JOptionPane.showConfirmDialog( 
+                mainFrame, 
+                "匯出的資料是否為:\n" + 
+                    "10:00 ~ 10:10  測試\n" + 
+                    "10:10 ~ 10:20  測試\n  123\n  456\n" + 
+                    "10:20 ~ 10:30  測試\n  123test", 
+                "Check", JOptionPane.YES_NO_OPTION );
+            assertEquals( JOptionPane.YES_OPTION, testerSelection );
+            
+            // 回到主畫面
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_SPACE ); bot.keyRelease( KeyEvent.VK_SPACE ); Thread.sleep( 100 );
+            Thread.sleep( 1000 );
+        } catch ( Exception e ) {
+            e.printStackTrace();
+            assertTrue( e.getMessage(), false );
+        } finally {
+            restoreFile( ITEM_CSV_FILE_BACKUP_PATH, ITEM_CSV_FILE_PATH );
+        }
+    }
+    
     public void testConvertOldItemDataToCurrentVersion() throws IOException {
         final String ITEM_CSV_FILE_PATH_1 = "data\\Item\\2017.06.01.csv";
         final String ITEM_CSV_FILE_BACKUP_PATH_1 = "data\\Item\\2017.06.01_backup.csv";
