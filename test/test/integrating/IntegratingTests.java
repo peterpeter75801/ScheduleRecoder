@@ -28,9 +28,14 @@ public class IntegratingTests extends TestCase {
     private final String ITEM_CSV_FILE_PATH_2 = "./data/Item/2017.05.01.csv";
     private final String ITEM_CSV_FILE_BACKUP_PATH_2 = "./data/Item/2017.05.01_backup.csv";
     
+    private MainFrame mainFrame = null;
+    
     public void testDateListSelection() throws IOException {
         ItemService itemService = new ItemServiceImpl();
         int testerSelection = 0;
+        
+        mainFrame = new MainFrame();
+        mainFrame.setVisible( true );
         
         try {
             backupFile( ITEM_CSV_FILE_PATH, ITEM_CSV_FILE_BACKUP_PATH );
@@ -42,10 +47,7 @@ public class IntegratingTests extends TestCase {
                 item.setEndMinute( item.getEndMinute() + i );
                 itemService.insert( item );
             }
-            
-            MainFrame mainFrame = new MainFrame();
-            mainFrame.setVisible( true );
-            
+
             JOptionPane.showMessageDialog( mainFrame, "請切換為英文輸入法", "Message", JOptionPane.INFORMATION_MESSAGE );
             
             Robot bot =  new Robot();
@@ -81,6 +83,7 @@ public class IntegratingTests extends TestCase {
         } finally {
             restoreFile( ITEM_CSV_FILE_BACKUP_PATH_2, ITEM_CSV_FILE_PATH_2 );
             restoreFile( ITEM_CSV_FILE_BACKUP_PATH, ITEM_CSV_FILE_PATH );
+            mainFrame.dispose();
         }
     }
     
@@ -93,14 +96,19 @@ public class IntegratingTests extends TestCase {
         ItemService itemService = new ItemServiceImpl();
         int testerSelection = 0;
         
+        mainFrame = new MainFrame();
+        mainFrame.setVisible( true );
+        
         try {
             backupFile( ITEM_CSV_FILE_PATH_1, ITEM_CSV_FILE_BACKUP_PATH_1 );
             backupFile( ITEM_CSV_FILE_PATH_2, ITEM_CSV_FILE_BACKUP_PATH_2 );
             
-            MainFrame mainFrame = new MainFrame();
-            mainFrame.setVisible( true );
-            
             JOptionPane.showMessageDialog( mainFrame, "請切換為英文輸入法", "Message", JOptionPane.INFORMATION_MESSAGE );
+            
+            // 確認是否為linux based OS
+            int isLinuxBasedOSSelection = 0;
+            isLinuxBasedOSSelection = JOptionPane.showConfirmDialog( 
+                    mainFrame, "Is the OS linux based?", "Check", JOptionPane.YES_NO_OPTION );
             
             Robot bot =  new Robot();
             Thread.sleep( 3000 );
@@ -127,6 +135,7 @@ public class IntegratingTests extends TestCase {
             bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
             bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
             bot.keyRelease( KeyEvent.VK_SHIFT );
+            // 填入年、月、日、開始時間、結束時間、名稱等資料
             inputString( bot, String.format( "%04d", item1.getYear() ) );
             bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
             inputString( bot, String.format( "%02d", item1.getMonth() ) );
@@ -142,6 +151,22 @@ public class IntegratingTests extends TestCase {
             inputString( bot, String.format( "%02d", item1.getEndMinute() ) );
             bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
             inputString( bot, "test" );
+            // 測試複製功能
+            bot.keyPress( KeyEvent.VK_SHIFT );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyRelease( KeyEvent.VK_SHIFT );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            if( isLinuxBasedOSSelection == JOptionPane.YES_OPTION ) {
+                JOptionPane.showMessageDialog( mainFrame, "Please press context menu key in 3 seconds after closing this dialog.", 
+                        "Message", JOptionPane.INFORMATION_MESSAGE );
+                Thread.sleep( 3000 );
+            } else {
+                bot.keyPress( KeyEvent.VK_CONTEXT_MENU ); bot.keyRelease( KeyEvent.VK_CONTEXT_MENU ); Thread.sleep( 100 );
+            }
+            Thread.sleep( 500 );
+            bot.keyPress( KeyEvent.VK_C ); bot.keyRelease( KeyEvent.VK_C ); Thread.sleep( 100 );
+            Thread.sleep( 500 );
+            // 填入description資料
             bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
             inputString( bot, item1.getDescription() );
             bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
@@ -172,6 +197,7 @@ public class IntegratingTests extends TestCase {
             bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
             bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
             bot.keyRelease( KeyEvent.VK_SHIFT );
+            // 填入年、月、日、開始時間、結束時間、名稱等資料
             inputString( bot, String.format( "%04d", item2.getYear() ) );
             bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
             inputString( bot, String.format( "%02d", item2.getMonth() ) );
@@ -191,7 +217,18 @@ public class IntegratingTests extends TestCase {
             bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
             inputString( bot, String.format( "%02d", item2.getEndMinute() ) );
             bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
-            inputString( bot, "test" );
+            // 測試貼上功能
+            if( isLinuxBasedOSSelection == JOptionPane.YES_OPTION ) {
+                JOptionPane.showMessageDialog( mainFrame, "Please press context menu key in 3 seconds after closing this dialog.", 
+                        "Message", JOptionPane.INFORMATION_MESSAGE );
+                Thread.sleep( 3000 );
+            } else {
+                bot.keyPress( KeyEvent.VK_CONTEXT_MENU ); bot.keyRelease( KeyEvent.VK_CONTEXT_MENU ); Thread.sleep( 100 );
+            }
+            Thread.sleep( 500 );
+            bot.keyPress( KeyEvent.VK_P ); bot.keyRelease( KeyEvent.VK_P ); Thread.sleep( 100 );
+            Thread.sleep( 500 );
+            // 填入description資料
             bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
             inputString( bot, item2.getDescription() );
             bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
@@ -226,11 +263,15 @@ public class IntegratingTests extends TestCase {
         } finally {
             restoreFile( ITEM_CSV_FILE_BACKUP_PATH_1, ITEM_CSV_FILE_PATH_1 );
             restoreFile( ITEM_CSV_FILE_BACKUP_PATH_2, ITEM_CSV_FILE_PATH_2 );
+            mainFrame.dispose();
         }
     }
     
     public void testInsertItem() throws IOException {
         ItemService itemService = new ItemServiceImpl();
+        
+        mainFrame = new MainFrame();
+        mainFrame.setVisible( true );
         
         try {
             backupFile( ITEM_CSV_FILE_PATH, ITEM_CSV_FILE_BACKUP_PATH );
@@ -241,9 +282,6 @@ public class IntegratingTests extends TestCase {
                 item.setEndMinute( item.getEndMinute() + i*10 + 5 );
                 itemService.insert( item );
             }
-            
-            MainFrame mainFrame = new MainFrame();
-            mainFrame.setVisible( true );
             
             JOptionPane.showMessageDialog( mainFrame, "請切換為英文輸入法", "Message", JOptionPane.INFORMATION_MESSAGE );
             
@@ -318,12 +356,16 @@ public class IntegratingTests extends TestCase {
             assertTrue( e.getMessage(), false );
         } finally {
             restoreFile( ITEM_CSV_FILE_BACKUP_PATH, ITEM_CSV_FILE_PATH );
+            mainFrame.dispose();
         }
     }
     
     public void testUpdateItem() throws IOException {
         ItemService itemService = new ItemServiceImpl();
         int testerSelection = 0;
+        
+        mainFrame = new MainFrame();
+        mainFrame.setVisible( true );
         
         try {
             backupFile( ITEM_CSV_FILE_PATH, ITEM_CSV_FILE_BACKUP_PATH );
@@ -334,9 +376,6 @@ public class IntegratingTests extends TestCase {
                 item.setEndMinute( item.getEndMinute() + i*10 );
                 itemService.insert( item );
             }
-            
-            MainFrame mainFrame = new MainFrame();
-            mainFrame.setVisible( true );
             
             JOptionPane.showMessageDialog( mainFrame, "請切換為英文輸入法", "Message", JOptionPane.INFORMATION_MESSAGE );
             
@@ -392,6 +431,7 @@ public class IntegratingTests extends TestCase {
                 "項目名稱是否顯示為: test123\n描述是否顯示為: \n<test123>\ntest1,\ntest2 &\ntest3", 
                 "Check", JOptionPane.YES_NO_OPTION );
             assertEquals( JOptionPane.YES_OPTION, testerSelection );
+            Thread.sleep( 500 );
             
             // 回到主畫面
             bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
@@ -433,6 +473,7 @@ public class IntegratingTests extends TestCase {
                 "項目名稱是否顯示為: test123\n描述是否顯示為: \n<test123>123\ntest1,\ntest2 &\ntest3", 
                 "Check", JOptionPane.YES_NO_OPTION );
             assertEquals( JOptionPane.YES_OPTION, testerSelection );
+            Thread.sleep( 500 );
             
             // 回到主畫面
             bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
@@ -444,6 +485,7 @@ public class IntegratingTests extends TestCase {
             assertTrue( e.getMessage(), false );
         } finally {
             restoreFile( ITEM_CSV_FILE_BACKUP_PATH, ITEM_CSV_FILE_PATH );
+            mainFrame.dispose();
         }
     }
     
@@ -456,6 +498,9 @@ public class IntegratingTests extends TestCase {
         ItemService itemService = new ItemServiceImpl();
         int testerSelection = 0;
         
+        mainFrame = new MainFrame();
+        mainFrame.setVisible( true );
+        
         try {
             backupFile( ITEM_CSV_FILE_PATH_1, ITEM_CSV_FILE_BACKUP_PATH_1 );
             backupFile( ITEM_CSV_FILE_PATH_2, ITEM_CSV_FILE_BACKUP_PATH_2 );
@@ -466,9 +511,6 @@ public class IntegratingTests extends TestCase {
                 item.setEndMinute( item.getEndMinute() + i*10 );
                 itemService.insert( item );
             }
-            
-            MainFrame mainFrame = new MainFrame();
-            mainFrame.setVisible( true );
             
             JOptionPane.showMessageDialog( mainFrame, "請切換為英文輸入法", "Message", JOptionPane.INFORMATION_MESSAGE );
             
@@ -564,11 +606,15 @@ public class IntegratingTests extends TestCase {
         } finally {
             restoreFile( ITEM_CSV_FILE_BACKUP_PATH_2, ITEM_CSV_FILE_PATH_2 );
             restoreFile( ITEM_CSV_FILE_BACKUP_PATH_1, ITEM_CSV_FILE_PATH_1 );
+            mainFrame.dispose();
         }
     }
     
     public void testDeleteItem() throws IOException {
         ItemService itemService = new ItemServiceImpl();
+        
+        mainFrame = new MainFrame();
+        mainFrame.setVisible( true );
         
         try {
             backupFile( ITEM_CSV_FILE_PATH, ITEM_CSV_FILE_BACKUP_PATH );
@@ -579,9 +625,6 @@ public class IntegratingTests extends TestCase {
                 item.setEndMinute( item.getEndMinute() + i*10 );
                 itemService.insert( item );
             }
-            
-            MainFrame mainFrame = new MainFrame();
-            mainFrame.setVisible( true );
             
             JOptionPane.showMessageDialog( mainFrame, "請切換為英文輸入法", "Message", JOptionPane.INFORMATION_MESSAGE );
             
@@ -632,17 +675,18 @@ public class IntegratingTests extends TestCase {
             assertTrue( e.getMessage(), false );
         } finally {
             restoreFile( ITEM_CSV_FILE_BACKUP_PATH, ITEM_CSV_FILE_PATH );
+            mainFrame.dispose();
         }
     }
     
     public void testImportItem() throws IOException {
         ItemService itemService = new ItemServiceImpl();
         
+        mainFrame = new MainFrame();
+        mainFrame.setVisible( true );
+        
         try {
             backupFile( ITEM_CSV_FILE_PATH, ITEM_CSV_FILE_BACKUP_PATH );
-            
-            MainFrame mainFrame = new MainFrame();
-            mainFrame.setVisible( true );
             
             JOptionPane.showMessageDialog( mainFrame, "請切換為英文輸入法", "Message", JOptionPane.INFORMATION_MESSAGE );
             
@@ -710,12 +754,16 @@ public class IntegratingTests extends TestCase {
             assertTrue( e.getMessage(), false );
         } finally {
             restoreFile( ITEM_CSV_FILE_BACKUP_PATH, ITEM_CSV_FILE_PATH );
+            mainFrame.dispose();
         }
     }
     
     public void testExportItem() throws IOException {
         ItemService itemService = new ItemServiceImpl();
         int testerSelection = 0;
+        
+        mainFrame = new MainFrame();
+        mainFrame.setVisible( true );
         
         try {
             backupFile( ITEM_CSV_FILE_PATH, ITEM_CSV_FILE_BACKUP_PATH );
@@ -726,9 +774,6 @@ public class IntegratingTests extends TestCase {
                 item.setEndMinute( item.getEndMinute() + i*10 + 10 );
                 itemService.insert( item );
             }
-            
-            MainFrame mainFrame = new MainFrame();
-            mainFrame.setVisible( true );
             
             JOptionPane.showMessageDialog( mainFrame, "請切換為英文輸入法", "Message", JOptionPane.INFORMATION_MESSAGE );
             
@@ -761,6 +806,7 @@ public class IntegratingTests extends TestCase {
                 "匯出的資料是否為:\n10:00 ~ 10:10  測試\n10:10 ~ 10:20  測試\n10:20 ~ 10:30  測試", 
                 "Check", JOptionPane.YES_NO_OPTION );
             assertEquals( JOptionPane.YES_OPTION, testerSelection );
+            Thread.sleep( 500 );
             
             // 回到主畫面
             bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
@@ -771,12 +817,16 @@ public class IntegratingTests extends TestCase {
             assertTrue( e.getMessage(), false );
         } finally {
             restoreFile( ITEM_CSV_FILE_BACKUP_PATH, ITEM_CSV_FILE_PATH );
+            mainFrame.dispose();
         }
     }
     
     public void testExportItemIncludingDescription() throws IOException {
         ItemService itemService = new ItemServiceImpl();
         int testerSelection = 0;
+        
+        mainFrame = new MainFrame();
+        mainFrame.setVisible( true );
         
         try {
             backupFile( ITEM_CSV_FILE_PATH, ITEM_CSV_FILE_BACKUP_PATH );
@@ -795,9 +845,6 @@ public class IntegratingTests extends TestCase {
                 }
                 itemService.insert( item );
             }
-            
-            MainFrame mainFrame = new MainFrame();
-            mainFrame.setVisible( true );
             
             JOptionPane.showMessageDialog( mainFrame, "請切換為英文輸入法", "Message", JOptionPane.INFORMATION_MESSAGE );
             
@@ -840,6 +887,7 @@ public class IntegratingTests extends TestCase {
                     "10:20 ~ 10:30  測試\n  123test", 
                 "Check", JOptionPane.YES_NO_OPTION );
             assertEquals( JOptionPane.YES_OPTION, testerSelection );
+            Thread.sleep( 500 );
             
             // 回到主畫面
             bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
@@ -851,6 +899,7 @@ public class IntegratingTests extends TestCase {
             assertTrue( e.getMessage(), false );
         } finally {
             restoreFile( ITEM_CSV_FILE_BACKUP_PATH, ITEM_CSV_FILE_PATH );
+            mainFrame.dispose();
         }
     }
     
@@ -865,6 +914,9 @@ public class IntegratingTests extends TestCase {
         ItemDAO itemDAOBeforeVer26 = new ItemDAOImplBeforeVer26();
         ItemService itemService = new ItemServiceImpl();
         int testerSelection = 0;
+        
+        mainFrame = new MainFrame();
+        mainFrame.setVisible( true );
         
         try {
             backupFile( ITEM_CSV_FILE_PATH_1, ITEM_CSV_FILE_BACKUP_PATH_1 );
@@ -882,9 +934,6 @@ public class IntegratingTests extends TestCase {
                 }
                 itemDAOBeforeVer26.insert( item );
             }
-            
-            MainFrame mainFrame = new MainFrame();
-            mainFrame.setVisible( true );
             
             JOptionPane.showMessageDialog( mainFrame, "請切換為英文輸入法", "Message", JOptionPane.INFORMATION_MESSAGE );
             
@@ -969,6 +1018,7 @@ public class IntegratingTests extends TestCase {
             restoreFile( ITEM_CSV_FILE_BACKUP_PATH_3, ITEM_CSV_FILE_PATH_3 );
             restoreFile( ITEM_CSV_FILE_BACKUP_PATH_2, ITEM_CSV_FILE_PATH_2 );
             restoreFile( ITEM_CSV_FILE_BACKUP_PATH_1, ITEM_CSV_FILE_PATH_1 );
+            mainFrame.dispose();
         }
     }
     
@@ -982,6 +1032,9 @@ public class IntegratingTests extends TestCase {
         
         ItemService itemService = new ItemServiceImpl();
         int testerSelection = 0;
+        
+        mainFrame = new MainFrame();
+        mainFrame.setVisible( true );
         
         try {
             backupFile( ITEM_CSV_FILE_PATH_1, ITEM_CSV_FILE_BACKUP_PATH_1 );
@@ -1009,9 +1062,6 @@ public class IntegratingTests extends TestCase {
                 itemService.insert( item );
             }
             
-            MainFrame mainFrame = new MainFrame();
-            mainFrame.setVisible( true );
-            
             JOptionPane.showMessageDialog( mainFrame, "請切換為英文輸入法", "Message", JOptionPane.INFORMATION_MESSAGE );
             
             Robot bot =  new Robot();
@@ -1022,7 +1072,6 @@ public class IntegratingTests extends TestCase {
             inputString( bot, "2017" );
             // 選擇月份為06，列出2017/06的日期清單
             bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
-            JOptionPane.showMessageDialog( mainFrame, "Debug", "Message", JOptionPane.INFORMATION_MESSAGE ); // Debug
             inputString( bot, "06" );
             bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
             bot.keyPress( KeyEvent.VK_SPACE ); bot.keyRelease( KeyEvent.VK_SPACE ); Thread.sleep( 100 );
@@ -1078,6 +1127,7 @@ public class IntegratingTests extends TestCase {
             restoreFile( ITEM_CSV_FILE_BACKUP_PATH_3, ITEM_CSV_FILE_PATH_3 );
             restoreFile( ITEM_CSV_FILE_BACKUP_PATH_2, ITEM_CSV_FILE_PATH_2 );
             restoreFile( ITEM_CSV_FILE_BACKUP_PATH_1, ITEM_CSV_FILE_PATH_1 );
+            mainFrame.dispose();
         }
     }
     
@@ -1116,7 +1166,7 @@ public class IntegratingTests extends TestCase {
         }
     }
     
-    private void inputString( Robot bot, String s ) {
+    private void inputString( Robot bot, String s ) throws InterruptedException {
         HashMap<Character, Integer> charToKeyCodeMap = new HashMap<Character, Integer>();
         charToKeyCodeMap.put( 'a', KeyEvent.VK_A ); charToKeyCodeMap.put( 'A', KeyEvent.VK_A );
         charToKeyCodeMap.put( 'b', KeyEvent.VK_B ); charToKeyCodeMap.put( 'B', KeyEvent.VK_B );
@@ -1176,6 +1226,7 @@ public class IntegratingTests extends TestCase {
             }
             bot.keyPress( charToKeyCodeMap.get( s.charAt( i ) ) );
             bot.keyRelease( charToKeyCodeMap.get( s.charAt( i ) ) );
+            Thread.sleep( 100 );
             if( Character.isUpperCase( s.charAt( i ) ) || 
                     shiftPunctuationList.indexOf( s.charAt( i ) ) >= 0 ) {
                 bot.keyRelease( KeyEvent.VK_SHIFT );

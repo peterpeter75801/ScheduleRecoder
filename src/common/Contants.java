@@ -14,8 +14,9 @@ public class Contants {
     public static final int DUPLICATE_DATA = -3;
     
     /**
-     * Version alpha-0.32
-     * <br /> Support Ubuntu OS.
+     * Version alpha-0.33
+     * <br /> Add cut, copy, and paste mouse right clicking pop up menu in text component.
+     * <br /> Add ESC hot key in Scheduled Item Detail dialog's description column.
      */
-    public static final String VERSION = "Ver. alpha-0.32";
+    public static final String VERSION = "Ver. alpha-0.33";
 }

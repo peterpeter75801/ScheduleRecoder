@@ -11,6 +11,8 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -19,10 +21,14 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
+import javax.swing.text.JTextComponent;
 
 import commonUtil.CsvFormatParser;
 import domain.ScheduledItem;
@@ -34,8 +40,13 @@ public class ScheduledItemDetailDialog extends JDialog {
     
     private ScheduledItemService scheduledItemService;
     
+    private boolean popupMenuClosedFlag;
+    
+    private CopyAndPastePopUpMenu copyAndPastePopUpMenu;
     private FocusHandler focusHandler;
     private MnemonicKeyHandler mnemonicKeyHandler;
+    private CopyPasteMenuKeyHandler copyPasteMenuKeyHandler;
+    private CopyPasteMouseMenuHandler copyPasteMouseMenuHandler;
     private Font generalFont;
     private JPanel dialogPanel;
     private JLabel timeLabel;
@@ -66,8 +77,13 @@ public class ScheduledItemDetailDialog extends JDialog {
         
         this.scheduledItemService = scheduledItemService;
         
+        copyAndPastePopUpMenu = new CopyAndPastePopUpMenu();
+        copyAndPastePopUpMenu.addPopupMenuListener( new PopupMenuClosingHandler() );
+        
         focusHandler = new FocusHandler();
         mnemonicKeyHandler = new MnemonicKeyHandler();
+        copyPasteMenuKeyHandler = new CopyPasteMenuKeyHandler( copyAndPastePopUpMenu );
+        copyPasteMouseMenuHandler = new CopyPasteMouseMenuHandler( copyAndPastePopUpMenu );
         
         generalFont = new Font( "細明體", Font.PLAIN, 16 );
         
@@ -85,6 +101,8 @@ public class ScheduledItemDetailDialog extends JDialog {
         yearTextField.setEditable( false );
         yearTextField.addFocusListener( focusHandler );
         yearTextField.addKeyListener( mnemonicKeyHandler );
+        yearTextField.addKeyListener( copyPasteMenuKeyHandler );
+        yearTextField.addMouseListener( copyPasteMouseMenuHandler );
         dialogPanel.add( yearTextField );
         
         yearLabel = new JLabel( "年" );
@@ -98,6 +116,8 @@ public class ScheduledItemDetailDialog extends JDialog {
         monthTextField.setEditable( false );
         monthTextField.addFocusListener( focusHandler );
         monthTextField.addKeyListener( mnemonicKeyHandler );
+        monthTextField.addKeyListener( copyPasteMenuKeyHandler );
+        monthTextField.addMouseListener( copyPasteMouseMenuHandler );
         dialogPanel.add( monthTextField );
         
         monthLabel = new JLabel( "月" );
@@ -111,6 +131,8 @@ public class ScheduledItemDetailDialog extends JDialog {
         dayTextField.setEditable( false );
         dayTextField.addFocusListener( focusHandler );
         dayTextField.addKeyListener( mnemonicKeyHandler );
+        dayTextField.addKeyListener( copyPasteMenuKeyHandler );
+        dayTextField.addMouseListener( copyPasteMouseMenuHandler );
         dialogPanel.add( dayTextField );
         
         dayLabel = new JLabel( "日" );
@@ -124,6 +146,8 @@ public class ScheduledItemDetailDialog extends JDialog {
         hourTextField.setEditable( false );
         hourTextField.addFocusListener( focusHandler );
         hourTextField.addKeyListener( mnemonicKeyHandler );
+        hourTextField.addKeyListener( copyPasteMenuKeyHandler );
+        hourTextField.addMouseListener( copyPasteMouseMenuHandler );
         dialogPanel.add( hourTextField );
         
         hourLabel = new JLabel( "時" );
@@ -137,6 +161,8 @@ public class ScheduledItemDetailDialog extends JDialog {
         minuteTextField.setEditable( false );
         minuteTextField.addFocusListener( focusHandler );
         minuteTextField.addKeyListener( mnemonicKeyHandler );
+        minuteTextField.addKeyListener( copyPasteMenuKeyHandler );
+        minuteTextField.addMouseListener( copyPasteMouseMenuHandler );
         dialogPanel.add( minuteTextField );
         
         minuteLabel = new JLabel( "分" );
@@ -155,6 +181,8 @@ public class ScheduledItemDetailDialog extends JDialog {
         typeTextField.setEditable( false );
         typeTextField.addFocusListener( focusHandler );
         typeTextField.addKeyListener( mnemonicKeyHandler );
+        typeTextField.addKeyListener( copyPasteMenuKeyHandler );
+        typeTextField.addMouseListener( copyPasteMouseMenuHandler );
         dialogPanel.add( typeTextField );
         
         expectedTimeLabel = new JLabel( "預計花費時間: " );
@@ -168,6 +196,8 @@ public class ScheduledItemDetailDialog extends JDialog {
         expectedTimeTextField.setEditable( false );
         expectedTimeTextField.addFocusListener( focusHandler );
         expectedTimeTextField.addKeyListener( mnemonicKeyHandler );
+        expectedTimeTextField.addKeyListener( copyPasteMenuKeyHandler );
+        expectedTimeTextField.addMouseListener( copyPasteMouseMenuHandler );
         dialogPanel.add( expectedTimeTextField );
         
         expectedTimeUnitLabel = new JLabel( "分" );
@@ -186,6 +216,8 @@ public class ScheduledItemDetailDialog extends JDialog {
         nameTextField.setEditable( false );
         nameTextField.addFocusListener( focusHandler );
         nameTextField.addKeyListener( mnemonicKeyHandler );
+        nameTextField.addKeyListener( copyPasteMenuKeyHandler );
+        nameTextField.addMouseListener( copyPasteMouseMenuHandler );
         dialogPanel.add( nameTextField );
         
         descriptionLabel = new JLabel( "說明: " );
@@ -199,6 +231,9 @@ public class ScheduledItemDetailDialog extends JDialog {
         descriptionTextArea.setEditable( false );
         descriptionTextArea.setLineWrap( true );
         descriptionTextArea.setWrapStyleWord( true );
+        descriptionTextArea.addKeyListener( mnemonicKeyHandler );
+        descriptionTextArea.addKeyListener( copyPasteMenuKeyHandler );
+        descriptionTextArea.addMouseListener( copyPasteMouseMenuHandler );
         descriptionScrollPane = new JScrollPane( descriptionTextArea );
         descriptionScrollPane.setBounds( 16, 128, 449, 159 );
         descriptionScrollPane.setPreferredSize( new Dimension( 449, 159 ) );
@@ -276,6 +311,8 @@ public class ScheduledItemDetailDialog extends JDialog {
         nameTextField.setText( scheduledItem.getName() );
         descriptionTextArea.setText( CsvFormatParser.restoreCharacterFromHtmlFormat( scheduledItem.getDescription() ) );
         
+        popupMenuClosedFlag = false;
+        
         okButton.requestFocus();
         setVisible( true );
     }
@@ -283,8 +320,12 @@ public class ScheduledItemDetailDialog extends JDialog {
     private class FocusHandler extends FocusAdapter {
         @Override
         public void focusGained( FocusEvent event ) {
-            JTextField sourceComponent = (JTextField) event.getSource();
-            sourceComponent.selectAll();
+            if( popupMenuClosedFlag ) {
+                popupMenuClosedFlag = false;
+            } else {
+                JTextField sourceComponent = (JTextField) event.getSource();
+                sourceComponent.selectAll();
+            }
         }
     }
     
@@ -305,5 +346,71 @@ public class ScheduledItemDetailDialog extends JDialog {
 
         @Override
         public void keyTyped( KeyEvent event ) {}
+    }
+    
+    private class CopyPasteMenuKeyHandler implements KeyListener {
+        
+        private CopyAndPastePopUpMenu copyAndPastePopUpMenu;
+        
+        public CopyPasteMenuKeyHandler( CopyAndPastePopUpMenu copyAndPastePopUpMenu ) {
+            this.copyAndPastePopUpMenu = copyAndPastePopUpMenu;
+        }
+        
+        @Override
+        public void keyPressed( KeyEvent event ) {
+            if( event.getKeyCode() == KeyEvent.VK_CONTEXT_MENU ) {
+                JTextComponent eventComponent = (JTextComponent)event.getComponent();
+                int showPosX = (eventComponent.getCaret().getMagicCaretPosition() != null) ? 
+                        (int)eventComponent.getCaret().getMagicCaretPosition().getX() : 0;
+                int showPosY = (eventComponent.getCaret().getMagicCaretPosition() != null) ? 
+                        (int)eventComponent.getCaret().getMagicCaretPosition().getY() : 0;
+                copyAndPastePopUpMenu.show( eventComponent, showPosX, showPosY );
+            }
+        }
+
+        @Override
+        public void keyReleased( KeyEvent event ) {}
+
+        @Override
+        public void keyTyped( KeyEvent event ) {}
+    }
+    
+    private class CopyPasteMouseMenuHandler extends MouseAdapter {
+        
+        private CopyAndPastePopUpMenu copyAndPastePopUpMenu;
+        
+        public CopyPasteMouseMenuHandler( CopyAndPastePopUpMenu copyAndPastePopUpMenu ) {
+            this.copyAndPastePopUpMenu = copyAndPastePopUpMenu;
+        }
+        
+        public void mousePressed( MouseEvent event ) {
+            if( event.isPopupTrigger() ) {
+                copyAndPastePopUpMenu.show( event.getComponent(), event.getX(), event.getY() );
+            }
+        }
+        
+        public void mouseReleased( MouseEvent event ) {
+            if( event.isPopupTrigger() ) {
+                copyAndPastePopUpMenu.show( event.getComponent(), event.getX(), event.getY() );
+            }
+        }
+    }
+    
+    private class PopupMenuClosingHandler implements PopupMenuListener {
+        
+        @Override
+        public void popupMenuCanceled( PopupMenuEvent event ) {
+            popupMenuClosedFlag = true;
+            ((JPopupMenu)event.getSource()).getInvoker().requestFocus();
+        }
+
+        @Override
+        public void popupMenuWillBecomeInvisible( PopupMenuEvent event ) {
+            popupMenuClosedFlag = true;
+            ((JPopupMenu)event.getSource()).getInvoker().requestFocus();
+        }
+
+        @Override
+        public void popupMenuWillBecomeVisible( PopupMenuEvent event ) {}
     }
 }

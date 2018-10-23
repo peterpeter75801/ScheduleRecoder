@@ -29,6 +29,8 @@ public class SItemIntegratingTests extends TestCase {
     private final String S_ITEM_SEQ_FILE_PATH = "./data/ScheduledItemSeq.txt";
     private final String S_ITEM_SEQ_FILE_BACKUP_PATH = "./data/ScheduledItemSeq_backup.txt";
     
+    private MainFrame mainFrame = null;
+    
     public void testLoadScheduledItems() throws IOException {
         int testerSelection = 0;
         ScheduledItemService scheduledItemService = new ScheduledItemServiceImpl();
@@ -46,7 +48,7 @@ public class SItemIntegratingTests extends TestCase {
             }
             
             // 執行視窗程式
-            MainFrame mainFrame = new MainFrame();
+            mainFrame = new MainFrame();
             mainFrame.setVisible( true );
             
             JOptionPane.showMessageDialog( mainFrame, "請切換為英文輸入法", "Message", JOptionPane.INFORMATION_MESSAGE );
@@ -69,6 +71,7 @@ public class SItemIntegratingTests extends TestCase {
         } finally {
             restoreFile( S_ITEM_SEQ_FILE_BACKUP_PATH, S_ITEM_SEQ_FILE_PATH );
             restoreFile( S_ITEM_CSV_FILE_BACKUP_PATH, S_ITEM_CSV_FILE_PATH );
+            mainFrame.dispose();
         }
     }
     
@@ -80,7 +83,7 @@ public class SItemIntegratingTests extends TestCase {
             backupFile( S_ITEM_CSV_FILE_PATH, S_ITEM_CSV_FILE_BACKUP_PATH );
             backupFile( S_ITEM_SEQ_FILE_PATH, S_ITEM_SEQ_FILE_BACKUP_PATH );
             
-            MainFrame mainFrame = new MainFrame();
+            mainFrame = new MainFrame();
             mainFrame.setVisible( true );
             
             JOptionPane.showMessageDialog( mainFrame, "請切換為英文輸入法", "Message", JOptionPane.INFORMATION_MESSAGE );
@@ -132,6 +135,7 @@ public class SItemIntegratingTests extends TestCase {
         } finally {
             restoreFile( S_ITEM_SEQ_FILE_BACKUP_PATH, S_ITEM_SEQ_FILE_PATH );
             restoreFile( S_ITEM_CSV_FILE_BACKUP_PATH, S_ITEM_CSV_FILE_PATH );
+            mainFrame.dispose();
         }
     }
     
@@ -143,7 +147,7 @@ public class SItemIntegratingTests extends TestCase {
             backupFile( S_ITEM_CSV_FILE_PATH, S_ITEM_CSV_FILE_BACKUP_PATH );
             backupFile( S_ITEM_SEQ_FILE_PATH, S_ITEM_SEQ_FILE_BACKUP_PATH );
             
-            MainFrame mainFrame = new MainFrame();
+            mainFrame = new MainFrame();
             mainFrame.setVisible( true );
             
             JOptionPane.showMessageDialog( mainFrame, "請切換為英文輸入法", "Message", JOptionPane.INFORMATION_MESSAGE );
@@ -203,6 +207,7 @@ public class SItemIntegratingTests extends TestCase {
             testerSelection = JOptionPane.showConfirmDialog( 
                 mainFrame, "預計花費時間欄位是否為空白?", "Check", JOptionPane.YES_NO_OPTION );
             assertEquals( JOptionPane.YES_OPTION, testerSelection );
+            Thread.sleep( 500 );
             
             // 回到主畫面
             bot.keyPress( KeyEvent.VK_SHIFT );
@@ -215,6 +220,7 @@ public class SItemIntegratingTests extends TestCase {
         } finally {
             restoreFile( S_ITEM_SEQ_FILE_BACKUP_PATH, S_ITEM_SEQ_FILE_PATH );
             restoreFile( S_ITEM_CSV_FILE_BACKUP_PATH, S_ITEM_CSV_FILE_PATH );
+            mainFrame.dispose();
         }
     }
     
@@ -234,7 +240,7 @@ public class SItemIntegratingTests extends TestCase {
                 scheduledItemService.insert( scheduledItem );
             }
             
-            MainFrame mainFrame = new MainFrame();
+            mainFrame = new MainFrame();
             mainFrame.setVisible( true );
             
             JOptionPane.showMessageDialog( mainFrame, "請切換為英文輸入法", "Message", JOptionPane.INFORMATION_MESSAGE );
@@ -295,6 +301,7 @@ public class SItemIntegratingTests extends TestCase {
                 "項目名稱是否顯示為: test123\n描述是否顯示為: \n<test123>\ntest1,\ntest2 &\ntest3", 
                 "Check", JOptionPane.YES_NO_OPTION );
             assertEquals( JOptionPane.YES_OPTION, testerSelection );
+            Thread.sleep( 500 );
             
             // 回到主畫面
             bot.keyPress( KeyEvent.VK_SHIFT );
@@ -307,6 +314,7 @@ public class SItemIntegratingTests extends TestCase {
         } finally {
             restoreFile( S_ITEM_SEQ_FILE_BACKUP_PATH, S_ITEM_SEQ_FILE_PATH );
             restoreFile( S_ITEM_CSV_FILE_BACKUP_PATH, S_ITEM_CSV_FILE_PATH );
+            mainFrame.dispose();
         }
     }
     
@@ -326,7 +334,7 @@ public class SItemIntegratingTests extends TestCase {
                 scheduledItemService.insert( scheduledItem );
             }
             
-            MainFrame mainFrame = new MainFrame();
+            mainFrame = new MainFrame();
             mainFrame.setVisible( true );
             
             JOptionPane.showMessageDialog( mainFrame, "請切換為英文輸入法", "Message", JOptionPane.INFORMATION_MESSAGE );
@@ -364,6 +372,7 @@ public class SItemIntegratingTests extends TestCase {
         } finally {
             restoreFile( S_ITEM_SEQ_FILE_BACKUP_PATH, S_ITEM_SEQ_FILE_PATH );
             restoreFile( S_ITEM_CSV_FILE_BACKUP_PATH, S_ITEM_CSV_FILE_PATH );
+            mainFrame.dispose();
         }
     }
     
@@ -386,7 +395,7 @@ public class SItemIntegratingTests extends TestCase {
                 scheduledItemService.insert( scheduledItem );
             }
             
-            MainFrame mainFrame = new MainFrame();
+            mainFrame = new MainFrame();
             mainFrame.setVisible( true );
             
             JOptionPane.showMessageDialog( mainFrame, "請切換為英文輸入法", "Message", JOptionPane.INFORMATION_MESSAGE );
@@ -414,6 +423,7 @@ public class SItemIntegratingTests extends TestCase {
                     "<test123>\ntest1,\ntest2 &\ntest3", 
                 "Check", JOptionPane.YES_NO_OPTION );
             assertEquals( JOptionPane.YES_OPTION, testerSelection );
+            Thread.sleep( 500 );
             
             // 回到主畫面
             bot.keyPress( KeyEvent.VK_SPACE ); bot.keyRelease( KeyEvent.VK_SPACE ); Thread.sleep( 100 );
@@ -424,6 +434,7 @@ public class SItemIntegratingTests extends TestCase {
         } finally {
             restoreFile( S_ITEM_SEQ_FILE_BACKUP_PATH, S_ITEM_SEQ_FILE_PATH );
             restoreFile( S_ITEM_CSV_FILE_BACKUP_PATH, S_ITEM_CSV_FILE_PATH );
+            mainFrame.dispose();
         }
     }
     
@@ -446,7 +457,7 @@ public class SItemIntegratingTests extends TestCase {
                 scheduledItemService.insert( scheduledItem );
             }
             
-            MainFrame mainFrame = new MainFrame();
+            mainFrame = new MainFrame();
             mainFrame.setVisible( true );
             
             JOptionPane.showMessageDialog( mainFrame, "請切換為英文輸入法", "Message", JOptionPane.INFORMATION_MESSAGE );
@@ -469,6 +480,7 @@ public class SItemIntegratingTests extends TestCase {
                     "<test123>\ntest1,\ntest2 &\ntest3", 
                 "Check", JOptionPane.YES_NO_OPTION );
             assertEquals( JOptionPane.YES_OPTION, testerSelection );
+            Thread.sleep( 500 );
             
             // 回到主畫面
             bot.keyPress( KeyEvent.VK_SPACE ); bot.keyRelease( KeyEvent.VK_SPACE ); Thread.sleep( 100 );
@@ -479,6 +491,7 @@ public class SItemIntegratingTests extends TestCase {
         } finally {
             restoreFile( S_ITEM_SEQ_FILE_BACKUP_PATH, S_ITEM_SEQ_FILE_PATH );
             restoreFile( S_ITEM_CSV_FILE_BACKUP_PATH, S_ITEM_CSV_FILE_PATH );
+            mainFrame.dispose();
         }
     }
     
@@ -506,7 +519,7 @@ public class SItemIntegratingTests extends TestCase {
                 scheduledItemService.insert( scheduledItem );
             }
             
-            MainFrame mainFrame = new MainFrame();
+            mainFrame = new MainFrame();
             mainFrame.setVisible( true );
             
             JOptionPane.showMessageDialog( mainFrame, "請切換為英文輸入法", "Message", JOptionPane.INFORMATION_MESSAGE );
@@ -677,6 +690,7 @@ public class SItemIntegratingTests extends TestCase {
             restoreFile( ITEM_CSV_FILE_BACKUP_PATH, ITEM_CSV_FILE_PATH );
             restoreFile( S_ITEM_SEQ_FILE_BACKUP_PATH, S_ITEM_SEQ_FILE_PATH );
             restoreFile( S_ITEM_CSV_FILE_BACKUP_PATH, S_ITEM_CSV_FILE_PATH );
+            mainFrame.dispose();
         }
     }
     
@@ -715,7 +729,7 @@ public class SItemIntegratingTests extends TestCase {
         }
     }
     
-    private void inputString( Robot bot, String s ) {
+    private void inputString( Robot bot, String s ) throws InterruptedException {
         HashMap<Character, Integer> charToKeyCodeMap = new HashMap<Character, Integer>();
         charToKeyCodeMap.put( 'a', KeyEvent.VK_A ); charToKeyCodeMap.put( 'A', KeyEvent.VK_A );
         charToKeyCodeMap.put( 'b', KeyEvent.VK_B ); charToKeyCodeMap.put( 'B', KeyEvent.VK_B );
@@ -775,6 +789,7 @@ public class SItemIntegratingTests extends TestCase {
             }
             bot.keyPress( charToKeyCodeMap.get( s.charAt( i ) ) );
             bot.keyRelease( charToKeyCodeMap.get( s.charAt( i ) ) );
+            Thread.sleep( 100 );
             if( Character.isUpperCase( s.charAt( i ) ) || 
                     shiftPunctuationList.indexOf( s.charAt( i ) ) >= 0 ) {
                 bot.keyRelease( KeyEvent.VK_SHIFT );

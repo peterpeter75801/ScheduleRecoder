@@ -11,6 +11,8 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
@@ -21,12 +23,16 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
+import javax.swing.text.JTextComponent;
 import javax.swing.undo.UndoManager;
 
 import common.Contants;
@@ -42,11 +48,16 @@ public class ItemCreateDialog extends JDialog {
     
     private ItemService itemService;
     
+    private boolean popupMenuClosedFlag;
+    
     private MainFrame ownerFrame;
     
+    private CopyAndPastePopUpMenu copyAndPastePopUpMenu;
     private UndoManager undoManager;
     private FocusHandler focusHandler;
     private MnemonicKeyHandler mnemonicKeyHandler;
+    private CopyPasteMenuKeyHandler copyPasteMenuKeyHandler;
+    private CopyPasteMouseMenuHandler copyPasteMouseMenuHandler;
     private UndoEditHandler undoEditHandler;
     private UndoHotKeyHandler undoHotKeyHandler;
     private DateTimeTextFieldHotKeyHandler dateTimeTextFieldHotKeyHandler;
@@ -83,9 +94,14 @@ public class ItemCreateDialog extends JDialog {
         
         this.ownerFrame = ownerFrame;
         
+        copyAndPastePopUpMenu = new CopyAndPastePopUpMenu();
+        copyAndPastePopUpMenu.addPopupMenuListener( new PopupMenuClosingHandler() );
+        
         undoManager = new UndoManager();
         focusHandler = new FocusHandler();
         mnemonicKeyHandler = new MnemonicKeyHandler();
+        copyPasteMenuKeyHandler = new CopyPasteMenuKeyHandler( copyAndPastePopUpMenu );
+        copyPasteMouseMenuHandler = new CopyPasteMouseMenuHandler( copyAndPastePopUpMenu );
         undoEditHandler = new UndoEditHandler();
         undoHotKeyHandler = new UndoHotKeyHandler();
         dateTimeTextFieldHotKeyHandler = new DateTimeTextFieldHotKeyHandler();
@@ -101,6 +117,8 @@ public class ItemCreateDialog extends JDialog {
         yearTextField.addFocusListener( focusHandler );
         yearTextField.addKeyListener( mnemonicKeyHandler );
         yearTextField.addKeyListener( dateTimeTextFieldHotKeyHandler );
+        yearTextField.addKeyListener( copyPasteMenuKeyHandler );
+        yearTextField.addMouseListener( copyPasteMouseMenuHandler );
         yearTextField.addKeyListener( undoHotKeyHandler );
         yearTextField.getDocument().addUndoableEditListener( undoEditHandler );
         dialogPanel.add( yearTextField );
@@ -116,6 +134,8 @@ public class ItemCreateDialog extends JDialog {
         monthTextField.addFocusListener( focusHandler );
         monthTextField.addKeyListener( mnemonicKeyHandler );
         monthTextField.addKeyListener( dateTimeTextFieldHotKeyHandler );
+        monthTextField.addKeyListener( copyPasteMenuKeyHandler );
+        monthTextField.addMouseListener( copyPasteMouseMenuHandler );
         monthTextField.addKeyListener( undoHotKeyHandler );
         monthTextField.getDocument().addUndoableEditListener( undoEditHandler );
         dialogPanel.add( monthTextField );
@@ -131,6 +151,8 @@ public class ItemCreateDialog extends JDialog {
         dayTextField.addFocusListener( focusHandler );
         dayTextField.addKeyListener( mnemonicKeyHandler );
         dayTextField.addKeyListener( dateTimeTextFieldHotKeyHandler );
+        dayTextField.addKeyListener( copyPasteMenuKeyHandler );
+        dayTextField.addMouseListener( copyPasteMouseMenuHandler );
         dayTextField.addKeyListener( undoHotKeyHandler );
         dayTextField.getDocument().addUndoableEditListener( undoEditHandler );
         dialogPanel.add( dayTextField );
@@ -151,6 +173,8 @@ public class ItemCreateDialog extends JDialog {
         startHourTextField.addFocusListener( focusHandler );
         startHourTextField.addKeyListener( mnemonicKeyHandler );
         startHourTextField.addKeyListener( dateTimeTextFieldHotKeyHandler );
+        startHourTextField.addKeyListener( copyPasteMenuKeyHandler );
+        startHourTextField.addMouseListener( copyPasteMouseMenuHandler );
         startHourTextField.addKeyListener( undoHotKeyHandler );
         startHourTextField.getDocument().addUndoableEditListener( undoEditHandler );
         dialogPanel.add( startHourTextField );
@@ -166,6 +190,8 @@ public class ItemCreateDialog extends JDialog {
         startMinuteTextField.addFocusListener( focusHandler );
         startMinuteTextField.addKeyListener( mnemonicKeyHandler );
         startMinuteTextField.addKeyListener( dateTimeTextFieldHotKeyHandler );
+        startMinuteTextField.addKeyListener( copyPasteMenuKeyHandler );
+        startMinuteTextField.addMouseListener( copyPasteMouseMenuHandler );
         startMinuteTextField.addKeyListener( undoHotKeyHandler );
         startMinuteTextField.getDocument().addUndoableEditListener( undoEditHandler );
         dialogPanel.add( startMinuteTextField );
@@ -186,6 +212,8 @@ public class ItemCreateDialog extends JDialog {
         endHourTextField.addFocusListener( focusHandler );
         endHourTextField.addKeyListener( mnemonicKeyHandler );
         endHourTextField.addKeyListener( dateTimeTextFieldHotKeyHandler );
+        endHourTextField.addKeyListener( copyPasteMenuKeyHandler );
+        endHourTextField.addMouseListener( copyPasteMouseMenuHandler );
         endHourTextField.addKeyListener( undoHotKeyHandler );
         endHourTextField.getDocument().addUndoableEditListener( undoEditHandler );
         dialogPanel.add( endHourTextField );
@@ -201,6 +229,8 @@ public class ItemCreateDialog extends JDialog {
         endMinuteTextField.addFocusListener( focusHandler );
         endMinuteTextField.addKeyListener( mnemonicKeyHandler );
         endMinuteTextField.addKeyListener( dateTimeTextFieldHotKeyHandler );
+        endMinuteTextField.addKeyListener( copyPasteMenuKeyHandler );
+        endMinuteTextField.addMouseListener( copyPasteMouseMenuHandler );
         endMinuteTextField.addKeyListener( undoHotKeyHandler );
         endMinuteTextField.getDocument().addUndoableEditListener( undoEditHandler );
         dialogPanel.add( endMinuteTextField );
@@ -220,6 +250,8 @@ public class ItemCreateDialog extends JDialog {
         itemTextField.setFont( generalFont );
         itemTextField.addFocusListener( focusHandler );
         itemTextField.addKeyListener( mnemonicKeyHandler );
+        itemTextField.addKeyListener( copyPasteMenuKeyHandler );
+        itemTextField.addMouseListener( copyPasteMouseMenuHandler );
         itemTextField.addKeyListener( undoHotKeyHandler );
         itemTextField.getDocument().addUndoableEditListener( undoEditHandler );
         dialogPanel.add( itemTextField );
@@ -234,6 +266,8 @@ public class ItemCreateDialog extends JDialog {
         descriptionTextArea.setFont( generalFont );
         descriptionTextArea.setLineWrap( true );
         descriptionTextArea.setWrapStyleWord( true );
+        descriptionTextArea.addKeyListener( copyPasteMenuKeyHandler );
+        descriptionTextArea.addMouseListener( copyPasteMouseMenuHandler );
         descriptionTextArea.addKeyListener( undoHotKeyHandler );
         descriptionTextArea.getDocument().addUndoableEditListener( undoEditHandler );
         descriptionScrollPane = new JScrollPane( descriptionTextArea );
@@ -299,6 +333,7 @@ public class ItemCreateDialog extends JDialog {
         
         itemTextField.setText( "" );
         descriptionTextArea.setText( "" );
+        popupMenuClosedFlag = false;
         
         startHourTextField.requestFocus();
         
@@ -343,11 +378,81 @@ public class ItemCreateDialog extends JDialog {
         }
     }
     
+    private class CopyPasteMenuKeyHandler implements KeyListener {
+        
+        private CopyAndPastePopUpMenu copyAndPastePopUpMenu;
+        
+        public CopyPasteMenuKeyHandler( CopyAndPastePopUpMenu copyAndPastePopUpMenu ) {
+            this.copyAndPastePopUpMenu = copyAndPastePopUpMenu;
+        }
+        
+        @Override
+        public void keyPressed( KeyEvent event ) {
+            if( event.getKeyCode() == KeyEvent.VK_CONTEXT_MENU ) {
+                JTextComponent eventComponent = (JTextComponent)event.getComponent();
+                int showPosX = (eventComponent.getCaret().getMagicCaretPosition() != null) ? 
+                        (int)eventComponent.getCaret().getMagicCaretPosition().getX() : 0;
+                int showPosY = (eventComponent.getCaret().getMagicCaretPosition() != null) ? 
+                        (int)eventComponent.getCaret().getMagicCaretPosition().getY() : 0;
+                copyAndPastePopUpMenu.show( eventComponent, showPosX, showPosY );
+            }
+        }
+
+        @Override
+        public void keyReleased( KeyEvent event ) {}
+
+        @Override
+        public void keyTyped( KeyEvent event ) {}
+    }
+    
+    private class CopyPasteMouseMenuHandler extends MouseAdapter {
+        
+        private CopyAndPastePopUpMenu copyAndPastePopUpMenu;
+        
+        public CopyPasteMouseMenuHandler( CopyAndPastePopUpMenu copyAndPastePopUpMenu ) {
+            this.copyAndPastePopUpMenu = copyAndPastePopUpMenu;
+        }
+        
+        public void mousePressed( MouseEvent event ) {
+            if( event.isPopupTrigger() ) {
+                copyAndPastePopUpMenu.show( event.getComponent(), event.getX(), event.getY() );
+            }
+        }
+        
+        public void mouseReleased( MouseEvent event ) {
+            if( event.isPopupTrigger() ) {
+                copyAndPastePopUpMenu.show( event.getComponent(), event.getX(), event.getY() );
+            }
+        }
+    }
+    
+    private class PopupMenuClosingHandler implements PopupMenuListener {
+        
+        @Override
+        public void popupMenuCanceled( PopupMenuEvent event ) {
+            popupMenuClosedFlag = true;
+            ((JPopupMenu)event.getSource()).getInvoker().requestFocus();
+        }
+
+        @Override
+        public void popupMenuWillBecomeInvisible( PopupMenuEvent event ) {
+            popupMenuClosedFlag = true;
+            ((JPopupMenu)event.getSource()).getInvoker().requestFocus();
+        }
+
+        @Override
+        public void popupMenuWillBecomeVisible( PopupMenuEvent event ) {}
+    }
+    
     private class FocusHandler extends FocusAdapter {
         @Override
         public void focusGained( FocusEvent event ) {
-            JTextField sourceComponent = (JTextField) event.getSource();
-            sourceComponent.selectAll();
+            if( popupMenuClosedFlag ) {
+                popupMenuClosedFlag = false;
+            } else {
+                JTextField sourceComponent = (JTextField) event.getSource();
+                sourceComponent.selectAll();
+            }
         }
     }
     
