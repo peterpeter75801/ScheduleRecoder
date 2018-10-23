@@ -23,10 +23,10 @@ import view.MainFrame;
 
 public class IntegratingTests extends TestCase {
     
-    private final String ITEM_CSV_FILE_PATH = "data\\Item\\2017.06.01.csv";
-    private final String ITEM_CSV_FILE_BACKUP_PATH = "data\\Item\\2017.06.01_backup.csv";
-    private final String ITEM_CSV_FILE_PATH_2 = "data\\Item\\2017.05.01.csv";
-    private final String ITEM_CSV_FILE_BACKUP_PATH_2 = "data\\Item\\2017.05.01_backup.csv";
+    private final String ITEM_CSV_FILE_PATH = "./data/Item/2017.06.01.csv";
+    private final String ITEM_CSV_FILE_BACKUP_PATH = "./data/Item/2017.06.01_backup.csv";
+    private final String ITEM_CSV_FILE_PATH_2 = "./data/Item/2017.05.01.csv";
+    private final String ITEM_CSV_FILE_BACKUP_PATH_2 = "./data/Item/2017.05.01_backup.csv";
     
     public void testDateListSelection() throws IOException {
         ItemService itemService = new ItemServiceImpl();
@@ -85,10 +85,10 @@ public class IntegratingTests extends TestCase {
     }
     
     public void testCreateItem() throws IOException {
-        final String ITEM_CSV_FILE_PATH_1 = "data\\Item\\2017.06.01.csv";
-        final String ITEM_CSV_FILE_BACKUP_PATH_1 = "data\\Item\\2017.06.01_backup.csv";
-        final String ITEM_CSV_FILE_PATH_2 = "data\\Item\\2017.06.30.csv";
-        final String ITEM_CSV_FILE_BACKUP_PATH_2 = "data\\Item\\2017.06.30_backup.csv";
+        final String ITEM_CSV_FILE_PATH_1 = "./data/Item/2017.06.01.csv";
+        final String ITEM_CSV_FILE_BACKUP_PATH_1 = "./data/Item/2017.06.01_backup.csv";
+        final String ITEM_CSV_FILE_PATH_2 = "./data/Item/2017.06.30.csv";
+        final String ITEM_CSV_FILE_BACKUP_PATH_2 = "./data/Item/2017.06.30_backup.csv";
         
         ItemService itemService = new ItemServiceImpl();
         int testerSelection = 0;
@@ -448,10 +448,10 @@ public class IntegratingTests extends TestCase {
     }
     
     public void testUpdateItemStartDate() throws IOException {
-        final String ITEM_CSV_FILE_PATH_1 = "data\\Item\\2017.06.01.csv";
-        final String ITEM_CSV_FILE_BACKUP_PATH_1 = "data\\Item\\2017.06.01_backup.csv";
-        final String ITEM_CSV_FILE_PATH_2 = "data\\Item\\2017.05.01.csv";
-        final String ITEM_CSV_FILE_BACKUP_PATH_2 = "data\\Item\\2017.05.01_backup.csv";
+        final String ITEM_CSV_FILE_PATH_1 = "./data/Item/2017.06.01.csv";
+        final String ITEM_CSV_FILE_BACKUP_PATH_1 = "./data/Item/2017.06.01_backup.csv";
+        final String ITEM_CSV_FILE_PATH_2 = "./data/Item/2017.05.01.csv";
+        final String ITEM_CSV_FILE_BACKUP_PATH_2 = "./data/Item/2017.05.01_backup.csv";
         
         ItemService itemService = new ItemServiceImpl();
         int testerSelection = 0;
@@ -843,6 +843,7 @@ public class IntegratingTests extends TestCase {
             
             // 回到主畫面
             bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
             bot.keyPress( KeyEvent.VK_SPACE ); bot.keyRelease( KeyEvent.VK_SPACE ); Thread.sleep( 100 );
             Thread.sleep( 1000 );
         } catch ( Exception e ) {
@@ -854,12 +855,12 @@ public class IntegratingTests extends TestCase {
     }
     
     public void testConvertOldItemDataToCurrentVersion() throws IOException {
-        final String ITEM_CSV_FILE_PATH_1 = "data\\Item\\2017.06.01.csv";
-        final String ITEM_CSV_FILE_BACKUP_PATH_1 = "data\\Item\\2017.06.01_backup.csv";
-        final String ITEM_CSV_FILE_PATH_2 = "data\\Item\\2017.05.01.csv";
-        final String ITEM_CSV_FILE_BACKUP_PATH_2 = "data\\Item\\2017.05.01_backup.csv";
-        final String ITEM_CSV_FILE_PATH_3 = "data\\Item\\2017.06.03.csv";
-        final String ITEM_CSV_FILE_BACKUP_PATH_3 = "data\\Item\\2017.06.03_backup.csv";
+        final String ITEM_CSV_FILE_PATH_1 = "./data/Item/2017.06.01.csv";
+        final String ITEM_CSV_FILE_BACKUP_PATH_1 = "./data/Item/2017.06.01_backup.csv";
+        final String ITEM_CSV_FILE_PATH_2 = "./data/Item/2017.05.01.csv";
+        final String ITEM_CSV_FILE_BACKUP_PATH_2 = "./data/Item/2017.05.01_backup.csv";
+        final String ITEM_CSV_FILE_PATH_3 = "./data/Item/2017.06.03.csv";
+        final String ITEM_CSV_FILE_BACKUP_PATH_3 = "./data/Item/2017.06.03_backup.csv";
         
         ItemDAO itemDAOBeforeVer26 = new ItemDAOImplBeforeVer26();
         ItemService itemService = new ItemServiceImpl();
@@ -972,12 +973,12 @@ public class IntegratingTests extends TestCase {
     }
     
     public void testDateTimeTextFieldArrowKeyOperation() throws IOException {
-        final String ITEM_CSV_FILE_PATH_1 = "data\\Item\\2017.06.01.csv";
-        final String ITEM_CSV_FILE_BACKUP_PATH_1 = "data\\Item\\2017.06.01_backup.csv";
-        final String ITEM_CSV_FILE_PATH_2 = "data\\Item\\2017.05.01.csv";
-        final String ITEM_CSV_FILE_BACKUP_PATH_2 = "data\\Item\\2017.05.01_backup.csv";
-        final String ITEM_CSV_FILE_PATH_3 = "data\\Item\\2017.01.01.csv";
-        final String ITEM_CSV_FILE_BACKUP_PATH_3 = "data\\Item\\2017.01.01_backup.csv";
+        final String ITEM_CSV_FILE_PATH_1 = "./data/Item/2017.06.01.csv";
+        final String ITEM_CSV_FILE_BACKUP_PATH_1 = "./data/Item/2017.06.01_backup.csv";
+        final String ITEM_CSV_FILE_PATH_2 = "./data/Item/2017.05.01.csv";
+        final String ITEM_CSV_FILE_BACKUP_PATH_2 = "./data/Item/2017.05.01_backup.csv";
+        final String ITEM_CSV_FILE_PATH_3 = "./data/Item/2017.01.01.csv";
+        final String ITEM_CSV_FILE_BACKUP_PATH_3 = "./data/Item/2017.01.01_backup.csv";
         
         ItemService itemService = new ItemServiceImpl();
         int testerSelection = 0;
@@ -1021,6 +1022,7 @@ public class IntegratingTests extends TestCase {
             inputString( bot, "2017" );
             // 選擇月份為06，列出2017/06的日期清單
             bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
+            JOptionPane.showMessageDialog( mainFrame, "Debug", "Message", JOptionPane.INFORMATION_MESSAGE ); // Debug
             inputString( bot, "06" );
             bot.keyPress( KeyEvent.VK_TAB ); bot.keyRelease( KeyEvent.VK_TAB ); Thread.sleep( 100 );
             bot.keyPress( KeyEvent.VK_SPACE ); bot.keyRelease( KeyEvent.VK_SPACE ); Thread.sleep( 100 );

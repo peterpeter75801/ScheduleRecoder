@@ -22,9 +22,9 @@ public class ScheduledItemDAOImpl implements ScheduledItemDAO {
     private final String S_ITEM_CSV_FILE_ATTR_STRING = "id,year,month,day,hour,minute,expectedTime,type,name,description";
     private final String INITIAL_SEQ_NUMBER = "1";
     
-    private final String SCHEDULED_RECORDER_DATA_PATH = "data";
-    private final String S_ITEM_CSV_FILE_PATH = "data\\ScheduledItem.csv";
-    private final String S_ITEM_SEQ_FILE_PATH = "data\\ScheduledItemSeq.txt";
+    private final String SCHEDULED_RECORDER_DATA_PATH = "./data";
+    private final String S_ITEM_CSV_FILE_PATH = "./data/ScheduledItem.csv";
+    private final String S_ITEM_SEQ_FILE_PATH = "./data/ScheduledItemSeq.txt";
     private final String FILE_CHARSET = "big5";
 
     @Override

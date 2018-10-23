@@ -17,8 +17,8 @@ import repository.Impl.ItemDAOImplBeforeVer26;
 
 public class ItemDAOImplBeforeVer26Tests extends TestCase {
     
-    private final String ITEM_CSV_FILE_PATH = "data\\Item\\2017.04.21.csv";
-    private final String ITEM_CSV_FILE_BACKUP_PATH = "data\\Item\\2017.04.21_backup.csv";
+    private final String ITEM_CSV_FILE_PATH = "./data/Item/2017.04.21.csv";
+    private final String ITEM_CSV_FILE_BACKUP_PATH = "./data/Item/2017.04.21_backup.csv";
     private final String FILE_CHARSET = "big5";
     
     public void testInsert() throws IOException {
@@ -90,10 +90,10 @@ public class ItemDAOImplBeforeVer26Tests extends TestCase {
     }
     
     public void testDeleteByDate() throws IOException {
-        final String ITEM_CSV_FILE_PATH_1 = "data\\Item\\2017.06.01.csv";
-        final String ITEM_CSV_FILE_BACKUP_PATH_1 = "data\\Item\\2017.06.01_backup.csv";
-        final String ITEM_CSV_FILE_PATH_2 = "data\\Item\\2017.04.21.csv";
-        final String ITEM_CSV_FILE_BACKUP_PATH_2 = "data\\Item\\2017.04.21_backup.csv";
+        final String ITEM_CSV_FILE_PATH_1 = "./data/Item/2017.06.01.csv";
+        final String ITEM_CSV_FILE_BACKUP_PATH_1 = "./data/Item/2017.06.01_backup.csv";
+        final String ITEM_CSV_FILE_PATH_2 = "./data/Item/2017.04.21.csv";
+        final String ITEM_CSV_FILE_BACKUP_PATH_2 = "./data/Item/2017.04.21_backup.csv";
         
         ItemDAO itemDAO = new ItemDAOImplBeforeVer26();
         try {

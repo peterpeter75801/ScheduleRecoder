@@ -15,8 +15,8 @@ import service.Impl.ItemServiceImpl;
 
 public class ItemServiceImplTests extends TestCase {
     
-    private final String ITEM_CSV_FILE_PATH = "data\\Item\\2017.05.01.csv";
-    private final String ITEM_CSV_FILE_BACKUP_PATH = "data\\Item\\2017.05.01_backup.csv";
+    private final String ITEM_CSV_FILE_PATH = "./data/Item/2017.05.01.csv";
+    private final String ITEM_CSV_FILE_BACKUP_PATH = "./data/Item/2017.05.01_backup.csv";
     
     public void testInsert() throws IOException {
         ItemService itemService = new ItemServiceImpl();
@@ -222,10 +222,10 @@ public class ItemServiceImplTests extends TestCase {
     }
     
     public void testUpdateStartDate() throws IOException {
-        final String ITEM_CSV_FILE_PATH_1 = "data\\Item\\2017.06.01.csv";
-        final String ITEM_CSV_FILE_BACKUP_PATH_1 = "data\\Item\\2017.06.01_backup.csv";
-        final String ITEM_CSV_FILE_PATH_2 = "data\\Item\\2017.05.01.csv";
-        final String ITEM_CSV_FILE_BACKUP_PATH_2 = "data\\Item\\2017.05.01_backup.csv";
+        final String ITEM_CSV_FILE_PATH_1 = "./data/Item/2017.06.01.csv";
+        final String ITEM_CSV_FILE_BACKUP_PATH_1 = "./data/Item/2017.06.01_backup.csv";
+        final String ITEM_CSV_FILE_PATH_2 = "./data/Item/2017.05.01.csv";
+        final String ITEM_CSV_FILE_BACKUP_PATH_2 = "./data/Item/2017.05.01_backup.csv";
         
         ItemService itemService = new ItemServiceImpl();
         try {
@@ -334,12 +334,12 @@ public class ItemServiceImplTests extends TestCase {
     }
     
     public void testConvertOldItemDataToCurrentVersion() throws IOException {
-        final String ITEM_CSV_FILE_PATH_1 = "data\\Item\\2017.06.01.csv";
-        final String ITEM_CSV_FILE_BACKUP_PATH_1 = "data\\Item\\2017.06.01_backup.csv";
-        final String ITEM_CSV_FILE_PATH_2 = "data\\Item\\2017.05.01.csv";
-        final String ITEM_CSV_FILE_BACKUP_PATH_2 = "data\\Item\\2017.05.01_backup.csv";
-        final String ITEM_CSV_FILE_PATH_3 = "data\\Item\\2017.06.03.csv";
-        final String ITEM_CSV_FILE_BACKUP_PATH_3 = "data\\Item\\2017.06.03_backup.csv";
+        final String ITEM_CSV_FILE_PATH_1 = "./data/Item/2017.06.01.csv";
+        final String ITEM_CSV_FILE_BACKUP_PATH_1 = "./data/Item/2017.06.01_backup.csv";
+        final String ITEM_CSV_FILE_PATH_2 = "./data/Item/2017.05.01.csv";
+        final String ITEM_CSV_FILE_BACKUP_PATH_2 = "./data/Item/2017.05.01_backup.csv";
+        final String ITEM_CSV_FILE_PATH_3 = "./data/Item/2017.06.03.csv";
+        final String ITEM_CSV_FILE_BACKUP_PATH_3 = "./data/Item/2017.06.03_backup.csv";
         
         ItemDAO itemDAOBeforeVer26 = new ItemDAOImplBeforeVer26();
         ItemService itemService = new ItemServiceImpl();

@@ -14,8 +14,8 @@ public class Contants {
     public static final int DUPLICATE_DATA = -3;
     
     /**
-     * Version alpha-0.31
-     * <br /> New Feature: Add exporting item description feature in item exporting dialog.
+     * Version alpha-0.32
+     * <br /> Support Ubuntu OS.
      */
-    public static final String VERSION = "Ver. alpha-0.31";
+    public static final String VERSION = "Ver. alpha-0.32";
 }

@@ -15,10 +15,10 @@ import repository.Impl.ScheduledItemDAOImpl;
 
 public class ScheduledItemDAOImplTests extends TestCase {
     
-    private final String S_ITEM_CSV_FILE_PATH = "data\\ScheduledItem.csv";
-    private final String S_ITEM_CSV_FILE_BACKUP_PATH = "data\\ScheduledItem_backup.csv";
-    private final String S_ITEM_SEQ_FILE_PATH = "data\\ScheduledItemSeq.txt";
-    private final String S_ITEM_SEQ_FILE_BACKUP_PATH = "data\\ScheduledItemSeq_backup.txt";
+    private final String S_ITEM_CSV_FILE_PATH = "./data/ScheduledItem.csv";
+    private final String S_ITEM_CSV_FILE_BACKUP_PATH = "./data/ScheduledItem_backup.csv";
+    private final String S_ITEM_SEQ_FILE_PATH = "./data/ScheduledItemSeq.txt";
+    private final String S_ITEM_SEQ_FILE_BACKUP_PATH = "./data/ScheduledItemSeq_backup.txt";
     private final Integer INITIAL_SEQ_NUMBER = 1;
     private final String FILE_CHARSET = "big5";
     

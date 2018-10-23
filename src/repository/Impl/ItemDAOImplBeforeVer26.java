@@ -18,7 +18,7 @@ import repository.ItemDAO;
 public class ItemDAOImplBeforeVer26 implements ItemDAO {
     
     private final String ITEM_CSV_FILE_ATTR_STRING = "year,month,day,startHour,startMinute,endHour,endMinute,name,description";
-    private final String ITEM_CSV_FILE_PATH = "data\\Item\\";
+    private final String ITEM_CSV_FILE_PATH = "./data/Item/";
     private final String FILE_CHARSET = "big5";
 
     @Override

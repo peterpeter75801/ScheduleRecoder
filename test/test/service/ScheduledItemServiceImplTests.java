@@ -15,10 +15,10 @@ import service.Impl.ScheduledItemServiceImpl;
 
 public class ScheduledItemServiceImplTests extends TestCase {
     
-    private final String S_ITEM_CSV_FILE_PATH = "data\\ScheduledItem.csv";
-    private final String S_ITEM_CSV_FILE_BACKUP_PATH = "data\\ScheduledItem_backup.csv";
-    private final String S_ITEM_SEQ_FILE_PATH = "data\\ScheduledItemSeq.txt";
-    private final String S_ITEM_SEQ_FILE_BACKUP_PATH = "data\\ScheduledItemSeq_backup.txt";
+    private final String S_ITEM_CSV_FILE_PATH = "./data/ScheduledItem.csv";
+    private final String S_ITEM_CSV_FILE_BACKUP_PATH = "./data/ScheduledItem_backup.csv";
+    private final String S_ITEM_SEQ_FILE_PATH = "./data/ScheduledItemSeq.txt";
+    private final String S_ITEM_SEQ_FILE_BACKUP_PATH = "./data/ScheduledItemSeq_backup.txt";
     
     public void testInsert() throws IOException {
         ScheduledItemServiceImpl scheduledItemServiceImpl = new ScheduledItemServiceImpl();
@@ -165,8 +165,8 @@ public class ScheduledItemServiceImplTests extends TestCase {
     }
     
     public void testExecute() throws IOException {
-        final String ITEM_CSV_FILE_PATH = "data\\Item\\2017.05.01.csv";
-        final String ITEM_CSV_FILE_BACKUP_PATH = "data\\Item\\2017.05.01_backup.csv";
+        final String ITEM_CSV_FILE_PATH = "./data/Item/2017.05.01.csv";
+        final String ITEM_CSV_FILE_BACKUP_PATH = "./data/Item/2017.05.01_backup.csv";
         
         ItemServiceImpl itemServiceImpl = new ItemServiceImpl();
         ScheduledItemServiceImpl scheduledItemServiceImpl = new ScheduledItemServiceImpl();
